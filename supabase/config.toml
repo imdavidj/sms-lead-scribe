@@ -1,1 +1,7 @@
 project_id = "fllsnsidgqlacdyatvbm"
+
+[functions.hooks]
+verify_jwt = false
+
+[functions.reply]
+verify_jwt = false
