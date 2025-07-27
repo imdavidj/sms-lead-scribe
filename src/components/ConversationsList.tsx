@@ -43,6 +43,7 @@ export function ConversationsList({ onSelectConversation, selectedConversationId
 
   const fetchConversations = async () => {
     try {
+      console.log('Fetching conversations...')
       const { data, error } = await supabase
         .from('conversations')
         .select(`
@@ -69,8 +70,12 @@ export function ConversationsList({ onSelectConversation, selectedConversationId
         `)
         .order('last_msg_at', { ascending: false, nullsFirst: false })
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw error
+      }
 
+      console.log('Conversations fetched successfully:', data?.length || 0)
       setConversations((data || []) as Conversation[])
     } catch (error) {
       console.error('Error fetching conversations:', error)
