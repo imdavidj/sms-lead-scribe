@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ConversationsList } from "@/components/ConversationsList";
 import { ConversationThread } from "@/components/ConversationThread";
 import { Conversation } from "@/types/conversation";
 const Index = () => {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    console.log('Index component mounted');
+    console.log('App is loading...');
+  }, []);
+
   const handleConversationUpdate = () => {
     setRefreshKey(prev => prev + 1);
   };
