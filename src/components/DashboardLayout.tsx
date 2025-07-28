@@ -69,31 +69,31 @@ const pageContent = {
 
 const KPICards = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-      <div className="text-sm text-gray-600 mb-2">Response Rate</div>
-      <div className="text-3xl font-bold text-gray-900">68.4%</div>
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+      <div className="text-sm text-muted-foreground mb-2">Response Rate</div>
+      <div className="text-3xl font-bold text-foreground">68.4%</div>
       <div className="text-sm text-green-600 mt-1">↗ +5.2% vs last week</div>
     </div>
-    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-      <div className="text-sm text-gray-600 mb-2">Qualification Rate</div>
-      <div className="text-3xl font-bold text-gray-900">32.1%</div>
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+      <div className="text-sm text-muted-foreground mb-2">Qualification Rate</div>
+      <div className="text-3xl font-bold text-foreground">32.1%</div>
       <div className="text-sm text-green-600 mt-1">↗ +2.8% vs last week</div>
     </div>
-    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-      <div className="text-sm text-gray-600 mb-2">Block Rate</div>
-      <div className="text-3xl font-bold text-gray-900">4.2%</div>
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+      <div className="text-sm text-muted-foreground mb-2">Block Rate</div>
+      <div className="text-3xl font-bold text-foreground">4.2%</div>
       <div className="text-sm text-red-600 mt-1">↘ -1.1% vs last week</div>
     </div>
-    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-      <div className="text-sm text-gray-600 mb-2">Time to Qualify</div>
-      <div className="text-3xl font-bold text-gray-900">2.3 hrs</div>
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+      <div className="text-sm text-muted-foreground mb-2">Time to Qualify</div>
+      <div className="text-3xl font-bold text-foreground">2.3 hrs</div>
       <div className="text-sm text-green-600 mt-1">↘ -0.4 hrs vs last week</div>
     </div>
   </div>
 );
 
 const ChartPlaceholder = () => (
-  <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg h-80 flex items-center justify-center text-gray-500 text-lg">
+  <div className="bg-muted/50 border-2 border-dashed border-border rounded-lg h-80 flex items-center justify-center text-muted-foreground text-lg">
     📊 Daily/Weekly Trends Chart Placeholder
   </div>
 );
@@ -146,9 +146,9 @@ export const DashboardLayout = () => {
     }
 
     return (
-      <div className="bg-white rounded-xl p-8 shadow-sm">
+      <div className="bg-card rounded-xl p-8 shadow-sm">
         <h3 className="text-xl font-semibold mb-4">{currentPage.title}</h3>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           This section will contain the relevant content for {currentPage.title.toLowerCase()}.
         </p>
       </div>
@@ -156,13 +156,13 @@ export const DashboardLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-background flex">
       <Sidebar onPageChange={setActivePage} activePage={activePage} />
       
       <div className="flex-1 p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{currentPage.title}</h1>
-          <p className="text-gray-600">{currentPage.subtitle}</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">{currentPage.title}</h1>
+          <p className="text-muted-foreground">{currentPage.subtitle}</p>
         </div>
         
         {renderPageContent()}

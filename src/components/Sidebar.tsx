@@ -64,9 +64,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
   ];
 
   return (
-    <div className="w-70 bg-white border-r border-gray-200 shadow-sm flex flex-col min-h-screen">
+    <div className="w-70 bg-background border-r border-border shadow-sm flex flex-col min-h-screen">
       {/* Brand */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-border">
         <h1 className="text-xl font-bold text-green-600">📱 SMS Qualifier</h1>
       </div>
 
@@ -85,8 +85,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
               className={cn(
                 "w-full flex items-center justify-between px-4 py-3 text-left rounded-lg transition-all duration-200",
                 activePage === item.id
-                  ? "bg-green-50 text-green-700 border-l-4 border-green-500"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-green-50 text-green-700 border-l-4 border-green-500 dark:bg-green-900/30 dark:text-green-400"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               )}
             >
               <div className="flex items-center gap-3">
@@ -96,7 +96,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
               {item.hasSubmenu && (
                 <span
                   className={cn(
-                    "text-gray-400 transition-transform duration-200",
+                    "text-muted-foreground transition-transform duration-200",
                     expandedMenus.has(item.id) ? "rotate-90" : ""
                   )}
                 >
@@ -115,13 +115,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
                     className={cn(
                       "w-full flex items-center justify-between px-4 py-2 text-left rounded-lg transition-all duration-200 text-sm",
                       activePage === subItem.id
-                        ? "bg-green-50 text-green-700 border-l-4 border-green-500"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-green-50 text-green-700 border-l-4 border-green-500 dark:bg-green-900/30 dark:text-green-400"
+                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                     )}
                   >
                     <span>{subItem.label}</span>
                     {subItem.badge && (
-                      <span className="bg-gray-200 text-gray-600 px-2 py-1 rounded-full text-xs">
+                      <span className="bg-muted text-muted-foreground px-2 py-1 rounded-full text-xs">
                         {subItem.badge}
                       </span>
                     )}
@@ -134,14 +134,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
       </nav>
 
       {/* Theme Toggle */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-border">
         <div className="flex items-center gap-3">
           <span>🌙</span>
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className={cn(
               "relative w-11 h-6 rounded-full transition-colors duration-200",
-              theme === 'dark' ? "bg-green-500" : "bg-gray-300"
+              theme === 'dark' ? "bg-green-500" : "bg-muted"
             )}
           >
             <div
