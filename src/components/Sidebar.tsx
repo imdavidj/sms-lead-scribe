@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
 
 interface SidebarProps {
   onPageChange: (page: string) => void;
@@ -8,7 +9,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) => {
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const toggleMenu = (menuId: string) => {
     const newExpanded = new Set(expandedMenus);
@@ -137,16 +138,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
         <div className="flex items-center gap-3">
           <span>🌙</span>
           <button
-            onClick={() => setDarkMode(!darkMode)}
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className={cn(
               "relative w-11 h-6 rounded-full transition-colors duration-200",
-              darkMode ? "bg-green-500" : "bg-gray-300"
+              theme === 'dark' ? "bg-green-500" : "bg-gray-300"
             )}
           >
             <div
               className={cn(
                 "absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200",
-                darkMode ? "translate-x-5" : "translate-x-0.5"
+                theme === 'dark' ? "translate-x-5" : "translate-x-0.5"
               )}
             />
           </button>
