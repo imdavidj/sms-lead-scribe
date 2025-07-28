@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send to CRM Component</title>
+    <style>
+        .crm-form-container {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .crm-form-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1e293b;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #374151;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        #sendCrmBtn {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        #sendCrmBtn:hover {
+            background-color: #2563eb;
+        }
+        #sendCrmBtn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        #crmStatus {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+        .status-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .status-error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+    <div class="crm-form-container">
+        <div class="crm-form-title">Send to CRM</div>
+        
+        <div class="form-group">
+            <label for="webhookUrl">Webhook URL</label>
+            <input type="url" id="webhookUrl" placeholder="https://your-crm.com/webhook">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="fname">First Name</label>
+                <input type="text" id="fname">
+            </div>
+            <div class="form-group">
+                <label for="lname">Last Name</label>
+                <input type="text" id="lname">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city">
+            </div>
+            <div class="form-group">
+                <label for="state">State</label>
+                <input type="text" id="state" maxlength="2" placeholder="CA">
+            </div>
+            <div class="form-group">
+                <label for="zip">ZIP</label>
+                <input type="text" id="zip" maxlength="5" pattern="[0-9]{5}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="ask_price">Asking Price</label>
+                <input type="number" id="ask_price" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label for="beds">Beds</label>
+                <input type="number" id="beds" min="0">
+            </div>
+            <div class="form-group">
+                <label for="baths">Baths</label>
+                <input type="number" id="baths" min="0" step="0.5">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" rows="3"></textarea>
+        </div>
+
+        <button id="sendCrmBtn">Send to CRM</button>
+        <div id="crmStatus"></div>
+    </div>
+
+    <script>
+        // Function to populate lead form with data
+        function populateLeadForm(data) {
+            const fields = ['fname', 'lname', 'phone', 'email', 'address', 'city', 'state', 'zip', 'ask_price', 'beds', 'baths', 'notes'];
+            
+            fields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element && data[field] !== undefined) {
+                    element.value = data[field];
+                }
+            });
+        }
+
+        // Function to send data to CRM
+        async function sendToCRM() {
+            const button = document.getElementById('sendCrmBtn');
+            const status = document.getElementById('crmStatus');
+            
+            // Get webhook URL
+            const webhookUrl = document.getElementById('webhookUrl').value.trim();
+            if (!webhookUrl) {
+                showStatus('Please enter a webhook URL', 'error');
+                return;
+            }
+
+            // Disable button and show loading
+            button.disabled = true;
+            button.textContent = 'Sending...';
+            status.style.display = 'none';
+
+            try {
+                // Build payload
+                const payload = new URLSearchParams();
+                payload.append('api_key', '2e465833-b9ae-4852-9efd-4031a77a2641');
+                payload.append('leadsource', 'Lovable AI');
+                
+                // Add form fields
+                const fields = ['fname', 'lname', 'phone', 'email', 'address', 'city', 'state', 'zip', 'ask_price', 'beds', 'baths', 'notes'];
+                fields.forEach(field => {
+                    const element = document.getElementById(field);
+                    if (element) {
+                        payload.append(field, element.value);
+                    }
+                });
+
+                // Send POST request
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: payload
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.result === 'success') {
+                    showStatus('Lead sent successfully!', 'success');
+                } else if (result.result === 'fail') {
+                    showStatus(`Failed: ${result.reason || 'Unknown error'}`, 'error');
+                } else {
+                    showStatus('Failed: Unexpected response format', 'error');
+                }
+
+            } catch (error) {
+                showStatus(`Failed: ${error.message}`, 'error');
+            } finally {
+                // Re-enable button
+                button.disabled = false;
+                button.textContent = 'Send to CRM';
+            }
+        }
+
+        // Helper function to show status messages
+        function showStatus(message, type) {
+            const status = document.getElementById('crmStatus');
+            status.textContent = message;
+            status.className = type === 'success' ? 'status-success' : 'status-error';
+            status.style.display = 'block';
+        }
+
+        // Attach click listener
+        document.getElementById('sendCrmBtn').addEventListener('click', sendToCRM);
+
+        // Example of how to hook into AI callback
+        // After AI returns its JSON string, call:
+        /*
+        const leadData = JSON.parse(aiResponse);
+        populateLeadForm(leadData);
+        */
+    </script>
+</body>
+</html>
