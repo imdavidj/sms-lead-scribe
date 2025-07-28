@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Send, Phone, Clock, User, Bot } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { toast } from "@/hooks/use-toast"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Conversation, Contact, Message } from "@/types/conversation"
 
 interface ConversationThreadProps {
@@ -248,41 +249,43 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
 
           <CardContent className="flex-1 flex flex-col p-0">
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
-                >
+            <ScrollArea className="flex-1 p-4">
+              <div className="space-y-4">
+                {messages.map((message) => (
                   <div
-                    className={`max-w-[70%] rounded-lg p-3 ${
-                      message.direction === 'outbound'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
+                    key={message.id}
+                    className={`flex ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className="flex items-center gap-2 mb-1">
-                      {message.direction === 'outbound' ? (
-                        <User className="h-3 w-3" />
-                      ) : (
-                        <Bot className="h-3 w-3" />
-                      )}
-                      <span className="text-xs opacity-70">
-                        {message.direction === 'outbound' ? 'Agent' : 'Contact'}
-                      </span>
-                    </div>
-                    <p className="text-sm">{message.body}</p>
-                    <div className="flex items-center gap-1 mt-2 text-xs opacity-70">
-                      <Clock className="h-3 w-3" />
-                      <span>
-                        {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                      </span>
+                    <div
+                      className={`max-w-[70%] rounded-lg p-3 ${
+                        message.direction === 'outbound'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        {message.direction === 'outbound' ? (
+                          <User className="h-3 w-3" />
+                        ) : (
+                          <Bot className="h-3 w-3" />
+                        )}
+                        <span className="text-xs opacity-70">
+                          {message.direction === 'outbound' ? 'Agent' : 'Contact'}
+                        </span>
+                      </div>
+                      <p className="text-sm">{message.body}</p>
+                      <div className="flex items-center gap-1 mt-2 text-xs opacity-70">
+                        <Clock className="h-3 w-3" />
+                        <span>
+                          {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            </ScrollArea>
 
             {/* Reply Box */}
             <div className="border-t p-4">
