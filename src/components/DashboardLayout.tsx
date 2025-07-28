@@ -72,12 +72,12 @@ const KPICards = () => (
     <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
       <div className="text-sm text-muted-foreground mb-2">Response Rate</div>
       <div className="text-3xl font-bold text-foreground">68.4%</div>
-      <div className="text-sm text-green-600 mt-1">↗ +5.2% vs last week</div>
+      <div className="text-sm text-accent mt-1">↗ +5.2% vs last week</div>
     </div>
     <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
       <div className="text-sm text-muted-foreground mb-2">Qualification Rate</div>
       <div className="text-3xl font-bold text-foreground">32.1%</div>
-      <div className="text-sm text-green-600 mt-1">↗ +2.8% vs last week</div>
+      <div className="text-sm text-accent mt-1">↗ +2.8% vs last week</div>
     </div>
     <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
       <div className="text-sm text-muted-foreground mb-2">Block Rate</div>
@@ -87,7 +87,7 @@ const KPICards = () => (
     <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
       <div className="text-sm text-muted-foreground mb-2">Time to Qualify</div>
       <div className="text-3xl font-bold text-foreground">2.3 hrs</div>
-      <div className="text-sm text-green-600 mt-1">↘ -0.4 hrs vs last week</div>
+      <div className="text-sm text-accent mt-1">↘ -0.4 hrs vs last week</div>
     </div>
   </div>
 );

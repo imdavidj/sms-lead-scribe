@@ -67,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
     <div className="w-70 bg-background border-r border-border shadow-sm flex flex-col min-h-screen">
       {/* Brand */}
       <div className="p-6 border-b border-border">
-        <h1 className="text-xl font-bold text-green-600">📱 SMS Qualifier</h1>
+        <h1 className="text-xl font-bold text-primary">📱 SMS Qualifier</h1>
       </div>
 
       {/* Navigation */}
@@ -85,7 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
               className={cn(
                 "w-full flex items-center justify-between px-4 py-3 text-left rounded-lg transition-all duration-200",
                 activePage === item.id
-                  ? "bg-green-50 text-green-700 border-l-4 border-green-500 dark:bg-green-900/30 dark:text-green-400"
+                  ? "bg-primary/10 text-primary border-l-4 border-primary"
                   : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               )}
             >
@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
                     className={cn(
                       "w-full flex items-center justify-between px-4 py-2 text-left rounded-lg transition-all duration-200 text-sm",
                       activePage === subItem.id
-                        ? "bg-green-50 text-green-700 border-l-4 border-green-500 dark:bg-green-900/30 dark:text-green-400"
+                        ? "bg-primary/10 text-primary border-l-4 border-primary"
                         : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                     )}
                   >
@@ -141,7 +141,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className={cn(
               "relative w-11 h-6 rounded-full transition-colors duration-200",
-              theme === 'dark' ? "bg-green-500" : "bg-muted"
+              theme === 'dark' ? "bg-primary" : "bg-muted"
             )}
           >
             <div
