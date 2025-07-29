@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Templates</title>
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 240 10% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 240 10% 3.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 240 10% 3.9%;
+            --primary: 240 5.9% 10%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 240 4.8% 95.9%;
+            --secondary-foreground: 240 5.9% 10%;
+            --muted: 240 4.8% 95.9%;
+            --muted-foreground: 240 3.8% 46.1%;
+            --accent: 240 4.8% 95.9%;
+            --accent-foreground: 240 5.9% 10%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 0 0% 98%;
+            --border: 240 5.9% 90%;
+            --input: 240 5.9% 90%;
+            --ring: 240 10% 3.9%;
+            --radius: 0.5rem;
+        }
+
+        .dark {
+            --background: 240 10% 3.9%;
+            --foreground: 0 0% 98%;
+            --card: 240 10% 3.9%;
+            --card-foreground: 0 0% 98%;
+            --popover: 240 10% 3.9%;
+            --popover-foreground: 0 0% 98%;
+            --primary: 0 0% 98%;
+            --primary-foreground: 240 5.9% 10%;
+            --secondary: 240 3.7% 15.9%;
+            --secondary-foreground: 0 0% 98%;
+            --muted: 240 3.7% 15.9%;
+            --muted-foreground: 240 5% 64.9%;
+            --accent: 240 3.7% 15.9%;
+            --accent-foreground: 0 0% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 0 0% 98%;
+            --border: 240 3.7% 15.9%;
+            --input: 240 3.7% 15.9%;
+            --ring: 240 4.9% 83.9%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+
+        .btn-primary:hover {
+            background-color: hsl(var(--primary) / 0.9);
+        }
+
+        .btn-secondary {
+            background-color: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+        }
+
+        .btn-secondary:hover {
+            background-color: hsl(var(--secondary) / 0.8);
+        }
+
+        .btn-destructive {
+            background-color: hsl(var(--destructive));
+            color: hsl(var(--destructive-foreground));
+        }
+
+        .btn-destructive:hover {
+            background-color: hsl(var(--destructive) / 0.9);
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .templates-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        .template-card {
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .template-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--foreground));
+        }
+
+        .template-category {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background-color: hsl(var(--muted));
+            color: hsl(var(--muted-foreground));
+            border-radius: calc(var(--radius) - 2px);
+            font-size: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .template-preview {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal {
+            background-color: hsl(var(--card));
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            ring: 2px solid hsl(var(--ring));
+            border-color: hsl(var(--ring));
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .empty-state h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--foreground));
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SMS Templates</h1>
+            <button class="btn btn-primary" onclick="openTemplateModal()">
+                Create New Template
+            </button>
+        </div>
+
+        <div id="templates-container">
+            <div id="templates-grid" class="templates-grid"></div>
+            <div id="empty-state" class="empty-state hidden">
+                <h3>No templates yet</h3>
+                <p>Create your first SMS template to get started.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div id="template-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-title" class="modal-title">Create New Template</h2>
+            </div>
+            
+            <form id="template-form">
+                <div class="form-group">
+                    <label class="form-label" for="template-name">Template Name</label>
+                    <input type="text" id="template-name" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="template-category">Category</label>
+                    <select id="template-category" class="form-select" required>
+                        <option value="">Select a category</option>
+                        <option value="Intro">Intro</option>
+                        <option value="Follow-Up">Follow-Up</option>
+                        <option value="Pushback">Pushback</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="template-body">Message Body</label>
+                    <textarea id="template-body" class="form-input form-textarea" placeholder="Enter your SMS template here. Use {{fname}} for first name, {{lname}} for last name..." required></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeTemplateModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Save Template
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // In-memory templates array
+        let templates = [
+            { 
+                id: 1, 
+                name: 'Welcome Intro', 
+                category: 'Intro', 
+                body: 'Hey {{fname}}, thanks for your interest! I wanted to reach out personally to see if you have any questions about our services. Would you be available for a quick 15-minute call this week?' 
+            },
+            { 
+                id: 2, 
+                name: 'Follow-Up Check', 
+                category: 'Follow-Up', 
+                body: 'Hi {{fname}}, just following up on our previous conversation. Have you had a chance to review the information I sent over? I\'m here if you have any questions.' 
+            },
+            { 
+                id: 3, 
+                name: 'Price Objection', 
+                category: 'Pushback', 
+                body: 'I understand price is a consideration, {{fname}}. Let me share how other clients in similar situations have found the ROI to be worth the investment. Can we discuss this further?' 
+            }
+        ];
+
+        let editingTemplateId = null;
+
+        // Render templates in the grid
+        function renderTemplates() {
+            const grid = document.getElementById('templates-grid');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (templates.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            grid.innerHTML = templates.map(template => `
+                <div class="template-card">
+                    <div class="template-name">${escapeHtml(template.name)}</div>
+                    <div class="template-category">${escapeHtml(template.category)}</div>
+                    <div class="template-preview">${escapeHtml(template.body.substring(0, 100))}${template.body.length > 100 ? '...' : ''}</div>
+                    <div class="template-actions">
+                        <button class="btn btn-sm btn-primary" onclick="useTemplate(${template.id})">Use</button>
+                        <button class="btn btn-sm btn-secondary" onclick="openTemplateModal(${template.id})">Edit</button>
+                        <button class="btn btn-sm btn-destructive" onclick="deleteTemplate(${template.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open template modal for creating new or editing existing
+        function openTemplateModal(id = null) {
+            const modal = document.getElementById('template-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const form = document.getElementById('template-form');
+            
+            editingTemplateId = id;
+            
+            if (id) {
+                // Editing existing template
+                const template = templates.find(t => t.id === id);
+                modalTitle.textContent = 'Edit Template';
+                document.getElementById('template-name').value = template.name;
+                document.getElementById('template-category').value = template.category;
+                document.getElementById('template-body').value = template.body;
+            } else {
+                // Creating new template
+                modalTitle.textContent = 'Create New Template';
+                form.reset();
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // Close template modal
+        function closeTemplateModal() {
+            const modal = document.getElementById('template-modal');
+            modal.classList.add('hidden');
+            editingTemplateId = null;
+        }
+
+        // Save template (create new or update existing)
+        function saveTemplate() {
+            const name = document.getElementById('template-name').value.trim();
+            const category = document.getElementById('template-category').value;
+            const body = document.getElementById('template-body').value.trim();
+            
+            if (!name || !category || !body) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (editingTemplateId) {
+                // Update existing template
+                const template = templates.find(t => t.id === editingTemplateId);
+                template.name = name;
+                template.category = category;
+                template.body = body;
+            } else {
+                // Create new template
+                const newId = templates.length > 0 ? Math.max(...templates.map(t => t.id)) + 1 : 1;
+                templates.push({
+                    id: newId,
+                    name,
+                    category,
+                    body
+                });
+            }
+            
+            closeTemplateModal();
+            renderTemplates();
+        }
+
+        // Delete template
+        function deleteTemplate(id) {
+            if (confirm('Are you sure you want to delete this template?')) {
+                templates = templates.filter(t => t.id !== id);
+                renderTemplates();
+            }
+        }
+
+        // Use template (insert body into current chat input)
+        function useTemplate(id) {
+            const template = templates.find(t => t.id === id);
+            if (template) {
+                // Try to find a chat input field and insert the template body
+                const chatInput = document.querySelector('textarea[placeholder*="message"], textarea[placeholder*="chat"], input[placeholder*="message"], input[placeholder*="chat"]');
+                if (chatInput) {
+                    chatInput.value = template.body;
+                    chatInput.focus();
+                } else {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard.writeText(template.body).then(() => {
+                        alert('Template copied to clipboard!');
+                    }).catch(() => {
+                        // Fallback for older browsers
+                        const textArea = document.createElement('textarea');
+                        textArea.value = template.body;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        alert('Template copied to clipboard!');
+                    });
+                }
+            }
+        }
+
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Form submission handler
+        document.getElementById('template-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveTemplate();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('template-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeTemplateModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeTemplateModal();
+            }
+        });
+
+        // Initial render
+        renderTemplates();
+    </script>
+</body>
+</html>
