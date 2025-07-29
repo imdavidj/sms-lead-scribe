@@ -7,6 +7,7 @@ import { UploadLists } from './UploadLists';
 import { Templates } from './Templates';
 import { Automations } from './Automations';
 import { Admin } from './Admin';
+import { Help } from './Help';
 import { Conversation } from '@/types/conversation';
 import { BarChart3, TrendingUp, CheckCircle, XCircle, Clock, Users, Calendar, ChevronDown } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -340,9 +341,16 @@ export const DashboardLayout = () => {
           </div>
         )}
 
+        {/* Help Section */}
+        {activePage === 'help' && (
+          <div className={`section`}>
+            <Help />
+          </div>
+        )}
+
         {/* All other sections */}
         {Object.entries(pageContent).map(([key, content]) => {
-          if (key === 'dashboard' || key === 'analytics' || key === 'templates' || key === 'automations' ||
+          if (key === 'dashboard' || key === 'analytics' || key === 'templates' || key === 'automations' || key === 'help' ||
               ['all-leads', 'qualified', 'unqualified', 'no-response', 'blocked', 'saved-lists', 'used-lists', 'users', 'webhooks', 'settings'].includes(key)) return null;
           return (
             <div key={key} className={`section ${activePage === key ? '' : 'hidden'}`} id={content.dataSection}>
