@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from './Sidebar';
 import { ConversationsList } from './ConversationsList';
 import { ConversationThread } from './ConversationThread';
@@ -313,15 +313,98 @@ const AnalyticsKPICards = () => {
 };
 
 const AnalyticsChart = () => {
+  const chartRef = useRef<HTMLCanvasElement>(null);
+  const chartInstance = useRef<any>(null);
+
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    // Destroy existing chart if it exists
+    if (chartInstance.current) {
+      chartInstance.current.destroy();
+    }
+
+    // Sample data - replace with real data from Supabase
+    const ctx = chartRef.current.getContext('2d');
+    if (!ctx) return;
+
+    chartInstance.current = new (window as any).Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [
+          {
+            label: 'Response Rate',
+            data: [45, 52, 38, 47, 56, 42, 49],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Qualification Rate',
+            data: [30, 35, 28, 32, 38, 29, 34],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Block Rate',
+            data: [5, 8, 3, 6, 9, 4, 7],
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: false,
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value: any) {
+                return value + '%';
+              }
+            }
+          }
+        },
+        interaction: {
+          intersect: false,
+        },
+        elements: {
+          point: {
+            radius: 6,
+            hoverRadius: 8
+          }
+        }
+      }
+    });
+
+    return () => {
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
+    };
+  }, []);
+
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm border-l-4 border-l-green-500">
       <h3 className="text-lg font-semibold mb-4 text-gray-900">Performance Trends</h3>
-      <div className="w-full h-96 bg-gray-50 rounded-lg flex items-center justify-center">
-        <div className="text-center">
-          <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-          <p className="text-xl text-gray-600 mb-2">Chart Placeholder</p>
-          <p className="text-sm text-gray-500">Integrate your preferred chart library (Chart.js, D3.js, Recharts, etc.)</p>
-        </div>
+      <div className="w-full h-96 relative">
+        <canvas ref={chartRef} className="w-full h-full"></canvas>
       </div>
     </div>
   );
