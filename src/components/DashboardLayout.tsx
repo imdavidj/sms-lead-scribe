@@ -314,84 +314,108 @@ const AnalyticsKPICards = () => {
 
 const AnalyticsChart = () => {
   const chartInstance = useRef<any>(null);
+  const [chartData, setChartData] = useState<any>(null);
+
+  const loadChartData = async () => {
+    const { data, error } = await supabase
+      .from('analytics_metrics')
+      .select('date, response_rate')
+      .order('date', { ascending: true })
+      .limit(14);
+    if (error) {
+      console.error(error);
+      return null;
+    }
+    return data.map(r => ({ date: r.date, value: parseFloat(r.response_rate) }));
+  };
 
   useEffect(() => {
-    const canvas = document.getElementById('analyticsChart') as HTMLCanvasElement;
-    if (!canvas) return;
+    const initChart = async () => {
+      const canvas = document.getElementById('analyticsChart') as HTMLCanvasElement;
+      if (!canvas) return;
 
-    // Destroy existing chart if it exists
-    if (chartInstance.current) {
-      chartInstance.current.destroy();
-    }
+      // Destroy existing chart if it exists
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
 
-    // Sample data - replace with real data from Supabase
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+      // Load real chart data
+      const realData = await loadChartData();
+      
+      // Use real data if available, otherwise fall back to sample data
+      const labels = realData ? realData.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const responseRateData = realData ? realData.map(d => d.value) : [45, 52, 38, 47, 56, 42, 49];
 
-    chartInstance.current = new (window as any).Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [
-          {
-            label: 'Response Rate',
-            data: [45, 52, 38, 47, 56, 42, 49],
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            tension: 0.4,
-            fill: true
-          },
-          {
-            label: 'Qualification Rate',
-            data: [30, 35, 28, 32, 38, 29, 34],
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            tension: 0.4,
-            fill: true
-          },
-          {
-            label: 'Block Rate',
-            data: [5, 8, 3, 6, 9, 4, 7],
-            borderColor: '#ef4444',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            tension: 0.4,
-            fill: true
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-          },
-          title: {
-            display: false,
-          }
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      chartInstance.current = new (window as any).Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Response Rate',
+              data: responseRateData,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Qualification Rate',
+              data: [30, 35, 28, 32, 38, 29, 34].slice(0, labels.length),
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Block Rate',
+              data: [5, 8, 3, 6, 9, 4, 7].slice(0, labels.length),
+              borderColor: '#ef4444',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            ticks: {
-              callback: function(value: any) {
-                return value + '%';
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: false,
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                callback: function(value: any) {
+                  return value + '%';
+                }
               }
             }
-          }
-        },
-        interaction: {
-          intersect: false,
-        },
-        elements: {
-          point: {
-            radius: 6,
-            hoverRadius: 8
+          },
+          interaction: {
+            intersect: false,
+          },
+          elements: {
+            point: {
+              radius: 6,
+              hoverRadius: 8
+            }
           }
         }
-      }
-    });
+      });
+    };
+
+    initChart();
 
     return () => {
       if (chartInstance.current) {
