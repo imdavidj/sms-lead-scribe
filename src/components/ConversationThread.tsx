@@ -14,6 +14,12 @@ import { toast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Conversation, Contact, Message } from "@/types/conversation"
 
+// AI Classification interface
+interface AIClassification {
+  tag: string;
+  pushback: string;
+}
+
 // Global leads array interface
 interface Lead {
   fname: string;
@@ -50,6 +56,7 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
   const [newMessage, setNewMessage] = useState("")
   const [sending, setSending] = useState(false)
   const [updatingStatus, setUpdatingStatus] = useState(false)
+  const [messageClassifications, setMessageClassifications] = useState<Record<string, AIClassification>>({})
   const [leadFields, setLeadFields] = useState({
     address: "",
     timeline: "",
@@ -59,11 +66,40 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
   })
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // AI Classification function
+  const classifyMessage = async (messageText: string, messageId: string) => {
+    try {
+      const response = await fetch('/webhook/ai-classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: messageText })
+      });
+      
+      if (response.ok) {
+        const { tag, pushback } = await response.json();
+        setMessageClassifications(prev => ({
+          ...prev,
+          [messageId]: { tag, pushback }
+        }));
+      }
+    } catch (error) {
+      console.error('Error classifying message:', error);
+    }
+  };
+
   useEffect(() => {
     if (conversation) {
-      setMessages(conversation.messages.sort((a, b) => 
+      const sortedMessages = conversation.messages.sort((a, b) => 
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-      ))
+      )
+      setMessages(sortedMessages)
+      
+      // Classify inbound messages on load
+      sortedMessages.forEach(message => {
+        if (message.direction === 'inbound' && !messageClassifications[message.id]) {
+          classifyMessage(message.body, message.id)
+        }
+      })
       
       // Extract latest AI summary data
       const latestSummary = conversation.messages
@@ -93,7 +129,14 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
             filter: `conversation_id=eq.${conversation.id}`
           },
           (payload) => {
-            setMessages(prev => [...prev, payload.new as Message])
+            const newMessage = payload.new as Message
+            setMessages(prev => [...prev, newMessage])
+            
+            // Classify new inbound messages
+            if (newMessage.direction === 'inbound') {
+              classifyMessage(newMessage.body, newMessage.id)
+            }
+            
             onConversationUpdate()
           }
         )
@@ -314,38 +357,70 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
             {/* Messages */}
             <ScrollArea className="flex-1 min-h-0">
               <div className="p-4 space-y-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
-                  >
+                {messages.map((message) => {
+                  const classification = messageClassifications[message.id];
+                  return (
                     <div
-                      className={`max-w-[70%] rounded-lg p-3 ${
-                        message.direction === 'outbound'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
-                      }`}
+                      key={message.id}
+                      className={`flex ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
                     >
-                      <div className="flex items-center gap-2 mb-1">
-                        {message.direction === 'outbound' ? (
-                          <User className="h-3 w-3" />
-                        ) : (
-                          <Bot className="h-3 w-3" />
+                      <div className="max-w-[70%] space-y-2">
+                        <div
+                          className={`rounded-lg p-3 ${
+                            message.direction === 'outbound'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            {message.direction === 'outbound' ? (
+                              <User className="h-3 w-3" />
+                            ) : (
+                              <Bot className="h-3 w-3" />
+                            )}
+                            <span className="text-xs opacity-70">
+                              {message.direction === 'outbound' ? 'Agent' : 'Contact'}
+                            </span>
+                            {/* AI Classification Tag */}
+                            {classification && message.direction === 'inbound' && (
+                              <Badge variant="secondary" className="text-xs">
+                                {classification.tag}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm">{message.body}</p>
+                          <div className="flex items-center gap-1 mt-2 text-xs opacity-70">
+                            <Clock className="h-3 w-3" />
+                            <span>
+                              {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* AI Pushback Suggestion */}
+                        {classification && classification.pushback && message.direction === 'inbound' && (
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div className="flex items-start gap-2">
+                              <Bot className="h-4 w-4 text-blue-600 mt-0.5" />
+                              <div className="flex-1">
+                                <p className="text-xs font-medium text-blue-800 mb-1">AI Suggested Response:</p>
+                                <p className="text-sm text-blue-700">{classification.pushback}</p>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="mt-2 h-6 text-xs"
+                                  onClick={() => setNewMessage(classification.pushback)}
+                                >
+                                  Use This Response
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
                         )}
-                        <span className="text-xs opacity-70">
-                          {message.direction === 'outbound' ? 'Agent' : 'Contact'}
-                        </span>
-                      </div>
-                      <p className="text-sm">{message.body}</p>
-                      <div className="flex items-center gap-1 mt-2 text-xs opacity-70">
-                        <Clock className="h-3 w-3" />
-                        <span>
-                          {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                        </span>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
                 <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
