@@ -7,12 +7,26 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Send, Phone, Clock, User, Bot } from "lucide-react"
+import { Send, Phone, Clock, User, Bot, UserPlus } from "lucide-react"
 import { SendToCRMModal } from "@/components/SendToCRMModal"
 import { formatDistanceToNow } from "date-fns"
 import { toast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Conversation, Contact, Message } from "@/types/conversation"
+
+// Global leads array to maintain in-memory lead data
+const leads: Array<{
+  fname: string;
+  lname: string;
+  phone: string;
+  email: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  status: string;
+  date: string;
+}> = [];
 
 interface ConversationThreadProps {
   conversation: Conversation | null
@@ -180,6 +194,34 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
       })
     }
   }
+
+  const addToLeads = () => {
+    if (!conversation) return;
+
+    const lead = {
+      fname: conversation.contact.first_name || '',
+      lname: conversation.contact.last_name || '',
+      phone: conversation.contact.phone_e164,
+      email: '', // Not available in current conversation data
+      address: leadFields.address,
+      city: '', // Would need to extract from address
+      state: '', // Would need to extract from address
+      zip: '', // Would need to extract from address
+      status: 'All',
+      date: new Date().toISOString().slice(0, 10)
+    };
+
+    leads.push(lead);
+    
+    toast({
+      title: "Added to leads",
+      description: "Contact has been added to the leads list"
+    });
+
+    // Trigger refresh of leads view if it's currently active
+    const event = new CustomEvent('leadsUpdated', { detail: leads });
+    window.dispatchEvent(event);
+  };
 
   const getContactDisplayName = (contact: Contact) => {
     if (contact.first_name || contact.last_name) {
@@ -378,7 +420,18 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
               <Button onClick={updateLeadFields} className="w-full">
                 Save Lead Information
               </Button>
-              <SendToCRMModal conversation={conversation} />
+              <div className="flex gap-2">
+                <SendToCRMModal conversation={conversation} />
+                <Button 
+                  onClick={addToLeads} 
+                  variant="outline" 
+                  size="sm"
+                  className="flex-1"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add to Leads
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
