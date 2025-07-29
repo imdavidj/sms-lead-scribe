@@ -313,11 +313,11 @@ const AnalyticsKPICards = () => {
 };
 
 const AnalyticsChart = () => {
-  const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<any>(null);
 
   useEffect(() => {
-    if (!chartRef.current) return;
+    const canvas = document.getElementById('analyticsChart') as HTMLCanvasElement;
+    if (!canvas) return;
 
     // Destroy existing chart if it exists
     if (chartInstance.current) {
@@ -325,7 +325,7 @@ const AnalyticsChart = () => {
     }
 
     // Sample data - replace with real data from Supabase
-    const ctx = chartRef.current.getContext('2d');
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     chartInstance.current = new (window as any).Chart(ctx, {
@@ -404,7 +404,7 @@ const AnalyticsChart = () => {
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm border-l-4 border-l-green-500">
       <h3 className="text-lg font-semibold mb-4 text-gray-900">Performance Trends</h3>
       <div className="w-full h-96 relative">
-        <canvas ref={chartRef} className="w-full h-full"></canvas>
+        <canvas id="analyticsChart" width="400" height="200"></canvas>
       </div>
     </div>
   );
