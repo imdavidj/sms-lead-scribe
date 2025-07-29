@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { ConversationsList } from './ConversationsList';
 import { ConversationThread } from './ConversationThread';
@@ -100,10 +100,10 @@ const analytics = {
 };
 
 const DateRangeSelector = ({ onDateRangeChange }: { onDateRangeChange: (range: string) => void }) => {
-  const [selectedRange, setSelectedRange] = React.useState('Past 7 days');
-  const [customFromDate, setCustomFromDate] = React.useState<Date>();
-  const [customToDate, setCustomToDate] = React.useState<Date>();
-  const [showCustomPicker, setShowCustomPicker] = React.useState(false);
+  const [selectedRange, setSelectedRange] = useState('Past 7 days');
+  const [customFromDate, setCustomFromDate] = useState<Date>();
+  const [customToDate, setCustomToDate] = useState<Date>();
+  const [showCustomPicker, setShowCustomPicker] = useState(false);
 
   const handleRangeChange = (range: string) => {
     setSelectedRange(range);
@@ -237,7 +237,7 @@ const AnalyticsKPICards = () => (
 );
 
 const AnalyticsChart = () => {
-  React.useEffect(() => {
+  useEffect(() => {
     const canvas = document.getElementById('analyticsChart') as HTMLCanvasElement;
     if (canvas) {
       const ctx = canvas.getContext('2d');
