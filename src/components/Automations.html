@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automations</title>
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 240 10% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 240 10% 3.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 240 10% 3.9%;
+            --primary: 240 5.9% 10%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 240 4.8% 95.9%;
+            --secondary-foreground: 240 5.9% 10%;
+            --muted: 240 4.8% 95.9%;
+            --muted-foreground: 240 3.8% 46.1%;
+            --accent: 240 4.8% 95.9%;
+            --accent-foreground: 240 5.9% 10%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 0 0% 98%;
+            --border: 240 5.9% 90%;
+            --input: 240 5.9% 90%;
+            --ring: 240 10% 3.9%;
+            --radius: 0.5rem;
+        }
+
+        .dark {
+            --background: 240 10% 3.9%;
+            --foreground: 0 0% 98%;
+            --card: 240 10% 3.9%;
+            --card-foreground: 0 0% 98%;
+            --popover: 240 10% 3.9%;
+            --popover-foreground: 0 0% 98%;
+            --primary: 0 0% 98%;
+            --primary-foreground: 240 5.9% 10%;
+            --secondary: 240 3.7% 15.9%;
+            --secondary-foreground: 0 0% 98%;
+            --muted: 240 3.7% 15.9%;
+            --muted-foreground: 240 5% 64.9%;
+            --accent: 240 3.7% 15.9%;
+            --accent-foreground: 0 0% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 0 0% 98%;
+            --border: 240 3.7% 15.9%;
+            --input: 240 3.7% 15.9%;
+            --ring: 240 4.9% 83.9%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .header-content h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.5rem;
+        }
+
+        .header-content p {
+            color: hsl(var(--muted-foreground));
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+
+        .btn-primary:hover {
+            background-color: hsl(var(--primary) / 0.9);
+        }
+
+        .btn-secondary {
+            background-color: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+            border: 1px solid hsl(var(--border));
+        }
+
+        .btn-secondary:hover {
+            background-color: hsl(var(--secondary) / 0.8);
+        }
+
+        .btn-destructive {
+            background-color: hsl(var(--destructive));
+            color: hsl(var(--destructive-foreground));
+        }
+
+        .btn-destructive:hover {
+            background-color: hsl(var(--destructive) / 0.9);
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .table-container {
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background-color: hsl(var(--muted));
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .table th:last-child {
+            text-align: right;
+        }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .table td:last-child {
+            text-align: right;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: hsl(var(--muted) / 0.3);
+        }
+
+        .table tr:hover {
+            background-color: hsl(var(--muted) / 0.5);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #22c55e;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-text {
+            font-size: 0.875rem;
+        }
+
+        .status-enabled {
+            color: #22c55e;
+        }
+
+        .status-disabled {
+            color: #6b7280;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal {
+            background-color: hsl(var(--card));
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            ring: 2px solid hsl(var(--ring));
+            border-color: hsl(var(--ring));
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .empty-state h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--foreground));
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Automations</h1>
+                <p>Configure automated follow-ups and notifications.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAutomationModal()">
+                + New Automation
+            </button>
+        </div>
+
+        <div id="automations-container">
+            <div id="automations-table" class="table-container"></div>
+            <div id="empty-state" class="empty-state hidden">
+                <h3>No automations yet</h3>
+                <p>Create your first automation to get started.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Automation Modal -->
+    <div id="automation-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-title" class="modal-title">Create New Automation</h2>
+            </div>
+            
+            <form id="automation-form">
+                <div class="form-group">
+                    <label class="form-label" for="automation-name">Rule Name</label>
+                    <input type="text" id="automation-name" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="automation-trigger">Trigger</label>
+                    <select id="automation-trigger" class="form-select" required>
+                        <option value="">Select a trigger</option>
+                        <option value="No Reply After 24h">No Reply After 24h</option>
+                        <option value="No Reply After 48h">No Reply After 48h</option>
+                        <option value="No Reply After 72h">No Reply After 72h</option>
+                        <option value="Lead Qualified">Lead Qualified</option>
+                        <option value="Lead Unqualified">Lead Unqualified</option>
+                        <option value="Lead Status Change">Lead Status Change</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="automation-action">Action</label>
+                    <select id="automation-action" class="form-select" required>
+                        <option value="">Select an action</option>
+                        <option value="Send Follow-Up SMS">Send Follow-Up SMS</option>
+                        <option value="Send Reminder SMS">Send Reminder SMS</option>
+                        <option value="Notify Slack">Notify Slack</option>
+                        <option value="Mark As Qualified">Mark As Qualified</option>
+                        <option value="Mark As Unqualified">Mark As Unqualified</option>
+                        <option value="Add to CRM">Add to CRM</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="automation-enabled" checked>
+                        <label class="form-label" for="automation-enabled">Enabled</label>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAutomationModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Save Automation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // In-memory automations array
+        let automations = [
+            { 
+                id: 1, 
+                name: 'No Response Follow-Up', 
+                trigger: '48h no reply', 
+                action: 'Send Follow-Up SMS', 
+                enabled: true 
+            },
+            { 
+                id: 2, 
+                name: 'On Qualified', 
+                trigger: 'Lead Qualified', 
+                action: 'Notify Slack', 
+                enabled: false 
+            }
+        ];
+
+        let editingAutomationId = null;
+
+        // Render automations in the table
+        function renderAutomations() {
+            const container = document.getElementById('automations-table');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (automations.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Rule Name</th>
+                            <th>Trigger</th>
+                            <th>Action</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${automations.map(automation => `
+                            <tr>
+                                <td><strong>${escapeHtml(automation.name)}</strong></td>
+                                <td>${escapeHtml(automation.trigger)}</td>
+                                <td>${escapeHtml(automation.action)}</td>
+                                <td>
+                                    <div class="status-indicator">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" ${automation.enabled ? 'checked' : ''} 
+                                                   onchange="toggleAutomation(${automation.id})">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <span class="status-text ${automation.enabled ? 'status-enabled' : 'status-disabled'}">
+                                            ${automation.enabled ? 'Enabled' : 'Disabled'}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="openAutomationModal(${automation.id})">Edit</button>
+                                    <button class="btn btn-sm btn-destructive" onclick="deleteAutomation(${automation.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Open automation modal for creating new or editing existing
+        function openAutomationModal(id = null) {
+            const modal = document.getElementById('automation-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const form = document.getElementById('automation-form');
+            
+            editingAutomationId = id;
+            
+            if (id) {
+                // Editing existing automation
+                const automation = automations.find(a => a.id === id);
+                modalTitle.textContent = 'Edit Automation';
+                document.getElementById('automation-name').value = automation.name;
+                document.getElementById('automation-trigger').value = automation.trigger;
+                document.getElementById('automation-action').value = automation.action;
+                document.getElementById('automation-enabled').checked = automation.enabled;
+            } else {
+                // Creating new automation
+                modalTitle.textContent = 'Create New Automation';
+                form.reset();
+                document.getElementById('automation-enabled').checked = true;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // Close automation modal
+        function closeAutomationModal() {
+            const modal = document.getElementById('automation-modal');
+            modal.classList.add('hidden');
+            editingAutomationId = null;
+        }
+
+        // Save automation (create new or update existing)
+        function saveAutomation() {
+            const name = document.getElementById('automation-name').value.trim();
+            const trigger = document.getElementById('automation-trigger').value;
+            const action = document.getElementById('automation-action').value;
+            const enabled = document.getElementById('automation-enabled').checked;
+            
+            if (!name || !trigger || !action) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (editingAutomationId) {
+                // Update existing automation
+                const automation = automations.find(a => a.id === editingAutomationId);
+                automation.name = name;
+                automation.trigger = trigger;
+                automation.action = action;
+                automation.enabled = enabled;
+            } else {
+                // Create new automation
+                const newId = automations.length > 0 ? Math.max(...automations.map(a => a.id)) + 1 : 1;
+                automations.push({
+                    id: newId,
+                    name,
+                    trigger,
+                    action,
+                    enabled
+                });
+            }
+            
+            closeAutomationModal();
+            renderAutomations();
+        }
+
+        // Delete automation
+        function deleteAutomation(id) {
+            if (confirm('Are you sure you want to delete this automation?')) {
+                automations = automations.filter(a => a.id !== id);
+                renderAutomations();
+            }
+        }
+
+        // Toggle automation enabled status
+        function toggleAutomation(id) {
+            const automation = automations.find(a => a.id === id);
+            if (automation) {
+                automation.enabled = !automation.enabled;
+                renderAutomations();
+            }
+        }
+
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Form submission handler
+        document.getElementById('automation-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveAutomation();
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('automation-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAutomationModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAutomationModal();
+            }
+        });
+
+        // Initial render
+        renderAutomations();
+    </script>
+</body>
+</html>
