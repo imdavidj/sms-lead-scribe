@@ -135,7 +135,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
                   >
                     <span className="font-medium">{subItem.label}</span>
                     {subItem.badge && (
-                      <span className="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium">
+                      <span className="badge bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium">
                         {subItem.badge}
                       </span>
                     )}

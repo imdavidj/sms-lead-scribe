@@ -335,24 +335,29 @@
     </div>
 
     <script>
-        // Sample data
-        const leads = [
-            { fname: 'John', lname: 'Doe', phone: '555-1234', status: 'Qualified', date: '2025-07-29' },
-            { fname: 'Jane', lname: 'Smith', phone: '555-5678', status: 'Unqualified', date: '2025-07-28' },
-            { fname: 'Mike', lname: 'Johnson', phone: '555-9012', status: 'No Response', date: '2025-07-27' },
-            { fname: 'Sarah', lname: 'Wilson', phone: '555-3456', status: 'Blocked', date: '2025-07-26' },
-            { fname: 'Tom', lname: 'Brown', phone: '555-7890', status: 'Qualified', date: '2025-07-25' },
-            { fname: 'Lisa', lname: 'Davis', phone: '555-2345', status: 'Unqualified', date: '2025-07-24' },
-            { fname: 'James', lname: 'Miller', phone: '555-6789', status: 'Qualified', date: '2025-07-23' },
-            { fname: 'Emma', lname: 'Garcia', phone: '555-0123', status: 'No Response', date: '2025-07-22' },
-            { fname: 'David', lname: 'Martinez', phone: '555-4567', status: 'Qualified', date: '2025-07-21' },
-            { fname: 'Sofia', lname: 'Lopez', phone: '555-8901', status: 'Blocked', date: '2025-07-20' },
-            { fname: 'Chris', lname: 'Anderson', phone: '555-1357', status: 'Qualified', date: '2025-07-19' },
-            { fname: 'Amanda', lname: 'Taylor', phone: '555-2468', status: 'Unqualified', date: '2025-07-18' },
-            { fname: 'Ryan', lname: 'Thomas', phone: '555-3579', status: 'No Response', date: '2025-07-17' },
-            { fname: 'Nicole', lname: 'White', phone: '555-4680', status: 'Qualified', date: '2025-07-16' },
-            { fname: 'Kevin', lname: 'Harris', phone: '555-5791', status: 'Blocked', date: '2025-07-15' }
-        ];
+        // Access leads array from parent window/global scope if available
+        let leads = [];
+        
+        // Try to get leads from global scope or use sample data
+        if (typeof window.parent !== 'undefined' && window.parent.leads) {
+            leads = window.parent.leads;
+        } else if (typeof window.leads !== 'undefined') {
+            leads = window.leads;
+        } else {
+            // Sample data as fallback
+            leads = [
+                { fname: 'John', lname: 'Doe', phone: '555-1234', status: 'Qualified', date: '2025-07-29' },
+                { fname: 'Jane', lname: 'Smith', phone: '555-5678', status: 'Unqualified', date: '2025-07-28' },
+                { fname: 'Mike', lname: 'Johnson', phone: '555-9012', status: 'No Response', date: '2025-07-27' },
+                { fname: 'Sarah', lname: 'Wilson', phone: '555-3456', status: 'Blocked', date: '2025-07-26' },
+                { fname: 'Tom', lname: 'Brown', phone: '555-7890', status: 'Qualified', date: '2025-07-25' },
+                { fname: 'Lisa', lname: 'Davis', phone: '555-2345', status: 'Unqualified', date: '2025-07-24' },
+                { fname: 'James', lname: 'Miller', phone: '555-6789', status: 'Qualified', date: '2025-07-23' },
+                { fname: 'Emma', lname: 'Garcia', phone: '555-0123', status: 'No Response', date: '2025-07-22' },
+                { fname: 'David', lname: 'Martinez', phone: '555-4567', status: 'Qualified', date: '2025-07-21' },
+                { fname: 'Sofia', lname: 'Lopez', phone: '555-8901', status: 'Blocked', date: '2025-07-20' }
+            ];
+        }
 
         let currentSegment = 'All';
         let currentPage = 1;
@@ -499,6 +504,40 @@
 
         // Initial render
         renderLeads();
+
+        // Function to update lead badges in the sidebar
+        function updateLeadBadges() {
+            const counts = leads.reduce((acc, l) => {
+                acc['leads-all'] = (acc['leads-all'] || 0) + 1;
+                acc['leads-' + l.status.toLowerCase().replace(' ', '-')] = (acc['leads-' + l.status.toLowerCase().replace(' ', '-')] || 0) + 1;
+                return acc;
+            }, {});
+            
+            // Update badges in parent window if available
+            try {
+                const parentDoc = window.parent.document;
+                const allBadge = parentDoc.querySelector('[data-section="leads-all"] .badge');
+                if (allBadge) allBadge.textContent = counts['leads-all'] || 0;
+                
+                ['qualified', 'unqualified', 'no-response', 'blocked'].forEach(s => {
+                    const badge = parentDoc.querySelector(`[data-section="leads-${s}"] .badge`);
+                    if (badge) badge.textContent = counts['leads-' + s] || 0;
+                });
+            } catch (e) {
+                // Handle cross-origin restrictions gracefully
+                console.log('Cannot update parent badges due to cross-origin restrictions');
+            }
+        }
+
+        // Listen for leads updates from the main application
+        window.addEventListener('leadsUpdated', function(event) {
+            leads = event.detail || leads;
+            renderLeads();
+            updateLeadBadges();
+        });
+
+        // Update badges on initial load
+        updateLeadBadges();
     </script>
 </body>
 </html>
