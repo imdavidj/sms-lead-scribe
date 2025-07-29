@@ -14,8 +14,8 @@ import { toast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Conversation, Contact, Message } from "@/types/conversation"
 
-// Global leads array to maintain in-memory lead data
-const leads: Array<{
+// Global leads array interface
+interface Lead {
   fname: string;
   lname: string;
   phone: string;
@@ -26,7 +26,19 @@ const leads: Array<{
   zip: string;
   status: string;
   date: string;
-}> = [];
+}
+
+// Declare global leads array
+declare global {
+  interface Window {
+    globalLeads: Lead[];
+  }
+}
+
+// Initialize global leads array if it doesn't exist
+if (typeof window !== 'undefined' && !window.globalLeads) {
+  window.globalLeads = [];
+}
 
 interface ConversationThreadProps {
   conversation: Conversation | null
@@ -198,7 +210,7 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
   const addToLeads = () => {
     if (!conversation) return;
 
-    const lead = {
+    const lead: Lead = {
       fname: conversation.contact.first_name || '',
       lname: conversation.contact.last_name || '',
       phone: conversation.contact.phone_e164,
@@ -211,16 +223,24 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
       date: new Date().toISOString().slice(0, 10)
     };
 
-    leads.push(lead);
+    // Add to global leads array
+    if (typeof window !== 'undefined') {
+      if (!window.globalLeads) {
+        window.globalLeads = [];
+      }
+      window.globalLeads.push(lead);
+      
+      // Trigger custom event for leads view update
+      const event = new CustomEvent('leadsUpdated', { 
+        detail: window.globalLeads 
+      });
+      window.dispatchEvent(event);
+    }
     
     toast({
       title: "Added to leads",
       description: "Contact has been added to the leads list"
     });
-
-    // Trigger refresh of leads view if it's currently active
-    const event = new CustomEvent('leadsUpdated', { detail: leads });
-    window.dispatchEvent(event);
   };
 
   const getContactDisplayName = (contact: Contact) => {

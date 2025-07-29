@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { ConversationsList } from './ConversationsList';
 import { ConversationThread } from './ConversationThread';
+import { LeadsView } from './LeadsView';
 import { Conversation } from '@/types/conversation';
 import { BarChart3 } from 'lucide-react';
 
@@ -162,9 +163,16 @@ export const DashboardLayout = () => {
           <ChartPlaceholder />
         </div>
 
+        {/* Leads Sections */}
+        {['all-leads', 'qualified', 'unqualified', 'no-response', 'blocked'].includes(activePage) && (
+          <div className={`section`}>
+            <LeadsView />
+          </div>
+        )}
+
         {/* All other sections */}
         {Object.entries(pageContent).map(([key, content]) => {
-          if (key === 'dashboard' || key === 'analytics') return null;
+          if (key === 'dashboard' || key === 'analytics' || ['all-leads', 'qualified', 'unqualified', 'no-response', 'blocked'].includes(key)) return null;
           return (
             <div key={key} className={`section ${activePage === key ? '' : 'hidden'}`} id={content.dataSection}>
               <div className="bg-card rounded-xl p-8 shadow-sm">
