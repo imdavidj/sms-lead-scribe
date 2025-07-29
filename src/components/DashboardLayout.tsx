@@ -84,39 +84,98 @@ const pageContent = {
   },
 };
 
-const KPICards = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="text-sm font-medium text-muted-foreground mb-2">Response Rate</div>
-      <div className="text-3xl font-bold text-foreground">68.4%</div>
-      <div className="text-sm text-emerald-600 mt-1 font-medium">↗ +5.2% vs last week</div>
+// Analytics data
+const analytics = {
+  responseRate: '45%',
+  qualificationRate: '30%',
+  blockRate: '5%',
+  timeToQualify: '12h 30m',
+  leadsPerDay: '120'
+};
+
+const AnalyticsKPICards = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-green-500">
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-2xl">📈</span>
+        <div className="text-sm font-medium text-gray-600">Response Rate</div>
+      </div>
+      <div className="text-3xl font-bold text-gray-900">{analytics.responseRate}</div>
     </div>
-    <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="text-sm font-medium text-muted-foreground mb-2">Qualification Rate</div>
-      <div className="text-3xl font-bold text-foreground">32.1%</div>
-      <div className="text-sm text-emerald-600 mt-1 font-medium">↗ +2.8% vs last week</div>
+    
+    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-green-500">
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-2xl">✅</span>
+        <div className="text-sm font-medium text-gray-600">Qualification Rate</div>
+      </div>
+      <div className="text-3xl font-bold text-gray-900">{analytics.qualificationRate}</div>
     </div>
-    <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="text-sm font-medium text-muted-foreground mb-2">Block Rate</div>
-      <div className="text-3xl font-bold text-foreground">4.2%</div>
-      <div className="text-sm text-red-500 mt-1 font-medium">↘ -1.1% vs last week</div>
+    
+    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-green-500">
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-2xl">🚫</span>
+        <div className="text-sm font-medium text-gray-600">Block Rate</div>
+      </div>
+      <div className="text-3xl font-bold text-gray-900">{analytics.blockRate}</div>
     </div>
-    <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="text-sm font-medium text-muted-foreground mb-2">Time to Qualify</div>
-      <div className="text-3xl font-bold text-foreground">2.3 hrs</div>
-      <div className="text-sm text-emerald-600 mt-1 font-medium">↘ -0.4 hrs vs last week</div>
+    
+    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-green-500">
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-2xl">⏱️</span>
+        <div className="text-sm font-medium text-gray-600">Time to Qualify</div>
+      </div>
+      <div className="text-3xl font-bold text-gray-900">{analytics.timeToQualify}</div>
+    </div>
+    
+    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-green-500">
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-2xl">👥</span>
+        <div className="text-sm font-medium text-gray-600">Leads per Day</div>
+      </div>
+      <div className="text-3xl font-bold text-gray-900">{analytics.leadsPerDay}</div>
     </div>
   </div>
 );
 
-const ChartPlaceholder = () => (
-  <div className="bg-card border border-border rounded-xl h-80 flex items-center justify-center text-muted-foreground text-lg shadow-sm">
-    <div className="text-center">
-      <BarChart3 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-      <p>Analytics Dashboard Coming Soon</p>
+const AnalyticsChart = () => {
+  React.useEffect(() => {
+    const canvas = document.getElementById('analyticsChart') as HTMLCanvasElement;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Set canvas size
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 400;
+        
+        // Chart placeholder
+        ctx.fillStyle = '#374151';
+        ctx.font = '24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Chart Placeholder - Integrate your preferred chart library', canvas.width / 2, 200);
+        
+        ctx.fillStyle = '#6B7280';
+        ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText('(Chart.js, D3.js, Recharts, etc.)', canvas.width / 2, 230);
+      }
+    }
+  }, []);
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm border-l-4 border-l-green-500">
+      <h3 className="text-lg font-semibold mb-4 text-gray-900">Performance Trends</h3>
+      <canvas 
+        id="analyticsChart" 
+        className="w-full h-96 bg-gray-50 rounded-lg"
+        style={{ height: '400px' }}
+      >
+        Chart will render here
+      </canvas>
     </div>
-  </div>
-);
+  );
+};
 
 export const DashboardLayout = () => {
   const [activePage, setActivePage] = useState('dashboard');
@@ -159,8 +218,12 @@ export const DashboardLayout = () => {
 
         {/* Analytics Section */}
         <div className={`section ${activePage === 'analytics' ? '' : 'hidden'}`} id="analytics">
-          <KPICards />
-          <ChartPlaceholder />
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Analytics</h2>
+            <p className="text-gray-600">Key Performance Indicators</p>
+          </div>
+          <AnalyticsKPICards />
+          <AnalyticsChart />
         </div>
 
         {/* Leads Sections */}
