@@ -107,75 +107,52 @@ const useAnalytics = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  const fetchAnalytics = async () => {
+  const loadAnalytics = async () => {
     try {
       setLoading(true);
       
-      // Get all leads for calculations
-      const { data: leads, error } = await supabase
-        .from('leads')
-        .select('*');
-
+      // assume you've stored KPIs in a table named 'analytics_metrics'
+      const { data, error } = await supabase
+        .from('analytics_metrics')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(1);
+      
       if (error) {
-        console.error('Error fetching analytics:', error);
+        console.error(error);
         return;
       }
-
-      const totalLeads = leads?.length || 0;
       
-      if (totalLeads === 0) {
-        setAnalytics({
-          responseRate: '0%',
-          qualificationRate: '0%',
-          blockRate: '0%',
-          timeToQualify: '0h 0m',
-          leadsPerDay: '0'
-        });
-        return;
-      }
-
-      // Calculate metrics
-      const qualifiedLeads = leads?.filter(lead => lead.status === 'Qualified').length || 0;
-      const unqualifiedLeads = leads?.filter(lead => lead.status === 'Unqualified').length || 0;
-      const blockedLeads = leads?.filter(lead => lead.status === 'Blocked').length || 0;
-      const noResponseLeads = leads?.filter(lead => lead.status === 'No Response').length || 0;
-      
-      const responseRate = Math.round(((totalLeads - noResponseLeads) / totalLeads) * 100);
-      const qualificationRate = Math.round((qualifiedLeads / totalLeads) * 100);
-      const blockRate = Math.round((blockedLeads / totalLeads) * 100);
-      
-      // Calculate leads per day (last 7 days)
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const recentLeads = leads?.filter(lead => 
-        new Date(lead.date_added) >= sevenDaysAgo
-      ).length || 0;
-      const leadsPerDay = Math.round(recentLeads / 7);
-
-      // Calculate average time to qualify (mock calculation - would need timestamps in real scenario)
-      const avgHours = Math.floor(Math.random() * 24) + 1;
-      const avgMinutes = Math.floor(Math.random() * 60);
-      const timeToQualify = `${avgHours}h ${avgMinutes}m`;
-
-      setAnalytics({
-        responseRate: `${responseRate}%`,
-        qualificationRate: `${qualificationRate}%`,
-        blockRate: `${blockRate}%`,
-        timeToQualify,
-        leadsPerDay: leadsPerDay.toString()
+      const latest = data[0] || {};
+      updateAnalyticsUI({
+        responseRate: (latest as any).response_rate || '0%',
+        qualificationRate: (latest as any).qualification_rate || '0%',
+        blockRate: (latest as any).block_rate || '0%',
+        timeToQualify: (latest as any).avg_time_to_qualify || '0h 0m',
+        leadsPerDay: (latest as any).leads_per_day || '0'
       });
     } catch (error) {
-      console.error('Error calculating analytics:', error);
+      console.error('Error loading analytics:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const updateAnalyticsUI = (data: any) => {
+    setAnalytics({
+      responseRate: data.responseRate || '0%',
+      qualificationRate: data.qualificationRate || '0%',
+      blockRate: data.blockRate || '0%',
+      timeToQualify: data.timeToQualify || '0h 0m',
+      leadsPerDay: data.leadsPerDay || '0'
+    });
+  };
+
   useEffect(() => {
-    fetchAnalytics();
+    loadAnalytics();
   }, []);
 
-  return { analytics, loading, refetch: fetchAnalytics };
+  return { analytics, loading, refetch: loadAnalytics };
 };
 
 const DateRangeSelector = ({ onDateRangeChange }: { onDateRangeChange: (range: string) => void }) => {

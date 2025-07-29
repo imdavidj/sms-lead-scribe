@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_metrics: {
+        Row: {
+          avg_time_to_qualify: string | null
+          block_rate: string | null
+          created_at: string
+          date: string
+          id: string
+          leads_per_day: string | null
+          qualification_rate: string | null
+          response_rate: string | null
+          updated_at: string
+        }
+        Insert: {
+          avg_time_to_qualify?: string | null
+          block_rate?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          leads_per_day?: string | null
+          qualification_rate?: string | null
+          response_rate?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avg_time_to_qualify?: string | null
+          block_rate?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          leads_per_day?: string | null
+          qualification_rate?: string | null
+          response_rate?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           created_at: string
