@@ -3,6 +3,7 @@ import { Sidebar } from './Sidebar';
 import { ConversationsList } from './ConversationsList';
 import { ConversationThread } from './ConversationThread';
 import { LeadsView } from './LeadsView';
+import { UploadLists } from './UploadLists';
 import { Conversation } from '@/types/conversation';
 import { BarChart3, TrendingUp, CheckCircle, XCircle, Clock, Users, Calendar, ChevronDown } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -308,9 +309,17 @@ export const DashboardLayout = () => {
           </div>
         )}
 
+        {/* Upload Lists Sections */}
+        {['saved-lists', 'used-lists'].includes(activePage) && (
+          <div className={`section`}>
+            <UploadLists />
+          </div>
+        )}
+
         {/* All other sections */}
         {Object.entries(pageContent).map(([key, content]) => {
-          if (key === 'dashboard' || key === 'analytics' || ['all-leads', 'qualified', 'unqualified', 'no-response', 'blocked'].includes(key)) return null;
+          if (key === 'dashboard' || key === 'analytics' || 
+              ['all-leads', 'qualified', 'unqualified', 'no-response', 'blocked', 'saved-lists', 'used-lists'].includes(key)) return null;
           return (
             <div key={key} className={`section ${activePage === key ? '' : 'hidden'}`} id={content.dataSection}>
               <div className="bg-card rounded-xl p-8 shadow-sm">
