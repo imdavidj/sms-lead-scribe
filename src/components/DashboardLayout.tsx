@@ -237,41 +237,16 @@ const AnalyticsKPICards = () => (
 );
 
 const AnalyticsChart = () => {
-  useEffect(() => {
-    const canvas = document.getElementById('analyticsChart') as HTMLCanvasElement;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Set canvas size
-        canvas.width = canvas.offsetWidth;
-        canvas.height = 400;
-        
-        // Chart placeholder
-        ctx.fillStyle = '#374151';
-        ctx.font = '24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Chart Placeholder - Integrate your preferred chart library', canvas.width / 2, 200);
-        
-        ctx.fillStyle = '#6B7280';
-        ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.fillText('(Chart.js, D3.js, Recharts, etc.)', canvas.width / 2, 230);
-      }
-    }
-  }, []);
-
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm border-l-4 border-l-green-500">
       <h3 className="text-lg font-semibold mb-4 text-gray-900">Performance Trends</h3>
-      <canvas 
-        id="analyticsChart" 
-        className="w-full h-96 bg-gray-50 rounded-lg"
-        style={{ height: '400px' }}
-      >
-        Chart will render here
-      </canvas>
+      <div className="w-full h-96 bg-gray-50 rounded-lg flex items-center justify-center">
+        <div className="text-center">
+          <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+          <p className="text-xl text-gray-600 mb-2">Chart Placeholder</p>
+          <p className="text-sm text-gray-500">Integrate your preferred chart library (Chart.js, D3.js, Recharts, etc.)</p>
+        </div>
+      </div>
     </div>
   );
 };
