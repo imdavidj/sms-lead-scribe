@@ -3,6 +3,7 @@ import { Sidebar } from './Sidebar';
 import { ConversationsList } from './ConversationsList';
 import { ConversationThread } from './ConversationThread';
 import { Conversation } from '@/types/conversation';
+import { BarChart3 } from 'lucide-react';
 
 const pageContent = {
   dashboard: {
@@ -84,32 +85,35 @@ const pageContent = {
 
 const KPICards = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-      <div className="text-sm text-muted-foreground mb-2">Response Rate</div>
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="text-sm font-medium text-muted-foreground mb-2">Response Rate</div>
       <div className="text-3xl font-bold text-foreground">68.4%</div>
-      <div className="text-sm text-accent mt-1">↗ +5.2% vs last week</div>
+      <div className="text-sm text-emerald-600 mt-1 font-medium">↗ +5.2% vs last week</div>
     </div>
-    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-      <div className="text-sm text-muted-foreground mb-2">Qualification Rate</div>
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="text-sm font-medium text-muted-foreground mb-2">Qualification Rate</div>
       <div className="text-3xl font-bold text-foreground">32.1%</div>
-      <div className="text-sm text-accent mt-1">↗ +2.8% vs last week</div>
+      <div className="text-sm text-emerald-600 mt-1 font-medium">↗ +2.8% vs last week</div>
     </div>
-    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-      <div className="text-sm text-muted-foreground mb-2">Block Rate</div>
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="text-sm font-medium text-muted-foreground mb-2">Block Rate</div>
       <div className="text-3xl font-bold text-foreground">4.2%</div>
-      <div className="text-sm text-red-600 mt-1">↘ -1.1% vs last week</div>
+      <div className="text-sm text-red-500 mt-1 font-medium">↘ -1.1% vs last week</div>
     </div>
-    <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
-      <div className="text-sm text-muted-foreground mb-2">Time to Qualify</div>
+    <div className="bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="text-sm font-medium text-muted-foreground mb-2">Time to Qualify</div>
       <div className="text-3xl font-bold text-foreground">2.3 hrs</div>
-      <div className="text-sm text-accent mt-1">↘ -0.4 hrs vs last week</div>
+      <div className="text-sm text-emerald-600 mt-1 font-medium">↘ -0.4 hrs vs last week</div>
     </div>
   </div>
 );
 
 const ChartPlaceholder = () => (
-  <div className="bg-muted/50 border-2 border-dashed border-border rounded-lg h-80 flex items-center justify-center text-muted-foreground text-lg">
-    📊 Daily/Weekly Trends Chart Placeholder
+  <div className="bg-card border border-border rounded-xl h-80 flex items-center justify-center text-muted-foreground text-lg shadow-sm">
+    <div className="text-center">
+      <BarChart3 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+      <p>Analytics Dashboard Coming Soon</p>
+    </div>
   </div>
 );
 
@@ -180,10 +184,10 @@ export const DashboardLayout = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar onPageChange={setActivePage} activePage={activePage} />
       
-      <div className="flex-1 p-6">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">{currentPage.title}</h1>
-          <p className="text-muted-foreground">{currentPage.subtitle}</p>
+      <div className="flex-1 p-8 bg-background">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-foreground mb-2 tracking-tight">{currentPage.title}</h1>
+          <p className="text-lg text-muted-foreground">{currentPage.subtitle}</p>
         </div>
         
         {renderPageContent()}
