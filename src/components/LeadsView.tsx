@@ -19,6 +19,7 @@ interface Lead {
   zip: string;
   status: string;
   created_at: string;
+  date_added: string;
 }
 
 export function LeadsView() {
@@ -29,30 +30,42 @@ export function LeadsView() {
   const [loading, setLoading] = useState(true);
   const pageSize = 10;
 
-  useEffect(() => {
-    fetchLeads();
-  }, []);
-
-  const fetchLeads = async () => {
+  const loadLeads = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('leads')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('date_added', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching leads:', error);
-        return;
+      // Apply segment filter
+      if (currentSegment !== 'All') {
+        query = query.eq('status', currentSegment);
       }
 
+      // Apply search filter
+      if (searchTerm) {
+        query = query.or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,address.ilike.%${searchTerm}%`);
+      }
+
+      const { data, error } = await query;
+      
+      if (error) {
+        console.error('Error loading leads:', error);
+        return;
+      }
+      
       setLeads(data || []);
     } catch (error) {
-      console.error('Error fetching leads:', error);
+      console.error('Error loading leads:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadLeads();
+  }, [currentSegment, searchTerm]);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -65,24 +78,8 @@ export function LeadsView() {
   };
 
   const filterLeads = () => {
-    let filtered = leads;
-
-    // Filter by segment
-    if (currentSegment !== 'All') {
-      filtered = filtered.filter(lead => lead.status === currentSegment);
-    }
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(lead => 
-        lead.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.phone?.includes(searchTerm) ||
-        lead.address?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    return filtered;
+    // Since filtering is now done in the query, just return leads as-is for pagination
+    return leads;
   };
 
   const filteredLeads = filterLeads();
@@ -183,7 +180,7 @@ export function LeadsView() {
                             {lead.status}
                           </Badge>
                         </td>
-                        <td className="p-4">{new Date(lead.created_at).toLocaleDateString()}</td>
+                        <td className="p-4">{new Date(lead.date_added).toLocaleDateString()}</td>
                       </tr>
                     ))
                   )}
