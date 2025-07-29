@@ -125,10 +125,12 @@ export const DashboardLayout = () => {
   const currentPage = pageContent[activePage as keyof typeof pageContent] || pageContent.dashboard;
 
   const renderPageContent = () => {
+    const currentPageData = pageContent[activePage as keyof typeof pageContent];
+    
     return (
       <div className="space-y-6">
         {/* Dashboard Section */}
-        <div className={`section ${activePage === 'dashboard' ? 'block' : 'hidden'}`} id="dashboard">
+        <div className={`section ${activePage === 'dashboard' ? '' : 'hidden'}`} id="dashboard">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-300px)]">
             <div className="lg:col-span-1 overflow-hidden">
               <h3 className="text-lg font-semibold mb-4">Recent Conversations</h3>
@@ -151,7 +153,7 @@ export const DashboardLayout = () => {
         </div>
 
         {/* Analytics Section */}
-        <div className={`section ${activePage === 'analytics' ? 'block' : 'hidden'}`} id="analytics">
+        <div className={`section ${activePage === 'analytics' ? '' : 'hidden'}`} id="analytics">
           <KPICards />
           <ChartPlaceholder />
         </div>
@@ -160,7 +162,7 @@ export const DashboardLayout = () => {
         {Object.entries(pageContent).map(([key, content]) => {
           if (key === 'dashboard' || key === 'analytics') return null;
           return (
-            <div key={key} className={`section ${activePage === key ? 'block' : 'hidden'}`} id={content.dataSection}>
+            <div key={key} className={`section ${activePage === key ? '' : 'hidden'}`} id={content.dataSection}>
               <div className="bg-card rounded-xl p-8 shadow-sm">
                 <h3 className="text-xl font-semibold mb-4">{content.title}</h3>
                 <p className="text-muted-foreground">
