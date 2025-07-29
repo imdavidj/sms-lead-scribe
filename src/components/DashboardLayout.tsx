@@ -6,6 +6,7 @@ import { LeadsView } from './LeadsView';
 import { UploadLists } from './UploadLists';
 import { Templates } from './Templates';
 import { Automations } from './Automations';
+import { Admin } from './Admin';
 import { Conversation } from '@/types/conversation';
 import { BarChart3, TrendingUp, CheckCircle, XCircle, Clock, Users, Calendar, ChevronDown } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -332,10 +333,17 @@ export const DashboardLayout = () => {
           </div>
         )}
 
+        {/* Admin Sections */}
+        {['users', 'webhooks', 'settings'].includes(activePage) && (
+          <div className={`section`}>
+            <Admin />
+          </div>
+        )}
+
         {/* All other sections */}
         {Object.entries(pageContent).map(([key, content]) => {
           if (key === 'dashboard' || key === 'analytics' || key === 'templates' || key === 'automations' ||
-              ['all-leads', 'qualified', 'unqualified', 'no-response', 'blocked', 'saved-lists', 'used-lists'].includes(key)) return null;
+              ['all-leads', 'qualified', 'unqualified', 'no-response', 'blocked', 'saved-lists', 'used-lists', 'users', 'webhooks', 'settings'].includes(key)) return null;
           return (
             <div key={key} className={`section ${activePage === key ? '' : 'hidden'}`} id={content.dataSection}>
               <div className="bg-card rounded-xl p-8 shadow-sm">
