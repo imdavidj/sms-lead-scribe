@@ -55,6 +55,7 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [sending, setSending] = useState(false)
+  const [sendingPushback, setSendingPushback] = useState(false)
   const [updatingStatus, setUpdatingStatus] = useState(false)
   const [messageClassifications, setMessageClassifications] = useState<Record<string, AIClassification>>({})
   const [leadFields, setLeadFields] = useState({
@@ -302,6 +303,64 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
     }
   }
 
+  // Get the latest AI classification for this conversation
+  const getLatestClassification = (): AIClassification | null => {
+    const inboundMessages = messages.filter(msg => msg.direction === 'inbound')
+    if (inboundMessages.length === 0) return null
+    
+    const latestInbound = inboundMessages[inboundMessages.length - 1]
+    return messageClassifications[latestInbound.id] || null
+  }
+
+  // Get AI tag badge styling
+  const getTagBadgeStyle = (tag: string) => {
+    switch (tag.toLowerCase()) {
+      case 'hot': return 'bg-green-100 text-green-800 border-green-200'
+      case 'warm': return 'bg-amber-100 text-amber-800 border-amber-200'
+      case 'cold': return 'bg-red-100 text-red-800 border-red-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  // Send pushback message
+  const sendPushback = async (pushbackText: string) => {
+    if (!conversation || sendingPushback) return
+
+    setSendingPushback(true)
+    try {
+      const response = await supabase.functions.invoke('reply', {
+        body: {
+          conversation_id: conversation.id,
+          phone: conversation.contact.phone_e164,
+          message: pushbackText
+        }
+      })
+
+      if (response.error) throw response.error
+
+      console.log('Pushback sent:', {
+        conversation_id: conversation.id,
+        phone: conversation.contact.phone_e164,
+        pushback_text: pushbackText,
+        timestamp: new Date().toISOString()
+      })
+
+      toast({
+        title: "Pushback sent",
+        description: "AI-suggested pushback has been sent successfully"
+      })
+    } catch (error) {
+      console.error('Error sending pushback:', error)
+      toast({
+        title: "Error",
+        description: "Failed to send pushback message",
+        variant: "destructive"
+      })
+    } finally {
+      setSendingPushback(false)
+    }
+  }
+
   if (!conversation) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground">
@@ -322,13 +381,24 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <CardTitle className="text-lg">
-                    {getContactDisplayName(conversation.contact)}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    {conversation.contact.phone_e164}
-                  </p>
+                <div className="flex items-center gap-2">
+                  <div>
+                    <CardTitle className="text-lg">
+                      {getContactDisplayName(conversation.contact)}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      {conversation.contact.phone_e164}
+                    </p>
+                  </div>
+                  {/* AI Tag Badge next to lead name */}
+                  {(() => {
+                    const latestClassification = getLatestClassification();
+                    return latestClassification?.tag ? (
+                      <Badge className={`${getTagBadgeStyle(latestClassification.tag)} border`}>
+                        {latestClassification.tag.toUpperCase()}
+                      </Badge>
+                    ) : null;
+                  })()}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -510,6 +580,42 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
                 placeholder="Expected selling price"
               />
             </div>
+
+            {/* Suggested Pushback Section */}
+            {(() => {
+              const latestClassification = getLatestClassification();
+              return latestClassification?.pushback ? (
+                <Card className="border border-orange-200 bg-orange-50">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-orange-800 flex items-center gap-2">
+                      <Bot className="h-4 w-4" />
+                      Suggested Pushback
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-sm text-orange-700 mb-3">{latestClassification.pushback}</p>
+                    <Button 
+                      onClick={() => sendPushback(latestClassification.pushback)}
+                      disabled={sendingPushback}
+                      className="w-full bg-orange-600 hover:bg-orange-700"
+                      size="sm"
+                    >
+                      {sendingPushback ? (
+                        <>
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-3 h-3 mr-2" />
+                          Send Pushback
+                        </>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : null;
+            })()}
 
             <div className="space-y-2">
               <Button onClick={updateLeadFields} className="w-full">
