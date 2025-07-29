@@ -107,6 +107,16 @@ const useAnalytics = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  const updateAnalyticsUI = (obj: any) => {
+    setAnalytics({
+      responseRate: obj.responseRate || '0%',
+      qualificationRate: obj.qualificationRate || '0%',
+      blockRate: obj.blockRate || '0%',
+      timeToQualify: obj.timeToQualify || '0h 0m',
+      leadsPerDay: obj.leadsPerDay || '0'
+    });
+  };
+
   const loadAnalytics = async () => {
     try {
       setLoading(true);
@@ -125,27 +135,17 @@ const useAnalytics = () => {
       
       const latest = data[0] || {};
       updateAnalyticsUI({
-        responseRate: (latest as any).response_rate || '0%',
-        qualificationRate: (latest as any).qualification_rate || '0%',
-        blockRate: (latest as any).block_rate || '0%',
-        timeToQualify: (latest as any).avg_time_to_qualify || '0h 0m',
-        leadsPerDay: (latest as any).leads_per_day || '0'
+        responseRate: (latest as any).response_rate,
+        qualificationRate: (latest as any).qualification_rate,
+        blockRate: (latest as any).block_rate,
+        timeToQualify: (latest as any).avg_time_to_qualify,
+        leadsPerDay: (latest as any).leads_per_day
       });
     } catch (error) {
       console.error('Error loading analytics:', error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const updateAnalyticsUI = (data: any) => {
-    setAnalytics({
-      responseRate: data.responseRate || '0%',
-      qualificationRate: data.qualificationRate || '0%',
-      blockRate: data.blockRate || '0%',
-      timeToQualify: data.timeToQualify || '0h 0m',
-      leadsPerDay: data.leadsPerDay || '0'
-    });
   };
 
   useEffect(() => {
