@@ -4,7 +4,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Lead {
@@ -28,6 +30,18 @@ export function LeadsView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newLead, setNewLead] = useState({
+    first_name: '',
+    last_name: '', 
+    phone: '',
+    email: '',
+    address: '',
+    city: '',
+    state: '',
+    zip: '',
+    status: 'No Response'
+  });
   const pageSize = 10;
 
   const loadLeads = async () => {
@@ -66,6 +80,50 @@ export function LeadsView() {
   useEffect(() => {
     loadLeads();
   }, [currentSegment, searchTerm]);
+
+  const pushToLeads = async () => {
+    try {
+      const lead = {
+        first_name: newLead.first_name,
+        last_name: newLead.last_name,
+        phone: newLead.phone,
+        email: newLead.email,
+        address: newLead.address,
+        city: newLead.city,
+        state: newLead.state,
+        zip: newLead.zip,
+        status: newLead.status,
+        date_added: new Date().toISOString()
+      };
+
+      const { error } = await supabase.from('leads').insert([lead]);
+      
+      if (error) {
+        alert('Error adding lead: ' + error.message);
+        return;
+      }
+
+      // Reset form and close modal
+      setNewLead({
+        first_name: '',
+        last_name: '', 
+        phone: '',
+        email: '',
+        address: '',
+        city: '',
+        state: '',
+        zip: '',
+        status: 'No Response'
+      });
+      setIsAddModalOpen(false);
+      
+      // Reload leads
+      await loadLeads();
+    } catch (error) {
+      console.error('Error adding lead:', error);
+      alert('Error adding lead');
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -118,26 +176,141 @@ export function LeadsView() {
           <CardTitle className="text-2xl font-bold">Leads</CardTitle>
           <p className="text-muted-foreground">Manage and track your lead qualification pipeline</p>
           
-          <div className="flex gap-4 items-center mt-4">
-            <Select value={currentSegment} onValueChange={handleSegmentChange}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="All">All Leads</SelectItem>
-                <SelectItem value="Qualified">Qualified</SelectItem>
-                <SelectItem value="Unqualified">Unqualified</SelectItem>
-                <SelectItem value="No Response">No Response</SelectItem>
-                <SelectItem value="Blocked">Blocked</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Input
-              placeholder="Search leads by name, phone, or address..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="w-[400px]"
-            />
+          <div className="flex gap-4 items-center justify-between mt-4">
+            <div className="flex gap-4 items-center">
+              <Select value={currentSegment} onValueChange={handleSegmentChange}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All Leads</SelectItem>
+                  <SelectItem value="Qualified">Qualified</SelectItem>
+                  <SelectItem value="Unqualified">Unqualified</SelectItem>
+                  <SelectItem value="No Response">No Response</SelectItem>
+                  <SelectItem value="Blocked">Blocked</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Input
+                placeholder="Search leads by name, phone, or address..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-[400px]"
+              />
+            </div>
+
+            <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Lead
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Add New Lead</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label htmlFor="fname">First Name</Label>
+                      <Input
+                        id="fname"
+                        value={newLead.first_name}
+                        onChange={(e) => setNewLead({...newLead, first_name: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lname">Last Name</Label>
+                      <Input
+                        id="lname"
+                        value={newLead.last_name}
+                        onChange={(e) => setNewLead({...newLead, last_name: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      value={newLead.phone}
+                      onChange={(e) => setNewLead({...newLead, phone: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={newLead.email}
+                      onChange={(e) => setNewLead({...newLead, email: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="address">Address</Label>
+                    <Input
+                      id="address"
+                      value={newLead.address}
+                      onChange={(e) => setNewLead({...newLead, address: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        value={newLead.city}
+                        onChange={(e) => setNewLead({...newLead, city: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="state">State</Label>
+                      <Input
+                        id="state"
+                        value={newLead.state}
+                        onChange={(e) => setNewLead({...newLead, state: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="zip">ZIP</Label>
+                      <Input
+                        id="zip"
+                        value={newLead.zip}
+                        onChange={(e) => setNewLead({...newLead, zip: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="status">Status</Label>
+                    <Select value={newLead.status} onValueChange={(value) => setNewLead({...newLead, status: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Qualified">Qualified</SelectItem>
+                        <SelectItem value="Unqualified">Unqualified</SelectItem>
+                        <SelectItem value="No Response">No Response</SelectItem>
+                        <SelectItem value="Blocked">Blocked</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="flex gap-2 justify-end mt-4">
+                    <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={pushToLeads}>
+                      Add Lead
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardHeader>
 
