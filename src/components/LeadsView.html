@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leads View</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: hsl(240, 10%, 3.9%);
+            color: hsl(0, 0%, 98%);
+            padding: 2rem;
+        }
+
+        .leads-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: hsl(240, 10%, 3.9%);
+            border-radius: 12px;
+            border: 1px solid hsl(240, 3.7%, 15.9%);
+            overflow: hidden;
+        }
+
+        .leads-header {
+            padding: 2rem;
+            border-bottom: 1px solid hsl(240, 3.7%, 15.9%);
+            background: hsl(240, 10%, 3.9%);
+        }
+
+        .leads-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: hsl(0, 0%, 98%);
+        }
+
+        .leads-subtitle {
+            color: hsl(240, 5%, 64.9%);
+            margin-bottom: 2rem;
+        }
+
+        .leads-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .segment-dropdown {
+            position: relative;
+        }
+
+        .dropdown-button {
+            background: hsl(240, 3.7%, 15.9%);
+            border: 1px solid hsl(240, 3.7%, 15.9%);
+            color: hsl(0, 0%, 98%);
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .dropdown-button:hover {
+            background: hsl(240, 3.7%, 20%);
+        }
+
+        .dropdown-button::after {
+            content: '▼';
+            position: absolute;
+            right: 0.75rem;
+            font-size: 0.75rem;
+            transition: transform 0.2s;
+        }
+
+        .dropdown-button.open::after {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: hsl(240, 10%, 3.9%);
+            border: 1px solid hsl(240, 3.7%, 15.9%);
+            border-radius: 8px;
+            min-width: 160px;
+            box-shadow: 0 10px 25px hsl(240, 10%, 3.9% / 0.5);
+            z-index: 1000;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid hsl(240, 3.7%, 15.9%);
+            transition: background 0.2s;
+            color: hsl(0, 0%, 98%);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: hsl(240, 3.7%, 15.9%);
+        }
+
+        .dropdown-item.active {
+            background: hsl(221, 83%, 53% / 0.1);
+            color: hsl(221, 83%, 53%);
+        }
+
+        .search-input {
+            background: hsl(240, 3.7%, 15.9%);
+            border: 1px solid hsl(240, 3.7%, 15.9%);
+            color: hsl(0, 0%, 98%);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            width: 300px;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: hsl(221, 83%, 53%);
+            box-shadow: 0 0 0 2px hsl(221, 83%, 53% / 0.2);
+        }
+
+        .search-input::placeholder {
+            color: hsl(240, 5%, 64.9%);
+        }
+
+        .leads-content {
+            padding: 2rem;
+        }
+
+        .table-container {
+            background: hsl(240, 10%, 3.9%);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid hsl(240, 3.7%, 15.9%);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: hsl(240, 3.7%, 15.9%);
+            color: hsl(0, 0%, 98%);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border-bottom: 1px solid hsl(240, 3.7%, 15.9%);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid hsl(240, 3.7%, 15.9%);
+            color: hsl(0, 0%, 98%);
+        }
+
+        tr:nth-child(even) {
+            background: hsl(240, 3.7%, 15.9% / 0.3);
+        }
+
+        tr:hover {
+            background: hsl(240, 3.7%, 15.9% / 0.5);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-qualified {
+            background: hsl(142, 76%, 36% / 0.2);
+            color: hsl(142, 76%, 36%);
+        }
+
+        .status-unqualified {
+            background: hsl(0, 84%, 60% / 0.2);
+            color: hsl(0, 84%, 60%);
+        }
+
+        .status-no-response {
+            background: hsl(45, 93%, 47% / 0.2);
+            color: hsl(45, 93%, 47%);
+        }
+
+        .status-blocked {
+            background: hsl(0, 0%, 45% / 0.2);
+            color: hsl(0, 0%, 70%);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-top: 1.5rem;
+            gap: 1rem;
+        }
+
+        .pagination-info {
+            color: hsl(240, 5%, 64.9%);
+            font-size: 0.875rem;
+            flex: 1;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .pagination-btn {
+            background: hsl(240, 3.7%, 15.9%);
+            border: 1px solid hsl(240, 3.7%, 15.9%);
+            color: hsl(0, 0%, 98%);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: hsl(240, 3.7%, 20%);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .leads-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .pagination {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="leads-container">
+        <div class="leads-header">
+            <h1 class="leads-title">Leads</h1>
+            <p class="leads-subtitle">Manage and track your lead qualification pipeline</p>
+            
+            <div class="leads-controls">
+                <div class="segment-dropdown">
+                    <button id="segmentSelect" class="dropdown-button">
+                        <span id="selectedSegment">All Leads</span>
+                    </button>
+                    <div id="segmentMenu" class="dropdown-menu">
+                        <div class="dropdown-item active" data-value="All">All Leads</div>
+                        <div class="dropdown-item" data-value="Qualified">Qualified</div>
+                        <div class="dropdown-item" data-value="Unqualified">Unqualified</div>
+                        <div class="dropdown-item" data-value="No Response">No Response</div>
+                        <div class="dropdown-item" data-value="Blocked">Blocked</div>
+                    </div>
+                </div>
+                
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Search leads by name, phone, or address..."
+                >
+            </div>
+        </div>
+
+        <div class="leads-content">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Date Added</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadsTableBody">
+                        <!-- Table rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <div class="pagination-info" id="paginationInfo">
+                    Showing 1-10 of 50 leads
+                </div>
+                <div class="pagination-controls">
+                    <button id="prevBtn" class="pagination-btn">‹ Prev</button>
+                    <button id="nextBtn" class="pagination-btn">Next ›</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        const leads = [
+            { fname: 'John', lname: 'Doe', phone: '555-1234', status: 'Qualified', date: '2025-07-29' },
+            { fname: 'Jane', lname: 'Smith', phone: '555-5678', status: 'Unqualified', date: '2025-07-28' },
+            { fname: 'Mike', lname: 'Johnson', phone: '555-9012', status: 'No Response', date: '2025-07-27' },
+            { fname: 'Sarah', lname: 'Wilson', phone: '555-3456', status: 'Blocked', date: '2025-07-26' },
+            { fname: 'Tom', lname: 'Brown', phone: '555-7890', status: 'Qualified', date: '2025-07-25' },
+            { fname: 'Lisa', lname: 'Davis', phone: '555-2345', status: 'Unqualified', date: '2025-07-24' },
+            { fname: 'James', lname: 'Miller', phone: '555-6789', status: 'Qualified', date: '2025-07-23' },
+            { fname: 'Emma', lname: 'Garcia', phone: '555-0123', status: 'No Response', date: '2025-07-22' },
+            { fname: 'David', lname: 'Martinez', phone: '555-4567', status: 'Qualified', date: '2025-07-21' },
+            { fname: 'Sofia', lname: 'Lopez', phone: '555-8901', status: 'Blocked', date: '2025-07-20' },
+            { fname: 'Chris', lname: 'Anderson', phone: '555-1357', status: 'Qualified', date: '2025-07-19' },
+            { fname: 'Amanda', lname: 'Taylor', phone: '555-2468', status: 'Unqualified', date: '2025-07-18' },
+            { fname: 'Ryan', lname: 'Thomas', phone: '555-3579', status: 'No Response', date: '2025-07-17' },
+            { fname: 'Nicole', lname: 'White', phone: '555-4680', status: 'Qualified', date: '2025-07-16' },
+            { fname: 'Kevin', lname: 'Harris', phone: '555-5791', status: 'Blocked', date: '2025-07-15' }
+        ];
+
+        let currentSegment = 'All';
+        let currentPage = 1;
+        let pageSize = 10;
+        let searchTerm = '';
+
+        function getStatusClass(status) {
+            return `status-${status.toLowerCase().replace(' ', '-')}`;
+        }
+
+        function filterLeads() {
+            let filtered = leads;
+
+            // Filter by segment
+            if (currentSegment !== 'All') {
+                filtered = filtered.filter(lead => lead.status === currentSegment);
+            }
+
+            // Filter by search term
+            if (searchTerm) {
+                filtered = filtered.filter(lead => 
+                    lead.fname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    lead.lname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    lead.phone.includes(searchTerm)
+                );
+            }
+
+            return filtered;
+        }
+
+        function renderLeads() {
+            const filteredLeads = filterLeads();
+            const totalLeads = filteredLeads.length;
+            const totalPages = Math.ceil(totalLeads / pageSize);
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalLeads);
+            const pageLeads = filteredLeads.slice(startIndex, endIndex);
+
+            // Render table rows
+            const tbody = document.getElementById('leadsTableBody');
+            tbody.innerHTML = '';
+
+            if (pageLeads.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: hsl(240, 5%, 64.9%);">
+                            No leads found matching your criteria
+                        </td>
+                    </tr>
+                `;
+            } else {
+                pageLeads.forEach(lead => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${lead.fname}</td>
+                        <td>${lead.lname}</td>
+                        <td>${lead.phone}</td>
+                        <td><span class="status-badge ${getStatusClass(lead.status)}">${lead.status}</span></td>
+                        <td>${new Date(lead.date).toLocaleDateString()}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Update pagination info
+            const paginationInfo = document.getElementById('paginationInfo');
+            if (totalLeads === 0) {
+                paginationInfo.textContent = 'No leads to display';
+            } else {
+                paginationInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${totalLeads} leads`;
+            }
+
+            // Update pagination buttons
+            document.getElementById('prevBtn').disabled = currentPage <= 1;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+        }
+
+        // Dropdown functionality
+        document.getElementById('segmentSelect').addEventListener('click', function() {
+            const menu = document.getElementById('segmentMenu');
+            const button = this;
+            
+            menu.classList.toggle('show');
+            button.classList.toggle('open');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.querySelector('.segment-dropdown');
+            if (!dropdown.contains(e.target)) {
+                document.getElementById('segmentMenu').classList.remove('show');
+                document.getElementById('segmentSelect').classList.remove('open');
+            }
+        });
+
+        // Dropdown item selection
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                const text = this.textContent;
+                
+                // Update active state
+                document.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update button text
+                document.getElementById('selectedSegment').textContent = text;
+                
+                // Update segment and re-render
+                currentSegment = value;
+                currentPage = 1;
+                renderLeads();
+                
+                // Close dropdown
+                document.getElementById('segmentMenu').classList.remove('show');
+                document.getElementById('segmentSelect').classList.remove('open');
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            searchTerm = e.target.value;
+            currentPage = 1;
+            renderLeads();
+        });
+
+        // Pagination controls
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderLeads();
+            }
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            const filteredLeads = filterLeads();
+            const totalPages = Math.ceil(filteredLeads.length / pageSize);
+            
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderLeads();
+            }
+        });
+
+        // Initial render
+        renderLeads();
+    </script>
+</body>
+</html>
