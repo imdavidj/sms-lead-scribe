@@ -4,7 +4,13 @@ import { ConversationsList } from './ConversationsList';
 import { ConversationThread } from './ConversationThread';
 import { LeadsView } from './LeadsView';
 import { Conversation } from '@/types/conversation';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, TrendingUp, CheckCircle, XCircle, Clock, Users, Calendar, ChevronDown } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const pageContent = {
   dashboard: {
@@ -93,11 +99,104 @@ const analytics = {
   leadsPerDay: '120'
 };
 
+const DateRangeSelector = ({ onDateRangeChange }: { onDateRangeChange: (range: string) => void }) => {
+  const [selectedRange, setSelectedRange] = React.useState('Past 7 days');
+  const [customFromDate, setCustomFromDate] = React.useState<Date>();
+  const [customToDate, setCustomToDate] = React.useState<Date>();
+  const [showCustomPicker, setShowCustomPicker] = React.useState(false);
+
+  const handleRangeChange = (range: string) => {
+    setSelectedRange(range);
+    if (range !== 'Custom date range') {
+      setShowCustomPicker(false);
+    } else {
+      setShowCustomPicker(true);
+    }
+    onDateRangeChange(range);
+  };
+
+  return (
+    <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-2">
+        <Calendar className="h-4 w-4 text-gray-600" />
+        <span className="text-sm font-medium text-gray-700">Date Range:</span>
+      </div>
+      
+      <Select value={selectedRange} onValueChange={handleRangeChange}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="Today">Today</SelectItem>
+          <SelectItem value="Past 7 days">Past 7 days</SelectItem>
+          <SelectItem value="Monthly">Monthly</SelectItem>
+          <SelectItem value="All Time">All Time</SelectItem>
+          <SelectItem value="Custom date range">Custom date range</SelectItem>
+        </SelectContent>
+      </Select>
+
+      {showCustomPicker && (
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[140px] justify-start text-left font-normal",
+                  !customFromDate && "text-muted-foreground"
+                )}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {customFromDate ? format(customFromDate, "MMM dd") : "From date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={customFromDate}
+                onSelect={setCustomFromDate}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+
+          <span className="text-gray-400">to</span>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[140px] justify-start text-left font-normal",
+                  !customToDate && "text-muted-foreground"
+                )}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {customToDate ? format(customToDate, "MMM dd") : "To date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={customToDate}
+                onSelect={setCustomToDate}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const AnalyticsKPICards = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-green-500">
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-2xl">📈</span>
+        <TrendingUp className="h-6 w-6 text-green-600" />
         <div className="text-sm font-medium text-gray-600">Response Rate</div>
       </div>
       <div className="text-3xl font-bold text-gray-900">{analytics.responseRate}</div>
@@ -105,7 +204,7 @@ const AnalyticsKPICards = () => (
     
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-green-500">
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-2xl">✅</span>
+        <CheckCircle className="h-6 w-6 text-green-600" />
         <div className="text-sm font-medium text-gray-600">Qualification Rate</div>
       </div>
       <div className="text-3xl font-bold text-gray-900">{analytics.qualificationRate}</div>
@@ -113,7 +212,7 @@ const AnalyticsKPICards = () => (
     
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-green-500">
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-2xl">🚫</span>
+        <XCircle className="h-6 w-6 text-red-500" />
         <div className="text-sm font-medium text-gray-600">Block Rate</div>
       </div>
       <div className="text-3xl font-bold text-gray-900">{analytics.blockRate}</div>
@@ -121,7 +220,7 @@ const AnalyticsKPICards = () => (
     
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-green-500">
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-2xl">⏱️</span>
+        <Clock className="h-6 w-6 text-blue-600" />
         <div className="text-sm font-medium text-gray-600">Time to Qualify</div>
       </div>
       <div className="text-3xl font-bold text-gray-900">{analytics.timeToQualify}</div>
@@ -129,7 +228,7 @@ const AnalyticsKPICards = () => (
     
     <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-green-500">
       <div className="flex items-center gap-3 mb-3">
-        <span className="text-2xl">👥</span>
+        <Users className="h-6 w-6 text-purple-600" />
         <div className="text-sm font-medium text-gray-600">Leads per Day</div>
       </div>
       <div className="text-3xl font-bold text-gray-900">{analytics.leadsPerDay}</div>
@@ -222,6 +321,7 @@ export const DashboardLayout = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Analytics</h2>
             <p className="text-gray-600">Key Performance Indicators</p>
           </div>
+          <DateRangeSelector onDateRangeChange={(range) => console.log('Date range changed to:', range)} />
           <AnalyticsKPICards />
           <AnalyticsChart />
         </div>
