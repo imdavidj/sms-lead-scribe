@@ -80,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
     <div className="w-72 bg-card border-r border-border flex flex-col min-h-screen shadow-lg">
       {/* Brand */}
       <div className="p-6 border-b border-border bg-card">
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">SMS Qualifier</h1>
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">N1AI</h1>
         <p className="text-sm text-muted-foreground mt-1">Lead Management Platform</p>
       </div>
 
