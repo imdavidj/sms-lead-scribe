@@ -8,62 +8,77 @@ const pageContent = {
   dashboard: {
     title: "Dashboard",
     subtitle: "Overview of your SMS lead qualification activities",
+    dataSection: "dashboard"
   },
   "all-leads": {
     title: "All Leads",
     subtitle: "Complete list of all leads in your system",
+    dataSection: "leads-all"
   },
   qualified: {
     title: "Qualified Leads",
     subtitle: "Leads that meet your qualification criteria",
+    dataSection: "leads-qualified"
   },
   unqualified: {
     title: "Unqualified Leads",
     subtitle: "Leads that don't meet qualification criteria",
+    dataSection: "leads-unqualified"
   },
   "no-response": {
     title: "No Response",
     subtitle: "Leads that haven't responded to messages",
+    dataSection: "leads-no-response"
   },
   blocked: {
     title: "Blocked",
     subtitle: "Leads that have opted out or blocked messages",
+    dataSection: "leads-blocked"
   },
   analytics: {
     title: "Analytics",
     subtitle: "Performance metrics and trend analysis",
+    dataSection: "analytics"
   },
   "saved-lists": {
     title: "Saved Lists",
     subtitle: "Your saved lead lists for future campaigns",
+    dataSection: "upload-saved"
   },
   "used-lists": {
     title: "Used Lists",
     subtitle: "Previously used lead lists and their performance",
+    dataSection: "upload-used"
   },
   templates: {
     title: "Templates",
     subtitle: "Manage your SMS message templates",
+    dataSection: "templates"
   },
   automations: {
     title: "Automations",
     subtitle: "Configure automated SMS sequences",
+    dataSection: "automations"
   },
   users: {
     title: "Users & Permissions",
     subtitle: "Manage team access and permissions",
+    dataSection: "admin-users"
   },
   webhooks: {
     title: "Webhooks & Integrations",
     subtitle: "Configure external integrations and webhooks",
+    dataSection: "admin-webhooks"
   },
   settings: {
     title: "Account Settings",
     subtitle: "Manage your account preferences",
+    dataSection: "admin-account"
   },
   help: {
     title: "Help & Docs",
     subtitle: "Documentation and support resources",
+    dataSection: "help"
   },
 };
 
@@ -110,9 +125,10 @@ export const DashboardLayout = () => {
   const currentPage = pageContent[activePage as keyof typeof pageContent] || pageContent.dashboard;
 
   const renderPageContent = () => {
-    if (activePage === 'dashboard') {
-      return (
-        <div className="space-y-6">
+    return (
+      <div className="space-y-6">
+        {/* Dashboard Section */}
+        <div className={`section ${activePage === 'dashboard' ? 'block' : 'hidden'}`} id="dashboard">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-300px)]">
             <div className="lg:col-span-1 overflow-hidden">
               <h3 className="text-lg font-semibold mb-4">Recent Conversations</h3>
@@ -133,24 +149,27 @@ export const DashboardLayout = () => {
             </div>
           </div>
         </div>
-      );
-    }
 
-    if (activePage === 'analytics') {
-      return (
-        <div className="space-y-6">
+        {/* Analytics Section */}
+        <div className={`section ${activePage === 'analytics' ? 'block' : 'hidden'}`} id="analytics">
           <KPICards />
           <ChartPlaceholder />
         </div>
-      );
-    }
 
-    return (
-      <div className="bg-card rounded-xl p-8 shadow-sm">
-        <h3 className="text-xl font-semibold mb-4">{currentPage.title}</h3>
-        <p className="text-muted-foreground">
-          This section will contain the relevant content for {currentPage.title.toLowerCase()}.
-        </p>
+        {/* All other sections */}
+        {Object.entries(pageContent).map(([key, content]) => {
+          if (key === 'dashboard' || key === 'analytics') return null;
+          return (
+            <div key={key} className={`section ${activePage === key ? 'block' : 'hidden'}`} id={content.dataSection}>
+              <div className="bg-card rounded-xl p-8 shadow-sm">
+                <h3 className="text-xl font-semibold mb-4">{content.title}</h3>
+                <p className="text-muted-foreground">
+                  This section will contain the relevant content for {content.title.toLowerCase()}.
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
     );
   };

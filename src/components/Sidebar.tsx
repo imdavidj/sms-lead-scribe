@@ -22,45 +22,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'dashboard', label: 'Dashboard', icon: '📊', dataSection: 'dashboard' },
     {
       id: 'leads',
       label: 'Leads',
       icon: '👥',
       hasSubmenu: true,
       submenu: [
-        { id: 'all-leads', label: 'All Leads', badge: '24' },
-        { id: 'qualified', label: 'Qualified', badge: '8' },
-        { id: 'unqualified', label: 'Unqualified', badge: '12' },
-        { id: 'no-response', label: 'No Response', badge: '3' },
-        { id: 'blocked', label: 'Blocked', badge: '1' },
+        { id: 'all-leads', label: 'All Leads', badge: '24', dataSection: 'leads-all' },
+        { id: 'qualified', label: 'Qualified', badge: '8', dataSection: 'leads-qualified' },
+        { id: 'unqualified', label: 'Unqualified', badge: '12', dataSection: 'leads-unqualified' },
+        { id: 'no-response', label: 'No Response', badge: '3', dataSection: 'leads-no-response' },
+        { id: 'blocked', label: 'Blocked', badge: '1', dataSection: 'leads-blocked' },
       ]
     },
-    { id: 'analytics', label: 'Analytics', icon: '📈' },
+    { id: 'analytics', label: 'Analytics', icon: '📈', dataSection: 'analytics' },
     {
       id: 'upload',
       label: 'Upload Lists',
       icon: '📋',
       hasSubmenu: true,
       submenu: [
-        { id: 'saved-lists', label: 'Saved Lists', badge: '5' },
-        { id: 'used-lists', label: 'Used Lists', badge: '12' },
+        { id: 'saved-lists', label: 'Saved Lists', badge: '5', dataSection: 'upload-saved' },
+        { id: 'used-lists', label: 'Used Lists', badge: '12', dataSection: 'upload-used' },
       ]
     },
-    { id: 'templates', label: 'Templates', icon: '💬' },
-    { id: 'automations', label: 'Automations', icon: '🤖' },
+    { id: 'templates', label: 'Templates', icon: '💬', dataSection: 'templates' },
+    { id: 'automations', label: 'Automations', icon: '🤖', dataSection: 'automations' },
     {
       id: 'admin',
       label: 'Admin',
       icon: '⚙️',
       hasSubmenu: true,
       submenu: [
-        { id: 'users', label: 'Users & Permissions' },
-        { id: 'webhooks', label: 'Webhooks & Integrations' },
-        { id: 'settings', label: 'Account Settings' },
+        { id: 'users', label: 'Users & Permissions', dataSection: 'admin-users' },
+        { id: 'webhooks', label: 'Webhooks & Integrations', dataSection: 'admin-webhooks' },
+        { id: 'settings', label: 'Account Settings', dataSection: 'admin-account' },
       ]
     },
-    { id: 'help', label: 'Help & Docs', icon: '❓' },
+    { id: 'help', label: 'Help & Docs', icon: '❓', dataSection: 'help' },
   ];
 
   return (
@@ -82,6 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
                   onPageChange(item.id);
                 }
               }}
+              data-section={item.dataSection}
               className={cn(
                 "w-full flex items-center justify-between px-4 py-3 text-left rounded-lg transition-all duration-200",
                 activePage === item.id
@@ -112,6 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
                   <button
                     key={subItem.id}
                     onClick={() => onPageChange(subItem.id)}
+                    data-section={subItem.dataSection}
                     className={cn(
                       "w-full flex items-center justify-between px-4 py-2 text-left rounded-lg transition-all duration-200 text-sm",
                       activePage === subItem.id
