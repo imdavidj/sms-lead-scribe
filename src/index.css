@@ -72,3 +72,28 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Highlight the active menu item */
+  .nav-item.active {
+    background: hsl(var(--primary) / 0.1);
+    border-left: 4px solid hsl(var(--primary));
+    color: hsl(var(--primary));
+  }
+
+  /* Collapse/expand sub-menus */
+  .has-children > .submenu {
+    display: none;
+  }
+  
+  .has-children.open > .submenu {
+    display: block;
+  }
+  
+  /* Dark mode adjustments */
+  .dark .nav-item.active {
+    background: hsl(var(--primary) / 0.15);
+    border-left: 4px solid hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+}
