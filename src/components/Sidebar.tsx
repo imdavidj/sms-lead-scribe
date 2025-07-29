@@ -81,11 +81,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
       {/* Brand */}
       <div className="p-6 border-b border-border bg-card">
         <div className="flex items-center gap-3">
-          <img 
-            src="/lovable-uploads/41c9f74f-81a4-46c1-8c9d-911ec238522a.png" 
-            alt="N1AI Logo" 
-            className="w-8 h-8 object-contain"
-          />
+          <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
+            <span className="text-white font-bold text-lg">1</span>
+          </div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">N1AI</h1>
         </div>
         <p className="text-sm text-muted-foreground mt-1">Lead Management Platform</p>
