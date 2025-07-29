@@ -24,13 +24,20 @@ interface Lead {
   date_added: string;
 }
 
+// Global leads array
+declare global {
+  interface Window {
+    leads: Lead[];
+  }
+}
+
 export function LeadsView() {
-  const [leads, setLeads] = useState<Lead[]>([]);
   const [currentSegment, setCurrentSegment] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [renderKey, setRenderKey] = useState(0);
   const [newLead, setNewLead] = useState({
     first_name: '',
     last_name: '', 
@@ -47,29 +54,19 @@ export function LeadsView() {
   const loadLeads = async () => {
     try {
       setLoading(true);
-      let query = supabase
+      const { data, error } = await supabase
         .from('leads')
         .select('*')
         .order('date_added', { ascending: false });
-
-      // Apply segment filter
-      if (currentSegment !== 'All') {
-        query = query.eq('status', currentSegment);
-      }
-
-      // Apply search filter
-      if (searchTerm) {
-        query = query.or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%,address.ilike.%${searchTerm}%`);
-      }
-
-      const { data, error } = await query;
       
       if (error) {
         console.error('Error loading leads:', error);
         return;
       }
       
-      setLeads(data || []);
+      window.leads = data || [];
+      renderLeads();
+      updateLeadBadges();
     } catch (error) {
       console.error('Error loading leads:', error);
     } finally {
@@ -77,9 +74,21 @@ export function LeadsView() {
     }
   };
 
+  const renderLeads = () => {
+    setRenderKey(prev => prev + 1);
+  };
+
+  const updateLeadBadges = () => {
+    // Force re-render to update any lead count badges
+    setRenderKey(prev => prev + 1);
+  };
+
   useEffect(() => {
+    if (!window.leads) {
+      window.leads = [];
+    }
     loadLeads();
-  }, [currentSegment, searchTerm]);
+  }, []);
 
   const pushToLeads = async () => {
     try {
@@ -136,8 +145,26 @@ export function LeadsView() {
   };
 
   const filterLeads = () => {
-    // Since filtering is now done in the query, just return leads as-is for pagination
-    return leads;
+    if (!window.leads) return [];
+    
+    let filtered = window.leads;
+
+    // Filter by segment
+    if (currentSegment !== 'All') {
+      filtered = filtered.filter(lead => lead.status === currentSegment);
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(lead => 
+        lead.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lead.phone?.includes(searchTerm) ||
+        lead.address?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return filtered;
   };
 
   const filteredLeads = filterLeads();
