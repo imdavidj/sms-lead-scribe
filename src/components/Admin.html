@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 240 10% 3.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 240 10% 3.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 240 10% 3.9%;
+            --primary: 240 5.9% 10%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 240 4.8% 95.9%;
+            --secondary-foreground: 240 5.9% 10%;
+            --muted: 240 4.8% 95.9%;
+            --muted-foreground: 240 3.8% 46.1%;
+            --accent: 240 4.8% 95.9%;
+            --accent-foreground: 240 5.9% 10%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 0 0% 98%;
+            --border: 240 5.9% 90%;
+            --input: 240 5.9% 90%;
+            --ring: 240 10% 3.9%;
+            --radius: 0.5rem;
+        }
+
+        .dark {
+            --background: 240 10% 3.9%;
+            --foreground: 0 0% 98%;
+            --card: 240 10% 3.9%;
+            --card-foreground: 0 0% 98%;
+            --popover: 240 10% 3.9%;
+            --popover-foreground: 0 0% 98%;
+            --primary: 0 0% 98%;
+            --primary-foreground: 240 5.9% 10%;
+            --secondary: 240 3.7% 15.9%;
+            --secondary-foreground: 0 0% 98%;
+            --muted: 240 3.7% 15.9%;
+            --muted-foreground: 240 5% 64.9%;
+            --accent: 240 3.7% 15.9%;
+            --accent-foreground: 0 0% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 0 0% 98%;
+            --border: 240 3.7% 15.9%;
+            --input: 240 3.7% 15.9%;
+            --ring: 240 4.9% 83.9%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: hsl(var(--muted-foreground));
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid hsl(var(--border));
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: hsl(var(--muted-foreground));
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: hsl(var(--foreground));
+        }
+
+        .tab.active {
+            color: hsl(var(--primary));
+            border-bottom-color: hsl(var(--primary));
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+        }
+
+        .btn-primary:hover {
+            background-color: hsl(var(--primary) / 0.9);
+        }
+
+        .btn-secondary {
+            background-color: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+            border: 1px solid hsl(var(--border));
+        }
+
+        .btn-secondary:hover {
+            background-color: hsl(var(--secondary) / 0.8);
+        }
+
+        .btn-destructive {
+            background-color: hsl(var(--destructive));
+            color: hsl(var(--destructive-foreground));
+        }
+
+        .btn-destructive:hover {
+            background-color: hsl(var(--destructive) / 0.9);
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .table-container {
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background-color: hsl(var(--muted));
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .table th:last-child {
+            text-align: right;
+        }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .table td:last-child {
+            text-align: right;
+        }
+
+        .table tr:nth-child(even) {
+            background-color: hsl(var(--muted) / 0.3);
+        }
+
+        .table tr:hover {
+            background-color: hsl(var(--muted) / 0.5);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #22c55e;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: calc(var(--radius) - 2px);
+        }
+
+        .badge-success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-destructive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal {
+            background-color: hsl(var(--card));
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            ring: 2px solid hsl(var(--ring));
+            border-color: hsl(var(--ring));
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .settings-form {
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .empty-state h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--foreground));
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Admin</h1>
+            <p>Manage users, integrations, and account settings.</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('users')">Users & Permissions</button>
+            <button class="tab" onclick="switchTab('integrations')">Webhooks & Integrations</button>
+            <button class="tab" onclick="switchTab('settings')">Account Settings</button>
+        </div>
+
+        <!-- Users & Permissions Tab -->
+        <div id="users-tab" class="tab-content active">
+            <div class="section-header">
+                <h2 class="section-title">Users & Permissions</h2>
+                <button class="btn btn-primary" onclick="openUserModal()">Add User</button>
+            </div>
+
+            <div id="users-container">
+                <div id="users-table" class="table-container"></div>
+                <div id="users-empty" class="empty-state hidden">
+                    <h3>No users yet</h3>
+                    <p>Add your first user to get started.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Webhooks & Integrations Tab -->
+        <div id="integrations-tab" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Webhooks & Integrations</h2>
+                <button class="btn btn-primary" onclick="openIntegrationModal()">Add Integration</button>
+            </div>
+
+            <div id="integrations-container">
+                <div id="integrations-table" class="table-container"></div>
+                <div id="integrations-empty" class="empty-state hidden">
+                    <h3>No integrations yet</h3>
+                    <p>Add your first integration to get started.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Settings Tab -->
+        <div id="settings-tab" class="tab-content">
+            <div class="section-header">
+                <h2 class="section-title">Account Settings</h2>
+            </div>
+
+            <div class="settings-form">
+                <form id="settings-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="company-name">Company Name</label>
+                            <input type="text" id="company-name" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="plan-type">Plan Type</label>
+                            <select id="plan-type" class="form-select" required>
+                                <option value="Free">Free</option>
+                                <option value="Pro">Pro</option>
+                                <option value="Enterprise">Enterprise</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="send-cap">Send Cap (messages per month)</label>
+                        <input type="number" id="send-cap" class="form-input" min="0" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="user-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="user-modal-title" class="modal-title">Add User</h2>
+            </div>
+            
+            <form id="user-form">
+                <div class="form-group">
+                    <label class="form-label" for="user-name">Name</label>
+                    <input type="text" id="user-name" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="user-email">Email</label>
+                    <input type="email" id="user-email" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="user-role">Role</label>
+                    <select id="user-role" class="form-select" required>
+                        <option value="">Select a role</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Manager">Manager</option>
+                        <option value="User">User</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span id="user-submit-text">Invite</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Integration Modal -->
+    <div id="integration-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="integration-modal-title" class="modal-title">Add Integration</h2>
+            </div>
+            
+            <form id="integration-form">
+                <div class="form-group">
+                    <label class="form-label" for="integration-name">Name</label>
+                    <input type="text" id="integration-name" class="form-input" placeholder="e.g., Slack, CRM, Zapier" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="integration-url">Webhook URL</label>
+                    <input type="url" id="integration-url" class="form-input" placeholder="https://..." required>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="integration-enabled" checked>
+                        <label class="form-label" for="integration-enabled">Enabled</label>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeIntegrationModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // In-memory data arrays
+        let users = [
+            { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', status: 'Active' },
+            { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Manager', status: 'Active' },
+            { id: 3, name: 'Bob Wilson', email: 'bob@example.com', role: 'User', status: 'Inactive' }
+        ];
+
+        let integrations = [
+            { id: 1, name: 'Slack Notifications', url: 'https://hooks.slack.com/services/...', enabled: true },
+            { id: 2, name: 'CRM Webhook', url: 'https://api.crm.com/webhook', enabled: false },
+            { id: 3, name: 'Zapier Integration', url: 'https://hooks.zapier.com/hooks/catch/...', enabled: true }
+        ];
+
+        let account = {
+            companyName: 'SMS Qualifier Inc',
+            plan: 'Pro',
+            sendCap: 3000
+        };
+
+        let editingUserId = null;
+        let editingIntegrationId = null;
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to selected tab
+            event.target.classList.add('active');
+        }
+
+        // Users functions
+        function renderUsers() {
+            const container = document.getElementById('users-table');
+            const emptyState = document.getElementById('users-empty');
+            
+            if (users.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td><strong>${escapeHtml(user.name)}</strong></td>
+                                <td>${escapeHtml(user.email)}</td>
+                                <td>${escapeHtml(user.role)}</td>
+                                <td>
+                                    <span class="badge ${user.status === 'Active' ? 'badge-success' : 'badge-warning'}">
+                                        ${user.status}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="openUserModal(${user.id})">Edit</button>
+                                    <button class="btn btn-sm btn-destructive" onclick="deleteUser(${user.id})">Remove</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function openUserModal(id = null) {
+            const modal = document.getElementById('user-modal');
+            const modalTitle = document.getElementById('user-modal-title');
+            const submitText = document.getElementById('user-submit-text');
+            const form = document.getElementById('user-form');
+            
+            editingUserId = id;
+            
+            if (id) {
+                const user = users.find(u => u.id === id);
+                modalTitle.textContent = 'Edit User';
+                submitText.textContent = 'Save';
+                document.getElementById('user-name').value = user.name;
+                document.getElementById('user-email').value = user.email;
+                document.getElementById('user-role').value = user.role;
+            } else {
+                modalTitle.textContent = 'Add User';
+                submitText.textContent = 'Invite';
+                form.reset();
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeUserModal() {
+            const modal = document.getElementById('user-modal');
+            modal.classList.add('hidden');
+            editingUserId = null;
+        }
+
+        function saveUser() {
+            const name = document.getElementById('user-name').value.trim();
+            const email = document.getElementById('user-email').value.trim();
+            const role = document.getElementById('user-role').value;
+            
+            if (!name || !email || !role) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (editingUserId) {
+                const user = users.find(u => u.id === editingUserId);
+                user.name = name;
+                user.email = email;
+                user.role = role;
+            } else {
+                const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+                users.push({
+                    id: newId,
+                    name,
+                    email,
+                    role,
+                    status: 'Active'
+                });
+            }
+            
+            closeUserModal();
+            renderUsers();
+        }
+
+        function deleteUser(id) {
+            if (confirm('Are you sure you want to remove this user?')) {
+                users = users.filter(u => u.id !== id);
+                renderUsers();
+            }
+        }
+
+        // Integrations functions
+        function renderIntegrations() {
+            const container = document.getElementById('integrations-table');
+            const emptyState = document.getElementById('integrations-empty');
+            
+            if (integrations.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            container.innerHTML = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>URL</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${integrations.map(integration => `
+                            <tr>
+                                <td><strong>${escapeHtml(integration.name)}</strong></td>
+                                <td>${escapeHtml(integration.url)}</td>
+                                <td>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" ${integration.enabled ? 'checked' : ''} 
+                                               onchange="toggleIntegration(${integration.id})">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span style="margin-left: 0.5rem; color: ${integration.enabled ? '#22c55e' : '#6b7280'};">
+                                        ${integration.enabled ? 'Enabled' : 'Disabled'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="openIntegrationModal(${integration.id})">Edit</button>
+                                    <button class="btn btn-sm btn-destructive" onclick="deleteIntegration(${integration.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function openIntegrationModal(id = null) {
+            const modal = document.getElementById('integration-modal');
+            const modalTitle = document.getElementById('integration-modal-title');
+            const form = document.getElementById('integration-form');
+            
+            editingIntegrationId = id;
+            
+            if (id) {
+                const integration = integrations.find(i => i.id === id);
+                modalTitle.textContent = 'Edit Integration';
+                document.getElementById('integration-name').value = integration.name;
+                document.getElementById('integration-url').value = integration.url;
+                document.getElementById('integration-enabled').checked = integration.enabled;
+            } else {
+                modalTitle.textContent = 'Add Integration';
+                form.reset();
+                document.getElementById('integration-enabled').checked = true;
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        function closeIntegrationModal() {
+            const modal = document.getElementById('integration-modal');
+            modal.classList.add('hidden');
+            editingIntegrationId = null;
+        }
+
+        function saveIntegration() {
+            const name = document.getElementById('integration-name').value.trim();
+            const url = document.getElementById('integration-url').value.trim();
+            const enabled = document.getElementById('integration-enabled').checked;
+            
+            if (!name || !url) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            if (editingIntegrationId) {
+                const integration = integrations.find(i => i.id === editingIntegrationId);
+                integration.name = name;
+                integration.url = url;
+                integration.enabled = enabled;
+            } else {
+                const newId = integrations.length > 0 ? Math.max(...integrations.map(i => i.id)) + 1 : 1;
+                integrations.push({
+                    id: newId,
+                    name,
+                    url,
+                    enabled
+                });
+            }
+            
+            closeIntegrationModal();
+            renderIntegrations();
+        }
+
+        function deleteIntegration(id) {
+            if (confirm('Are you sure you want to delete this integration?')) {
+                integrations = integrations.filter(i => i.id !== id);
+                renderIntegrations();
+            }
+        }
+
+        function toggleIntegration(id) {
+            const integration = integrations.find(i => i.id === id);
+            if (integration) {
+                integration.enabled = !integration.enabled;
+                renderIntegrations();
+            }
+        }
+
+        // Account settings functions
+        function renderAccountSettings() {
+            document.getElementById('company-name').value = account.companyName;
+            document.getElementById('plan-type').value = account.plan;
+            document.getElementById('send-cap').value = account.sendCap;
+        }
+
+        function saveAccountSettings() {
+            account.companyName = document.getElementById('company-name').value.trim();
+            account.plan = document.getElementById('plan-type').value;
+            account.sendCap = parseInt(document.getElementById('send-cap').value) || 0;
+            
+            alert('Settings saved successfully!');
+        }
+
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Event listeners
+        document.getElementById('user-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveUser();
+        });
+
+        document.getElementById('integration-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveIntegration();
+        });
+
+        document.getElementById('settings-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveAccountSettings();
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('user-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUserModal();
+            }
+        });
+
+        document.getElementById('integration-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeIntegrationModal();
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeUserModal();
+                closeIntegrationModal();
+            }
+        });
+
+        // Initial render
+        renderUsers();
+        renderIntegrations();
+        renderAccountSettings();
+    </script>
+</body>
+</html>
