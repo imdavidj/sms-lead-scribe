@@ -70,14 +70,17 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
   // AI Classification function
   const classifyMessage = async (messageText: string, messageId: string) => {
     try {
-      const response = await fetch('https://n1agetns.app.n8n.cloud/webhook-test/webhook/ai-classify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: messageText })
+      const response = await supabase.functions.invoke('ai-classify', {
+        body: { text: messageText }
       });
       
-      if (response.ok) {
-        const { tag, pushback } = await response.json();
+      if (response.error) {
+        console.error('Error classifying message:', response.error);
+        return;
+      }
+
+      if (response.data) {
+        const { tag, pushback } = response.data;
         setMessageClassifications(prev => ({
           ...prev,
           [messageId]: { tag, pushback }
