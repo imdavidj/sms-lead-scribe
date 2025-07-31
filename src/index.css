@@ -71,7 +71,13 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+  }
 }
+
+/* Classification Badge Styles */
+.badge--hot  { background-color: green;  color: white; }
+.badge--warm { background-color: orange; color: white; }
+.badge--cold { background-color: red;    color: white; }
 
 @layer components {
   /* Highlight the active menu item */
