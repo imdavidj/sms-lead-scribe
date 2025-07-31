@@ -403,6 +403,19 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
                     ) : null;
                   })()}
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // Re-classify all inbound messages
+                    messages.filter(msg => msg.direction === 'inbound').forEach(message => {
+                      classifyMessage(message.body, message.id)
+                    })
+                  }}
+                  className="ml-2"
+                >
+                  Refresh Classification
+                </Button>
               </div>
               <div className="flex items-center gap-2">
                 <Badge className={getStatusColor(conversation.status)}>
