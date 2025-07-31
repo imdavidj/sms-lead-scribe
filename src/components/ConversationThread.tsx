@@ -451,6 +451,35 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
           </CardHeader>
 
           <CardContent className="flex-1 flex flex-col p-0 min-h-0">
+            {/* Classification Header */}
+            <div className="classification-header">
+              {tag && (
+                <span className={`badge badge--${tag}`}>
+                  {tag.toUpperCase()}
+                </span>
+              )}
+              {pushback && (
+                <div className="pushback-card border rounded p-4 shadow">
+                  <h4 className="font-semibold mb-2">Suggested Pushback</h4>
+                  <p className="mb-4">{pushback}</p>
+                  <button
+                    onClick={async () => {
+                      await fetch("/webhook/send-sms", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          To: conversation?.contact.phone_e164,
+                          Body: pushback
+                        }),
+                      });
+                    }}
+                    className="btn btn-primary"
+                  >
+                    Send Pushback
+                  </button>
+                </div>
+              )}
+            </div>
             {/* Messages */}
             <ScrollArea className="flex-1 min-h-0">
               <div className="p-4 space-y-4">
