@@ -69,6 +69,28 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
   const [pushback, setPushback] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  useEffect(() => {
+    async function classify() {
+      try {
+        const res = await fetch("https://n1agetns.app.n8n.cloud/webhook-test/webhook/ai-classify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: messages[messages.length - 1].body,
+            conversationId: conversation?.id,
+            leadId: conversation?.id, // Using conversation id as leadId for now
+          }),
+        });
+        const data = await res.json();
+        setTag(data.tag);
+        setPushback(data.pushback);
+      } catch (err) {
+        console.error("Classification error:", err);
+      }
+    }
+    if (messages.length && conversation) classify();
+  }, [messages, conversation?.id]);
+
   // AI Classification function
   const classifyMessage = async (messageText: string, messageId: string) => {
     try {
