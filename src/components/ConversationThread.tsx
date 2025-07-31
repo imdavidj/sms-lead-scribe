@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -65,6 +65,8 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
     condition: "",
     price: ""
   })
+  const [tag, setTag] = useState<string | null>(null);
+  const [pushback, setPushback] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // AI Classification function
