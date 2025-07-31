@@ -70,7 +70,7 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
   // AI Classification function
   const classifyMessage = async (messageText: string, messageId: string) => {
     try {
-      const response = await fetch('/webhook/ai-classify', {
+      const response = await fetch('https://n1agetns.app.n8n.cloud/webhook-test/webhook/ai-classify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: messageText })
