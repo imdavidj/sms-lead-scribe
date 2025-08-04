@@ -474,6 +474,12 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
           </CardHeader>
 
           <CardContent className="flex-1 flex flex-col p-0 min-h-0">
+            {/* Tag Badge at top of thread panel */}
+            {tag && (
+              <span className={`badge badge--${tag}`}>
+                {tag.toUpperCase()}
+              </span>
+            )}
             {/* Classification Header */}
             <div className="classification-header">
               {tag && (
