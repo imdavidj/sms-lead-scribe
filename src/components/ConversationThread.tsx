@@ -77,6 +77,21 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
   }, [conversation]);
 
   useEffect(() => {
+    if (pushback && phone) {
+      fetch("/api/send-sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: phone,
+          message: pushback
+        }),
+      })
+      .then(() => console.log("Pushback sent"))
+      .catch(console.error);
+    }
+  }, [pushback, phone]);
+
+  useEffect(() => {
     async function classify() {
       try {
         const res = await fetch("https://n1agetns.app.n8n.cloud/webhook-test/webhook/ai-classify", {
