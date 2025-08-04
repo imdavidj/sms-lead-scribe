@@ -14,11 +14,6 @@ import { toast } from "@/hooks/use-toast"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Conversation, Contact, Message } from "@/types/conversation"
 
-// AI Classification interface
-interface AIClassification {
-  tag: string;
-  pushback: string;
-}
 
 // Global leads array interface
 interface Lead {
@@ -56,9 +51,7 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [sending, setSending] = useState(false)
-  const [sendingPushback, setSendingPushback] = useState(false)
   const [updatingStatus, setUpdatingStatus] = useState(false)
-  const [messageClassifications, setMessageClassifications] = useState<Record<string, AIClassification>>({})
   const [leadFields, setLeadFields] = useState({
     address: "",
     timeline: "",
@@ -66,8 +59,6 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
     condition: "",
     price: ""
   })
-  const [tag, setTag] = useState<string | null>(null);
-  const [pushback, setPushback] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -81,78 +72,6 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
     }
   }, [conversation]);
 
-  useEffect(() => {
-    if (pushback && phone) {
-      fetch("/api/send-sms", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone: phone,
-          message: pushback
-        }),
-      })
-      .then(() => console.log("Pushback sent"))
-      .catch(console.error);
-    }
-  }, [pushback, phone]);
-
-  useEffect(() => {
-    if (!messages.length || !phone) return;
-    
-    const classifyMessage = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('ai-classify', {
-          body: {
-            phone: phone,
-            direction: "inbound",
-            body: messages[messages.length - 1].body,
-            conversation_id: conversation?.id,
-            lead_id: conversation?.contact?.id
-          }
-        });
-        
-        if (error) {
-          console.error('Error classifying message:', error);
-          return;
-        }
-        
-        if (data?.tag) {
-          setTag(data.tag);
-        }
-        if (data?.pushback) {
-          setPushback(data.pushback);
-        }
-      } catch (error) {
-        console.error('Error classifying message:', error);
-      }
-    };
-    
-    classifyMessage();
-  }, [messages, phone]);
-
-  // AI Classification function
-  const classifyMessage = async (messageText: string, messageId: string) => {
-    try {
-      const response = await supabase.functions.invoke('ai-classify', {
-        body: { text: messageText }
-      });
-      
-      if (response.error) {
-        console.error('Error classifying message:', response.error);
-        return;
-      }
-
-      if (response.data) {
-        const { tag, pushback } = response.data;
-        setMessageClassifications(prev => ({
-          ...prev,
-          [messageId]: { tag, pushback }
-        }));
-      }
-    } catch (error) {
-      console.error('Error classifying message:', error);
-    }
-  };
 
   useEffect(() => {
     if (conversation) {
@@ -161,12 +80,6 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
       )
       setMessages(sortedMessages)
       
-      // Classify inbound messages on load
-      sortedMessages.forEach(message => {
-        if (message.direction === 'inbound' && !messageClassifications[message.id]) {
-          classifyMessage(message.body, message.id)
-        }
-      })
       
       // Extract latest AI summary data
       const latestSummary = conversation.messages
@@ -198,12 +111,6 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
           (payload) => {
             const newMessage = payload.new as Message
             setMessages(prev => [...prev, newMessage])
-            
-            // Classify new inbound messages
-            if (newMessage.direction === 'inbound') {
-              classifyMessage(newMessage.body, newMessage.id)
-            }
-            
             onConversationUpdate()
           }
         )
@@ -369,63 +276,6 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
     }
   }
 
-  // Get the latest AI classification for this conversation
-  const getLatestClassification = (): AIClassification | null => {
-    const inboundMessages = messages.filter(msg => msg.direction === 'inbound')
-    if (inboundMessages.length === 0) return null
-    
-    const latestInbound = inboundMessages[inboundMessages.length - 1]
-    return messageClassifications[latestInbound.id] || null
-  }
-
-  // Get AI tag badge styling
-  const getTagBadgeStyle = (tag: string) => {
-    switch (tag.toLowerCase()) {
-      case 'hot': return 'bg-green-100 text-green-800 border-green-200'
-      case 'warm': return 'bg-amber-100 text-amber-800 border-amber-200'
-      case 'cold': return 'bg-red-100 text-red-800 border-red-200'
-      default: return 'bg-gray-100 text-gray-800 border-gray-200'
-    }
-  }
-
-  // Send pushback message
-  const sendPushback = async (pushbackText: string) => {
-    if (!conversation || sendingPushback) return
-
-    setSendingPushback(true)
-    try {
-      const response = await supabase.functions.invoke('reply', {
-        body: {
-          conversation_id: conversation.id,
-          phone: phone,
-          message: pushbackText
-        }
-      })
-
-      if (response.error) throw response.error
-
-      console.log('Pushback sent:', {
-        conversation_id: conversation.id,
-        phone: phone,
-        pushback_text: pushbackText,
-        timestamp: new Date().toISOString()
-      })
-
-      toast({
-        title: "Pushback sent",
-        description: "AI-suggested pushback has been sent successfully"
-      })
-    } catch (error) {
-      console.error('Error sending pushback:', error)
-      toast({
-        title: "Error",
-        description: "Failed to send pushback message",
-        variant: "destructive"
-      })
-    } finally {
-      setSendingPushback(false)
-    }
-  }
 
   if (!conversation) {
     return (
@@ -456,15 +306,6 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
                       {conversation.contact.phone_e164}
                     </p>
                   </div>
-                  {/* AI Tag Badge next to lead name */}
-                  {(() => {
-                    const latestClassification = getLatestClassification();
-                    return latestClassification?.tag ? (
-                      <Badge className={`${getTagBadgeStyle(latestClassification.tag)} border`}>
-                        {latestClassification.tag.toUpperCase()}
-                      </Badge>
-                    ) : null;
-                  })()}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -490,110 +331,43 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
           </CardHeader>
 
           <CardContent className="flex-1 flex flex-col p-0 min-h-0">
-            {/* Tag Badge at top of thread panel */}
-            {tag && (
-              <div className="p-4 border-b">
-                <Badge className={`${getTagBadgeStyle(tag)} border`}>
-                  {tag.toUpperCase()}
-                </Badge>
-              </div>
-            )}
-            {/* Classification Header */}
-            <div className="classification-header">
-              {tag && (
-                <span className={`badge badge--${tag}`}>
-                  {tag.toUpperCase()}
-                </span>
-              )}
-              {pushback && (
-                <div className="pushback-card border rounded p-4 shadow">
-                  <h4 className="font-semibold mb-2">Suggested Pushback</h4>
-                  <p className="mb-4">{pushback}</p>
-                  <button
-                    onClick={async () => {
-                      await fetch("/webhook/send-sms", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          To: phone,
-                          Body: pushback
-                        }),
-                      });
-                    }}
-                    className="btn btn-primary"
-                  >
-                    Send Pushback
-                  </button>
-                </div>
-              )}
-            </div>
             {/* Messages */}
             <ScrollArea className="flex-1 min-h-0">
               <div className="p-4 space-y-4">
-                {messages.map((message) => {
-                  const classification = messageClassifications[message.id];
-                  return (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div className="max-w-[70%] space-y-2">
-                        <div
-                          className={`rounded-lg p-3 ${
-                            message.direction === 'outbound'
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 mb-1">
-                            {message.direction === 'outbound' ? (
-                              <User className="h-3 w-3" />
-                            ) : (
-                              <Bot className="h-3 w-3" />
-                            )}
-                            <span className="text-xs opacity-70">
-                              {message.direction === 'outbound' ? 'Agent' : 'Contact'}
-                            </span>
-                            {/* AI Classification Tag */}
-                            {classification && message.direction === 'inbound' && (
-                              <Badge variant="secondary" className="text-xs">
-                                {classification.tag}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm">{message.body}</p>
-                          <div className="flex items-center gap-1 mt-2 text-xs opacity-70">
-                            <Clock className="h-3 w-3" />
-                            <span>
-                              {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                            </span>
-                          </div>
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div className="max-w-[70%]">
+                      <div
+                        className={`rounded-lg p-3 ${
+                          message.direction === 'outbound'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          {message.direction === 'outbound' ? (
+                            <User className="h-3 w-3" />
+                          ) : (
+                            <Bot className="h-3 w-3" />
+                          )}
+                          <span className="text-xs opacity-70">
+                            {message.direction === 'outbound' ? 'Agent' : 'Contact'}
+                          </span>
                         </div>
-                        
-                        {/* AI Pushback Suggestion */}
-                        {classification && classification.pushback && message.direction === 'inbound' && (
-                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <div className="flex items-start gap-2">
-                              <Bot className="h-4 w-4 text-blue-600 mt-0.5" />
-                              <div className="flex-1">
-                                <p className="text-xs font-medium text-blue-800 mb-1">AI Suggested Response:</p>
-                                <p className="text-sm text-blue-700">{classification.pushback}</p>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="mt-2 h-6 text-xs"
-                                  onClick={() => setNewMessage(classification.pushback)}
-                                >
-                                  Use This Response
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                        <p className="text-sm">{message.body}</p>
+                        <div className="flex items-center gap-1 mt-2 text-xs opacity-70">
+                          <Clock className="h-3 w-3" />
+                          <span>
+                            {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  )
-                })}
+                  </div>
+                ))}
                 <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
@@ -684,41 +458,6 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
               />
             </div>
 
-            {/* Suggested Pushback Section */}
-            {(() => {
-              const latestClassification = getLatestClassification();
-              return latestClassification?.pushback ? (
-                <Card className="border border-orange-200 bg-orange-50">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-orange-800 flex items-center gap-2">
-                      <Bot className="h-4 w-4" />
-                      Suggested Pushback
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <p className="text-sm text-orange-700 mb-3">{latestClassification.pushback}</p>
-                    <Button 
-                      onClick={() => sendPushback(latestClassification.pushback)}
-                      disabled={sendingPushback}
-                      className="w-full bg-orange-600 hover:bg-orange-700"
-                      size="sm"
-                    >
-                      {sendingPushback ? (
-                        <>
-                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-3 h-3 mr-2" />
-                          Send Pushback
-                        </>
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : null;
-            })()}
 
             <div className="space-y-2">
               <Button onClick={updateLeadFields} className="w-full">
