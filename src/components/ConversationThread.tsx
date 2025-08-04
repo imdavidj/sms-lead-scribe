@@ -95,6 +95,7 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
     if (!messages.length) return;
     async function classify() {
       try {
+        console.log('Calling classification with:', { phone, body: messages[messages.length - 1].body });
         const res = await fetch("https://n1agetns.app.n8n.cloud/webhook-test/webhook/ai-classify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -105,8 +106,15 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
           }),
         });
         const data = await res.json();
-        setTag(data.tag);
-        setPushback(data.pushback);
+        console.log('Classification response:', data);
+        if (data.tag) {
+          setTag(data.tag);
+          console.log('Tag set to:', data.tag);
+        }
+        if (data.pushback) {
+          setPushback(data.pushback);
+          console.log('Pushback set to:', data.pushback);
+        }
       } catch (err) {
         console.error("Classification failed", err);
       }
