@@ -105,7 +105,9 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
           body: {
             phone: phone,
             direction: "inbound",
-            body: messages[messages.length - 1].body
+            body: messages[messages.length - 1].body,
+            conversation_id: conversation?.id,
+            lead_id: conversation?.contact?.id
           }
         });
         

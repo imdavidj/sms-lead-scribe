@@ -9,6 +9,8 @@ interface ClassifyRequest {
   phone: string
   direction: string
   body: string
+  conversation_id?: string
+  lead_id?: string
 }
 
 Deno.serve(async (req) => {
@@ -43,7 +45,9 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             phone: payload.phone,
             direction: payload.direction,
-            body: payload.body
+            body: payload.body,
+            conversation_id: payload.conversation_id,
+            lead_id: payload.lead_id
           })
         })
 
