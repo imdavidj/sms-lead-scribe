@@ -6,7 +6,9 @@ const corsHeaders = {
 }
 
 interface ClassifyRequest {
-  text: string
+  phone: string
+  direction: string
+  body: string
 }
 
 Deno.serve(async (req) => {
@@ -21,9 +23,9 @@ Deno.serve(async (req) => {
       console.log('Received AI classification request:', payload)
 
       // Validate required fields
-      if (!payload.text) {
+      if (!payload.phone || !payload.direction || !payload.body) {
         return new Response(
-          JSON.stringify({ error: 'Missing required field: text' }),
+          JSON.stringify({ error: 'Missing required fields: phone, direction, body' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
@@ -38,7 +40,11 @@ Deno.serve(async (req) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ text: payload.text })
+          body: JSON.stringify({
+            phone: payload.phone,
+            direction: payload.direction,
+            body: payload.body
+          })
         })
 
         if (!n8nResponse.ok) {

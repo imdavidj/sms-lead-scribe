@@ -99,10 +99,14 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
   useEffect(() => {
     if (!messages.length || !phone) return;
     
-    const classifyMessage = async (text: string) => {
+    const classifyMessage = async () => {
       try {
         const { data, error } = await supabase.functions.invoke('ai-classify', {
-          body: { text }
+          body: {
+            phone: phone,
+            direction: "inbound",
+            body: messages[messages.length - 1].body
+          }
         });
         
         if (error) {
@@ -121,7 +125,7 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
       }
     };
     
-    classifyMessage(messages[messages.length - 1].body);
+    classifyMessage();
   }, [messages, phone]);
 
   // AI Classification function
