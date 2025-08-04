@@ -210,7 +210,7 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
       const response = await supabase.functions.invoke('reply', {
         body: {
           conversation_id: conversation.id,
-          phone: conversation.contact.phone_e164,
+          phone: phone,
           message: newMessage.trim()
         }
       })
@@ -306,7 +306,7 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
     const lead: Lead = {
       fname: conversation.contact.first_name || '',
       lname: conversation.contact.last_name || '',
-      phone: conversation.contact.phone_e164,
+      phone: phone,
       email: '', // Not available in current conversation data
       address: leadFields.address,
       city: '', // Would need to extract from address
@@ -380,7 +380,7 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
       const response = await supabase.functions.invoke('reply', {
         body: {
           conversation_id: conversation.id,
-          phone: conversation.contact.phone_e164,
+          phone: phone,
           message: pushbackText
         }
       })
@@ -389,7 +389,7 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
 
       console.log('Pushback sent:', {
         conversation_id: conversation.id,
-        phone: conversation.contact.phone_e164,
+        phone: phone,
         pushback_text: pushbackText,
         timestamp: new Date().toISOString()
       })
@@ -490,7 +490,7 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                          To: conversation?.contact.phone_e164,
+                          To: phone,
                           Body: pushback
                         }),
                       });
