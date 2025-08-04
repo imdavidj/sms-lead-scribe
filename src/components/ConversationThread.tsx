@@ -67,7 +67,14 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
   })
   const [tag, setTag] = useState<string | null>(null);
   const [pushback, setPushback] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (conversation) {
+      setPhone(conversation.contact.phone_e164);
+    }
+  }, [conversation]);
 
   useEffect(() => {
     async function classify() {
