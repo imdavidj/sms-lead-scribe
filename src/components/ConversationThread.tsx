@@ -49,9 +49,10 @@ if (typeof window !== 'undefined' && !window.globalLeads) {
 interface ConversationThreadProps {
   conversation: Conversation | null
   onConversationUpdate: () => void
+  leadPhone?: string
 }
 
-export function ConversationThread({ conversation, onConversationUpdate }: ConversationThreadProps) {
+export function ConversationThread({ conversation, onConversationUpdate, leadPhone }: ConversationThreadProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [sending, setSending] = useState(false)
@@ -69,6 +70,10 @@ export function ConversationThread({ conversation, onConversationUpdate }: Conve
   const [pushback, setPushback] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setPhone(leadPhone);
+  }, [leadPhone]);
 
   useEffect(() => {
     if (conversation) {
