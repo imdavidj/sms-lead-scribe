@@ -22,6 +22,9 @@ interface Lead {
   status: string;
   created_at: string;
   date_added: string;
+  ai_tag?: string;
+  ai_classification_reason?: string;
+  last_classification_at?: string;
 }
 
 // Global leads array
@@ -141,6 +144,16 @@ export function LeadsView() {
       case 'no response': return 'bg-yellow-100 text-yellow-800';
       case 'blocked': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // Get AI tag badge styling
+  const getAITagBadgeStyle = (tag: string) => {
+    switch (tag.toLowerCase()) {
+      case 'hot': return 'bg-green-100 text-green-800 border-green-200'
+      case 'warm': return 'bg-amber-100 text-amber-800 border-amber-200'
+      case 'cold': return 'bg-red-100 text-red-800 border-red-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
     }
   };
 
@@ -351,6 +364,7 @@ export function LeadsView() {
                     <th className="p-4 text-left font-medium">Last Name</th>
                     <th className="p-4 text-left font-medium">Phone</th>
                     <th className="p-4 text-left font-medium">Address</th>
+                    <th className="p-4 text-left font-medium">AI Tag</th>
                     <th className="p-4 text-left font-medium">Status</th>
                     <th className="p-4 text-left font-medium">Date Added</th>
                   </tr>
@@ -358,13 +372,13 @@ export function LeadsView() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={7} className="p-8 text-center text-muted-foreground">
                         Loading leads...
                       </td>
                     </tr>
                   ) : pageLeads.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={7} className="p-8 text-center text-muted-foreground">
                         No leads found matching your criteria
                       </td>
                     </tr>
@@ -375,6 +389,15 @@ export function LeadsView() {
                         <td className="p-4">{lead.last_name}</td>
                         <td className="p-4">{lead.phone}</td>
                         <td className="p-4">{lead.address}</td>
+                        <td className="p-4">
+                          {lead.ai_tag ? (
+                            <Badge className={`${getAITagBadgeStyle(lead.ai_tag)} border`}>
+                              {lead.ai_tag.toUpperCase()}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">-</span>
+                          )}
+                        </td>
                         <td className="p-4">
                           <Badge className={getStatusColor(lead.status)}>
                             {lead.status}

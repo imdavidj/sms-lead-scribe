@@ -17,6 +17,11 @@ interface MessageWebhookPayload {
     price?: string
   } | null
   twilio_sid?: string
+  // AI Classification fields
+  conversationid?: string
+  leadid?: string
+  tag?: string
+  reason?: string
 }
 
 Deno.serve(async (req) => {
@@ -133,6 +138,40 @@ Deno.serve(async (req) => {
 
       if (updateError) {
         console.error('Error updating conversation:', updateError)
+      }
+
+      // Handle AI classification data for leads
+      if (payload.tag && payload.phone) {
+        console.log('Processing AI classification for lead:', {
+          phone: payload.phone,
+          tag: payload.tag,
+          reason: payload.reason
+        })
+
+        // Update or create lead with AI classification
+        const { error: leadError } = await supabase
+          .from('leads')
+          .upsert({
+            phone: phoneE164,
+            ai_tag: payload.tag,
+            ai_classification_reason: payload.reason,
+            last_classification_at: new Date().toISOString(),
+            // Set default status if creating new lead
+            status: 'No Response'
+          }, { 
+            onConflict: 'phone',
+            ignoreDuplicates: false 
+          })
+
+        if (leadError) {
+          console.error('Error updating lead with AI classification:', leadError)
+        } else {
+          console.log('Successfully updated lead with AI classification:', {
+            phone: phoneE164,
+            tag: payload.tag,
+            reason: payload.reason
+          })
+        }
       }
 
       return new Response(

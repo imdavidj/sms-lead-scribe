@@ -109,12 +109,15 @@ export type Database = {
       leads: {
         Row: {
           address: string | null
+          ai_classification_reason: string | null
+          ai_tag: string | null
           city: string | null
           created_at: string
           date_added: string | null
           email: string | null
           first_name: string | null
           id: string
+          last_classification_at: string | null
           last_name: string | null
           phone: string | null
           state: string | null
@@ -124,12 +127,15 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          ai_classification_reason?: string | null
+          ai_tag?: string | null
           city?: string | null
           created_at?: string
           date_added?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
+          last_classification_at?: string | null
           last_name?: string | null
           phone?: string | null
           state?: string | null
@@ -139,12 +145,15 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          ai_classification_reason?: string | null
+          ai_tag?: string | null
           city?: string | null
           created_at?: string
           date_added?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
+          last_classification_at?: string | null
           last_name?: string | null
           phone?: string | null
           state?: string | null
