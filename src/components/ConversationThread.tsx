@@ -97,34 +97,21 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
   }, [pushback, phone]);
 
   useEffect(() => {
-    if (!messages.length) return;
-    async function classify() {
-      try {
-        console.log('Calling classification with:', { phone, body: messages[messages.length - 1].body });
-        const res = await fetch("https://n1agetns.app.n8n.cloud/webhook-test/webhook/ai-classify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            phone,
-            direction: "inbound",
-            body: messages[messages.length - 1].body,
-          }),
-        });
-        const data = await res.json();
-        console.log('Classification response:', data);
-        if (data.tag) {
-          setTag(data.tag);
-          console.log('Tag set to:', data.tag);
-        }
-        if (data.pushback) {
-          setPushback(data.pushback);
-          console.log('Pushback set to:', data.pushback);
-        }
-      } catch (err) {
-        console.error("Classification failed", err);
-      }
-    }
-    classify();
+    if (!messages.length || !phone) return;
+    (async () => {
+      const res = await fetch("https://n1agetns.app.n8n.cloud/webhook-test/webhook/ai-classify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone,
+          direction: "inbound",
+          body: messages[messages.length - 1].body
+        }),
+      });
+      const data = await res.json();
+      setTag(data.tag);
+      setPushback(data.pushback);
+    })().catch(console.error);
   }, [messages, phone]);
 
   // AI Classification function
