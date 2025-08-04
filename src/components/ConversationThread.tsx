@@ -98,20 +98,30 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
 
   useEffect(() => {
     if (!messages.length || !phone) return;
-    (async () => {
-      const res = await fetch("https://n1agetns.app.n8n.cloud/webhook-test/webhook/ai-classify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone,
-          direction: "inbound",
-          body: messages[messages.length - 1].body
-        }),
-      });
-      const data = await res.json();
-      setTag(data.tag);
-      setPushback(data.pushback);
-    })().catch(console.error);
+    
+    const classifyMessage = async (text: string) => {
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-classify', {
+          body: { text }
+        });
+        
+        if (error) {
+          console.error('Error classifying message:', error);
+          return;
+        }
+        
+        if (data?.tag) {
+          setTag(data.tag);
+        }
+        if (data?.pushback) {
+          setPushback(data.pushback);
+        }
+      } catch (error) {
+        console.error('Error classifying message:', error);
+      }
+    };
+    
+    classifyMessage(messages[messages.length - 1].body);
   }, [messages, phone]);
 
   // AI Classification function
