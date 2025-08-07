@@ -12,8 +12,7 @@ import {
   HelpCircle,
   ChevronRight,
   Moon,
-  Sun,
-  FileText
+  Sun
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -74,7 +73,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
         { id: 'settings', label: 'Account Settings', dataSection: 'admin-account' },
       ]
     },
-    { id: 'documentation', label: 'Documentation', icon: FileText, dataSection: 'documentation', isExternal: true },
     { id: 'help', label: 'Help & Docs', icon: HelpCircle, dataSection: 'help' },
   ];
 
@@ -99,8 +97,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
               onClick={() => {
                 if (item.hasSubmenu) {
                   toggleMenu(item.id);
-                } else if (item.isExternal) {
-                  window.open('/documentation', '_blank');
                 } else {
                   onPageChange(item.id);
                 }
