@@ -100,7 +100,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageChange, activePage }) =>
                 if (item.hasSubmenu) {
                   toggleMenu(item.id);
                 } else if (item.isExternal) {
-                  window.open('/documentation', '_blank');
+                  // Open documentation in current tab instead of new tab
+                  window.location.href = '/documentation';
                 } else {
                   onPageChange(item.id);
                 }
