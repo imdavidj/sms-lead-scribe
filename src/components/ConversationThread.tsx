@@ -144,7 +144,7 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
       setNewMessage("")
       toast({
         title: "Message sent",
-        description: "Your reply has been sent and forwarded to n8n"
+        description: "Your reply has been sent successfully"
       })
     } catch (error) {
       console.error('Error sending message:', error)

@@ -297,18 +297,6 @@ export const SettingsView: React.FC = () => {
             <Badge className="bg-green-100 text-green-800 border-green-200">Connected</Badge>
           </div>
           
-          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Webhook className="w-5 h-5 text-purple-600" />
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-900">n8n Automation</h4>
-                <p className="text-sm text-gray-600">Workflow automation platform</p>
-              </div>
-            </div>
-            <Badge className="bg-green-100 text-green-800 border-green-200">Connected</Badge>
-          </div>
         </CardContent>
       </Card>
 

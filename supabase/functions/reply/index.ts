@@ -67,42 +67,13 @@ Deno.serve(async (req) => {
         console.error('Error updating conversation:', updateError)
       }
 
-      // Forward to n8n webhook (if configured)
-      const n8nWebhookUrl = Deno.env.get('N8N_REPLY_WEBHOOK_URL')
-      
-      if (n8nWebhookUrl) {
-        try {
-          const n8nResponse = await fetch(n8nWebhookUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              conversation_id: payload.conversation_id,
-              phone: payload.phone,
-              message: payload.message,
-              user_id: payload.user_id,
-              lovable_message_id: message.id
-            })
-          })
-
-          if (!n8nResponse.ok) {
-            console.error('Failed to forward to n8n webhook:', n8nResponse.statusText)
-          } else {
-            console.log('Successfully forwarded to n8n webhook')
-          }
-        } catch (n8nError) {
-          console.error('Error forwarding to n8n webhook:', n8nError)
-        }
-      } else {
-        console.warn('N8N_REPLY_WEBHOOK_URL not configured')
-      }
+      // Message sent successfully
+      console.log('Message sent successfully');
 
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message_id: message.id,
-          forwarded_to_n8n: !!n8nWebhookUrl 
+          message_id: message.id
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
