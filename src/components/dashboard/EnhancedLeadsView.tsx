@@ -23,10 +23,26 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
   const [editOpen, setEditOpen] = useState(false);
   const [editLead, setEditLead] = useState<any | null>(null);
   const [filters, setFilters] = useState<LeadFilterValue>({ statuses: [], cities: [], aiTags: [] });
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
-  useEffect(() => {
-    loadLeads();
-  }, []);
+useEffect(() => {
+  loadLeads();
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q') || '';
+  const statuses = params.get('statuses')?.split(',').filter(Boolean) || [];
+  const cities = params.get('cities')?.split(',').filter(Boolean) || [];
+  const aiTags = params.get('tags')?.split(',').filter(Boolean) || [];
+  setSearchTerm(q);
+  if (statuses.length || cities.length || aiTags.length) {
+    setFilters({ statuses, cities, aiTags });
+  } else {
+    const saved = localStorage.getItem('leadFilters');
+    if (saved) {
+      try { setFilters(JSON.parse(saved)); } catch {}
+    }
+  }
+}, []);
 
   const loadLeads = async () => {
     try {
@@ -125,6 +141,17 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
     }
   };
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (searchTerm) params.set('q', searchTerm); else params.delete('q');
+    if (filters.statuses.length) params.set('statuses', filters.statuses.join(',')); else params.delete('statuses');
+    if (filters.cities.length) params.set('cities', filters.cities.join(',')); else params.delete('cities');
+    if (filters.aiTags.length) params.set('tags', filters.aiTags.join(',')); else params.delete('tags');
+    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+    localStorage.setItem('leadFilters', JSON.stringify(filters));
+    setPage(1);
+  }, [filters, searchTerm]);
+
   const getAIScore = (lead: any) => {
     // Generate a mock AI score based on available data
     let score = 50;
@@ -164,7 +191,10 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
 
     return matchesSearch && matchesStatus && matchesCity && matchesAiTag;
   });
-
+  
+  const totalPages = Math.max(1, Math.ceil(filteredLeads.length / pageSize));
+  const pagedLeads = filteredLeads.slice((page - 1) * pageSize, page * pageSize);
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -201,13 +231,43 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
               onChange={setFilters}
               onClear={() => setFilters({ statuses: [], cities: [], aiTags: [] })}
             />
-      </div>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {searchTerm && (
+              <Badge variant="secondary" className="cursor-pointer" onClick={() => setSearchTerm('')}>
+                Search: {searchTerm} ×
+              </Badge>
+            )}
+            {filters.statuses.map((s) => (
+              <Badge key={`status-${s}`} variant="outline" className="cursor-pointer" onClick={() => setFilters({ ...filters, statuses: filters.statuses.filter(x => x !== s) })}>
+                Status: {s} ×
+              </Badge>
+            ))}
+            {filters.cities.map((c) => (
+              <Badge key={`city-${c}`} variant="outline" className="cursor-pointer" onClick={() => setFilters({ ...filters, cities: filters.cities.filter(x => x !== c) })}>
+                City: {c} ×
+              </Badge>
+            ))}
+            {filters.aiTags.map((t) => (
+              <Badge key={`tag-${t}`} variant="outline" className="cursor-pointer" onClick={() => setFilters({ ...filters, aiTags: filters.aiTags.filter(x => x !== t) })}>
+                Tag: {t} ×
+              </Badge>
+            ))}
+            {(searchTerm || filters.statuses.length || filters.cities.length || filters.aiTags.length) ? (
+              <Button variant="ghost" size="sm" onClick={() => { setSearchTerm(''); setFilters({ statuses: [], cities: [], aiTags: [] }); }}>
+                Clear all
+              </Button>
+            ) : null}
+          </div>
+        </div>
 
-      <LeadDetailsDrawer
+<LeadDetailsDrawer
         open={viewOpen}
         onOpenChange={setViewOpen}
         lead={viewLead}
         onPushToCRM={onPushToCRM}
+        onOpenConversation={onOpenConversation}
+        onEditLead={(lead) => { setEditLead(lead); setEditOpen(true); }}
       />
       <EditLeadModal
         open={editOpen}
@@ -241,7 +301,7 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredLeads.map((lead) => {
+              {pagedLeads.map((lead) => {
                 const aiScore = getAIScore(lead);
                 const leadForCRM: Lead = {
                   id: lead.id,
@@ -318,7 +378,6 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                           variant="outline"
                           size="sm"
                           onClick={() => onOpenConversation(lead.phone || '')}
-                          className="text-green-600 border-green-200 hover:bg-green-50"
                           disabled={!lead.phone}
                         >
                           <MessageSquare className="w-4 h-4 mr-2" />
@@ -328,7 +387,6 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                           variant="outline"
                           size="sm"
                           onClick={() => onPushToCRM(leadForCRM)}
-                          className="text-blue-600 border-blue-200 hover:bg-blue-50"
                         >
                           Push to CRM
                         </Button>

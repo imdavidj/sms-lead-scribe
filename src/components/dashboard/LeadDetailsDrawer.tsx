@@ -17,6 +17,8 @@ interface LeadDetailsDrawerProps {
   onOpenChange: (open: boolean) => void;
   lead: any | null;
   onPushToCRM: (lead: LeadType) => void;
+  onOpenConversation?: (phone: string) => void;
+  onEditLead?: (lead: any) => void;
 }
 
 const computeAIScore = (lead: any) => {
@@ -33,6 +35,8 @@ export const LeadDetailsDrawer: React.FC<LeadDetailsDrawerProps> = ({
   onOpenChange,
   lead,
   onPushToCRM,
+  onOpenConversation,
+  onEditLead,
 }) => {
   if (!lead) return null;
 
@@ -129,6 +133,23 @@ export const LeadDetailsDrawer: React.FC<LeadDetailsDrawerProps> = ({
         </div>
 
         <DrawerFooter>
+          {lead.phone && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                onOpenConversation?.(lead.phone);
+                onOpenChange(false);
+              }}
+            >
+              Open Chat
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            onClick={() => onEditLead?.(lead)}
+          >
+            Edit Lead
+          </Button>
           <Button
             onClick={() => {
               onPushToCRM(crmLead);
@@ -138,7 +159,7 @@ export const LeadDetailsDrawer: React.FC<LeadDetailsDrawerProps> = ({
             Push to CRM
           </Button>
           <DrawerClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="ghost">Close</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
