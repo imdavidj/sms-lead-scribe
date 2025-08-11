@@ -74,7 +74,7 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-3xl p-8 text-white">
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-3xl p-8 text-white">
         <h1 className="text-3xl font-bold flex items-center gap-3 mb-3">
           <Database className="w-8 h-8" />
           Intelligent Lead Database
@@ -84,22 +84,19 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
 
       <div className="bg-white rounded-2xl border border-gray-200">
         <div className="p-6 border-b border-gray-100">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h2 className="text-xl font-bold text-gray-900">Lead Database</h2>
-            <div className="flex gap-4">
-              <div className="relative flex-1 sm:w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input 
-                  placeholder="Search leads..." 
-                  className="pl-10 border-gray-200"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <Button variant="outline" size="icon" className="border-gray-200 hover:bg-gray-50">
-                <Filter className="w-4 h-4 text-gray-600" />
-              </Button>
+          <div className="flex gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input 
+                placeholder="Search leads..." 
+                className="pl-10 border-gray-200"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
+            <Button variant="outline" size="icon" className="border-gray-200 hover:bg-gray-50">
+              <Filter className="w-4 h-4 text-gray-600" />
+            </Button>
           </div>
         </div>
 
@@ -214,12 +211,8 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
         </div>
 
         {filteredLeads.length === 0 && (
-          <div className="text-center py-12">
-            <Database className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No leads found</h3>
-            <p className="text-gray-500">
-              {searchTerm ? 'No leads match your search criteria.' : 'Your lead database is empty. New leads will appear here automatically.'}
-            </p>
+          <div className="text-center py-12 text-gray-500">
+            No leads found matching your search criteria.
           </div>
         )}
       </div>
