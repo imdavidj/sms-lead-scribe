@@ -15,6 +15,7 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [newMessage, setNewMessage] = useState('');
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     loadConversations();
@@ -95,7 +96,7 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
   );
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation) return;
+    if (!newMessage.trim() || !selectedConversation || sending) return;
     
     const to = selectedConversation.contact.phone_e164;
     const messageText = newMessage.trim();
@@ -103,7 +104,7 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
     const normalizedPhone = to?.startsWith('+') ? to : `+1${to?.replace(/\D/g, '')}`;
 
     console.log('Sending SMS:', { to: normalizedPhone, message: messageText, conversationId });
-    
+    setSending(true);
     try {
       const response = await fetch('https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/reply', {
         method: 'POST',
@@ -126,6 +127,8 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
     } catch (error: any) {
       console.error('Error sending message:', error);
       toast({ title: 'Error', description: error.message || 'Failed to send message', variant: 'destructive' });
+    } finally {
+      setSending(false);
     }
   };
 
@@ -305,7 +308,7 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
                         }
                       }}
                     />
-                    <Button onClick={sendMessage} className="px-6">
+                    <Button onClick={sendMessage} className="px-6" disabled={!newMessage.trim() || sending}>
                       <Send className="w-4 h-4" />
                     </Button>
                   </div>
