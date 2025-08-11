@@ -74,12 +74,12 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-primary to-primary/80 rounded-3xl p-8 text-primary-foreground">
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-3xl p-8 text-white">
         <h1 className="text-3xl font-bold flex items-center gap-3 mb-3">
           <Database className="w-8 h-8" />
           Intelligent Lead Database
         </h1>
-        <p className="text-primary-foreground/80 text-lg">AI-enriched profiles with predictive scoring</p>
+        <p className="text-white/80 text-lg">AI-enriched profiles with predictive scoring</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-200">
