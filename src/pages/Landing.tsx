@@ -298,38 +298,48 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* Detailed Features Section */}
+      {/* How It Works Section */}
       <section id="features" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Everything You Need to Dominate
+              How It Works
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our platform includes every tool and feature you need to turn cold leads into closed deals.
+              Start converting more leads in just 3 simple steps
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            {detailedFeatures.map((category, categoryIndex) => (
-              <div key={categoryIndex}>
-                <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
-                  <div className="w-2 h-8 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full mr-4"></div>
-                  {category.category}
-                </h3>
-                <div className="space-y-6">
-                  {category.items.map((item, itemIndex) => (
-                    <div key={itemIndex} className="flex items-start gap-4">
-                      <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-1">{item.name}</h4>
-                        <p className="text-gray-600">{item.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl font-bold text-purple-600">1</span>
               </div>
-            ))}
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Upload Your Lists</h3>
+              <p className="text-gray-600 text-lg">
+                Import your leads from any source - spreadsheets, CRM, or lead generation tools. Our AI instantly analyzes each prospect.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl font-bold text-blue-600">2</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">AI Starts Conversations</h3>
+              <p className="text-gray-600 text-lg">
+                Our AI automatically reaches out to sellers with personalized messages, handles responses, and qualifies their motivation to sell.
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl font-bold text-green-600">3</span>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Close More Deals</h3>
+              <p className="text-gray-600 text-lg">
+                Get hot, qualified leads delivered to your dashboard. Focus your time only on motivated sellers ready to make a deal.
+              </p>
+            </div>
           </div>
         </div>
       </section>
