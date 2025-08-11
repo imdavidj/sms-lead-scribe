@@ -60,8 +60,8 @@ serve(async (req) => {
           price_data: {
             currency: "usd",
             product_data: { 
-              name: "SMS AI Pro",
-              description: "Complete AI-powered SMS lead conversion platform"
+              name: "AI Qualify",
+              description: "Complete AI-powered lead qualification platform"
             },
             unit_amount: 100000, // $1,000 in cents
             recurring: { interval: "month" },

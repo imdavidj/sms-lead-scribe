@@ -78,7 +78,7 @@ export const Landing = () => {
   ];
 
   const pricingTier = {
-    name: "SMS AI Pro",
+    name: "AI Qualify",
     price: "$1,000",
     period: "/month",
     description: "Everything you need to dominate your market",
@@ -136,7 +136,7 @@ export const Landing = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
               <MessageSquare className="w-8 h-8 text-purple-600" />
-              <span className="text-xl font-bold text-gray-900">SMS AI Pro</span>
+              <span className="text-xl font-bold text-gray-900">AI Qualify</span>
             </div>
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</a>
@@ -365,7 +365,7 @@ export const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose SMS AI Pro?
+              Why Choose AI Qualify?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Our AI just doesn't talk to sellers, it builds relationships, qualifies leads, and closes deals.
@@ -501,7 +501,7 @@ export const Landing = () => {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <MessageSquare className="w-8 h-8 text-purple-400" />
-                <span className="text-xl font-bold">SMS AI Pro</span>
+                <span className="text-xl font-bold">AI Qualify</span>
               </div>
               <p className="text-gray-400">
                 The future of real estate lead conversion is here.
@@ -533,7 +533,7 @@ export const Landing = () => {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 SMS AI Pro. All rights reserved.</p>
+            <p>&copy; 2024 AI Qualify. All rights reserved.</p>
           </div>
         </div>
       </footer>
