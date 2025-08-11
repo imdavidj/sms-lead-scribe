@@ -27,7 +27,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </Button>
           <div className="flex items-center gap-2">
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-lg font-bold text-xl">
-              N1AI
+              AI Qualify
             </div>
             <span className="text-sm text-gray-500 hidden sm:inline">Lead Intelligence Platform</span>
           </div>
