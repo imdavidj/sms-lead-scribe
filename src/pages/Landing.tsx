@@ -77,64 +77,25 @@ export const Landing = () => {
     }
   ];
 
-  const pricingTiers = [
-    {
-      name: "Starter",
-      price: "$97",
-      period: "/month",
-      description: "Perfect for individual agents getting started",
-      features: [
-        "Up to 500 leads/month",
-        "AI conversation handling",
-        "Basic lead scoring",
-        "SMS & email automation",
-        "Standard support",
-        "Mobile app access"
-      ],
-      buttonText: "Start Free Trial",
-      popular: false,
-      color: "border-gray-200"
-    },
-    {
-      name: "Professional",
-      price: "$197",
-      period: "/month",
-      description: "Ideal for growing teams and brokerages",
-      features: [
-        "Up to 2,000 leads/month",
-        "Advanced AI responses",
-        "Smart lead scoring",
-        "Multi-channel automation",
-        "Priority support",
-        "Team collaboration tools",
-        "Custom integrations",
-        "Advanced analytics"
-      ],
-      buttonText: "Start Free Trial",
-      popular: true,
-      color: "border-purple-500"
-    },
-    {
-      name: "Enterprise",
-      price: "$497",
-      period: "/month",
-      description: "For large teams that need everything",
-      features: [
-        "Unlimited leads",
-        "White-label solution",
-        "Custom AI training",
-        "Dedicated account manager",
-        "24/7 premium support",
-        "Custom integrations",
-        "Advanced reporting",
-        "API access",
-        "HIPAA compliance"
-      ],
-      buttonText: "Contact Sales",
-      popular: false,
-      color: "border-gray-200"
-    }
-  ];
+  const pricingTier = {
+    name: "SMS AI Pro",
+    price: "$1,000",
+    period: "/month",
+    description: "Everything you need to dominate your market",
+    features: [
+      "Unlimited leads and conversations",
+      "Advanced AI conversation handling",
+      "Smart lead scoring and qualification",
+      "Multi-channel automation (SMS, Email, Voice)",
+      "Real-time analytics and reporting",
+      "Campaign performance tracking",
+      "Lead pipeline management",
+      "Priority support and onboarding",
+      "Custom integrations available",
+      "Team collaboration tools"
+    ],
+    buttonText: "Get Started Now"
+  };
 
   const benefits = [
     "Save 10+ hours per week on lead follow-up",
@@ -225,7 +186,7 @@ export const Landing = () => {
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
               onClick={() => navigate('/dashboard')}
             >
-              Start Free Trial
+              Start Your Journey
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
             <Button 
@@ -352,57 +313,48 @@ export const Landing = () => {
               Simple, Transparent Pricing
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Choose the plan that fits your business. All plans include a 14-day free trial.
+              One powerful package. Everything included. No hidden fees.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {pricingTiers.map((tier, index) => (
-              <Card key={index} className={`relative ${tier.color} ${tier.popular ? 'ring-2 ring-purple-500 shadow-xl scale-105' : 'shadow-lg'}`}>
-                {tier.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-purple-600 text-white px-4 py-1">Most Popular</Badge>
-                  </div>
-                )}
-                <CardContent className="p-8">
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{tier.name}</h3>
-                    <p className="text-gray-600 mb-4">{tier.description}</p>
-                    <div className="mb-6">
-                      <span className="text-5xl font-bold text-gray-900">{tier.price}</span>
-                      <span className="text-gray-600">{tier.period}</span>
-                    </div>
-                  </div>
-                  
-                  <ul className="space-y-4 mb-8">
-                    {tier.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <Button 
-                    className={`w-full py-3 ${tier.popular 
-                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                      : 'bg-gray-900 hover:bg-gray-800 text-white'
-                    }`}
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    {tier.buttonText}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="max-w-md mx-auto">
+            <Card className="relative border-purple-500 ring-2 ring-purple-500 shadow-2xl">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-purple-600 text-white px-4 py-1">Most Popular</Badge>
+              </div>
+              <CardContent className="p-12 text-center">
+                <h3 className="text-3xl font-bold text-gray-900 mb-4">{pricingTier.name}</h3>
+                <p className="text-gray-600 mb-6 text-lg">{pricingTier.description}</p>
+                <div className="mb-8">
+                  <span className="text-6xl font-bold text-gray-900">{pricingTier.price}</span>
+                  <span className="text-xl text-gray-600">{pricingTier.period}</span>
+                </div>
+                
+                <ul className="space-y-4 mb-10 text-left">
+                  {pricingTier.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-start gap-3">
+                      <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700 text-lg">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <Button 
+                  className="w-full py-4 text-xl bg-purple-600 hover:bg-purple-700 text-white"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  {pricingTier.buttonText}
+                </Button>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="text-center mt-12">
             <p className="text-gray-600 mb-4">
-              Need a custom solution? We've got you covered.
+              Ready to transform your business? Let's talk about your specific needs.
             </p>
             <Button variant="outline" className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50">
-              Schedule a Demo
+              Schedule a Strategy Call
             </Button>
           </div>
         </div>
@@ -525,7 +477,7 @@ export const Landing = () => {
               className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-4 text-lg rounded-xl shadow-lg font-semibold"
               onClick={() => navigate('/dashboard')}
             >
-              Start Your Free Trial
+              Get Started Today
             </Button>
             <Button 
               size="lg" 
@@ -537,7 +489,7 @@ export const Landing = () => {
           </div>
           <div className="flex justify-center items-center gap-2 text-white/80 mt-4">
             <Shield className="w-5 h-5" />
-            <span>No credit card required • 14-day free trial</span>
+            <span>Professional onboarding included • White-glove setup</span>
           </div>
         </div>
       </section>
