@@ -16,7 +16,7 @@ export const EnhancedDashboardLayout = () => {
   const [isAIProcessing, setIsAIProcessing] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [showCRMModal, setShowCRMModal] = useState(false);
-
+  const [preselectPhone, setPreselectPhone] = useState<string | null>(null);
   useEffect(() => {
     const interval = setInterval(() => {
       setIsAIProcessing(prev => !prev);
@@ -34,9 +34,15 @@ export const EnhancedDashboardLayout = () => {
       case 'dashboard':
         return <AICommandCenter isAIProcessing={isAIProcessing} />;
       case 'conversations':
-        return <ConversationManager />;
+        return <ConversationManager preselectPhone={preselectPhone || undefined} />;
       case 'leads':
-        return <EnhancedLeadsView onPushToCRM={handlePushToCRM} />;
+        return <EnhancedLeadsView 
+          onPushToCRM={handlePushToCRM}
+          onOpenConversation={(phone) => {
+            setPreselectPhone(phone || '');
+            setActiveView('conversations');
+          }}
+        />;
       case 'campaigns':
         return <CampaignsView />;
       case 'analytics':

@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { supabase } from "@/integrations/supabase/client";
 import { Conversation, Message } from '@/types/conversation';
 
-export const ConversationManager: React.FC = () => {
+export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ preselectPhone }) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [loading, setLoading] = useState(true);
@@ -19,6 +19,17 @@ export const ConversationManager: React.FC = () => {
     loadConversations();
   }, []);
 
+  useEffect(() => {
+    if (!preselectPhone) return;
+    const match = conversations.find(
+      (c) => c.contact?.phone_e164 && c.contact.phone_e164.includes(preselectPhone)
+    );
+    if (match) {
+      setSelectedConversation(match);
+    } else {
+      setSearchTerm(preselectPhone);
+    }
+  }, [preselectPhone, conversations]);
   const loadConversations = async () => {
     try {
       setLoading(true);

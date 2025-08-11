@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Search, Eye, Edit } from 'lucide-react';
+import { Database, Search, Eye, Edit, MessageSquare } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,9 +11,10 @@ import { LeadFilters, LeadFilterValue } from './LeadFilters';
 
 interface EnhancedLeadsViewProps {
   onPushToCRM: (lead: Lead) => void;
+  onOpenConversation: (phone: string) => void;
 }
 
-export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCRM }) => {
+export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCRM, onOpenConversation }) => {
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -313,6 +314,16 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onOpenConversation(lead.phone || '')}
+                          className="text-green-600 border-green-200 hover:bg-green-50"
+                          disabled={!lead.phone}
+                        >
+                          <MessageSquare className="w-4 h-4 mr-2" />
+                          Open Chat
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
