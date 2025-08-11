@@ -92,22 +92,22 @@ export const ConversationManager: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-chart-1 to-primary rounded-3xl p-8 text-primary-foreground">
+      <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl p-8 text-white">
         <h1 className="text-3xl font-bold flex items-center gap-3 mb-3">
           <MessageSquare className="w-8 h-8" />
           AI Conversation Manager
         </h1>
-        <p className="text-primary-foreground/80 text-lg">Monitor and control AI conversations in real-time</p>
+        <p className="text-white/80 text-lg">Monitor and control AI conversations in real-time</p>
       </div>
 
-      <div className="bg-card rounded-2xl border border-border overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         {/* Search Bar */}
-        <div className="p-6 border-b border-border bg-accent/5">
+        <div className="p-6 border-b border-gray-100 bg-gray-50">
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input 
               placeholder="Search conversations..." 
-              className="pl-10 bg-background border-0 shadow-sm"
+              className="pl-10 bg-white border-gray-200 shadow-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -117,23 +117,23 @@ export const ConversationManager: React.FC = () => {
         {/* Conversation Layout */}
         <div className="flex h-[600px]">
           {/* Conversations List */}
-          <div className="w-1/3 border-r border-border overflow-y-auto">
+          <div className="w-1/3 border-r border-gray-200 overflow-y-auto">
             {filteredConversations.map(conv => (
               <div
                 key={conv.id}
-                className={`p-6 hover:bg-accent/50 cursor-pointer transition-all border-l-4 ${
+                className={`p-6 hover:bg-gray-50 cursor-pointer transition-all border-l-4 ${
                   selectedConversation?.id === conv.id 
-                    ? 'bg-accent/30 border-l-primary' 
-                    : 'border-l-transparent hover:border-l-muted'
+                    ? 'bg-blue-50 border-l-blue-500' 
+                    : 'border-l-transparent hover:border-l-gray-300'
                 }`}
                 onClick={() => setSelectedConversation(conv)}
               >
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <div className="font-semibold text-base mb-1">
+                    <div className="font-semibold text-base text-gray-900 mb-1">
                       {conv.contact?.first_name} {conv.contact?.last_name}
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-gray-500">
                       {conv.contact?.phone_e164}
                     </div>
                   </div>
@@ -148,11 +148,11 @@ export const ConversationManager: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                <div className="text-sm text-gray-500 mb-3 line-clamp-2">
                   {conv.messages?.[conv.messages.length - 1]?.body?.substring(0, 80)}...
                 </div>
                 
-                <div className="flex justify-between items-center text-xs text-muted-foreground">
+                <div className="flex justify-between items-center text-xs text-gray-400">
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     {new Date(conv.last_msg_at || conv.created_at).toLocaleTimeString([], { 
@@ -160,7 +160,7 @@ export const ConversationManager: React.FC = () => {
                       minute: '2-digit' 
                     })}
                   </span>
-                  <span className="font-medium text-primary">$385K</span>
+                  <span className="font-medium text-blue-600">$385K</span>
                 </div>
               </div>
             ))}
@@ -171,19 +171,19 @@ export const ConversationManager: React.FC = () => {
             {selectedConversation ? (
               <>
                 {/* Chat Header */}
-                <div className="p-6 border-b border-border bg-accent/5">
+                <div className="p-6 border-b border-gray-200 bg-gray-50">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span className="font-semibold text-primary">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="font-semibold text-blue-600">
                           {selectedConversation.contact?.first_name?.[0] || 'U'}
                         </span>
                       </div>
                       <div>
-                        <div className="font-semibold text-lg">
+                        <div className="font-semibold text-lg text-gray-900">
                           {selectedConversation.contact?.first_name} {selectedConversation.contact?.last_name}
                         </div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <div className="text-sm text-gray-500 flex items-center gap-2">
                           <Phone className="w-3 h-3" />
                           {selectedConversation.contact?.phone_e164}
                           <Badge variant="secondary" className="text-xs">
@@ -203,10 +203,10 @@ export const ConversationManager: React.FC = () => {
                             <MoreVertical className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-popover border border-border shadow-lg z-50">
+                        <DropdownMenuContent className="bg-white border border-gray-200 shadow-lg z-50">
                           <DropdownMenuItem>View Lead Details</DropdownMenuItem>
                           <DropdownMenuItem>Export Conversation</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">Close Conversation</DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600">Close Conversation</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -214,20 +214,20 @@ export const ConversationManager: React.FC = () => {
                 </div>
 
                 {/* Messages - WhatsApp Style */}
-                <div className="flex-1 overflow-y-auto p-6 bg-accent/5">
+                <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
                   <div className="space-y-4">
                     {selectedConversation.messages?.map(message => (
                       <div key={message.id} className={`flex ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-[70%] rounded-2xl px-4 py-3 ${
                           message.direction === 'outbound' 
-                            ? 'bg-primary text-primary-foreground' 
-                            : 'bg-background border border-border'
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-white border border-gray-200 text-gray-900'
                         }`}>
                           <p className="text-sm leading-relaxed">{message.body}</p>
                           <div className={`text-xs mt-2 ${
                             message.direction === 'outbound' 
-                              ? 'text-primary-foreground/70' 
-                              : 'text-muted-foreground'
+                              ? 'text-blue-100' 
+                              : 'text-gray-500'
                           }`}>
                             {formatMessageTime(message.created_at)}
                           </div>
@@ -238,13 +238,13 @@ export const ConversationManager: React.FC = () => {
                 </div>
 
                 {/* Message Input */}
-                <div className="p-6 border-t border-border bg-background">
+                <div className="p-6 border-t border-gray-200 bg-white">
                   <div className="flex gap-3">
                     <Textarea
                       placeholder="Type your reply..."
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      className="resize-none border-0 shadow-sm"
+                      className="resize-none border-gray-200 shadow-sm"
                       rows={1}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
@@ -262,9 +262,9 @@ export const ConversationManager: React.FC = () => {
             ) : (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
-                  <MessageSquare className="w-16 h-16 mx-auto mb-4 text-muted-foreground/20" />
-                  <h3 className="text-lg font-medium mb-2">Select a conversation</h3>
-                  <p className="text-muted-foreground">Choose a conversation to start viewing messages</p>
+                  <MessageSquare className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Select a conversation</h3>
+                  <p className="text-gray-500">Choose a conversation to start viewing messages</p>
                 </div>
               </div>
             )}

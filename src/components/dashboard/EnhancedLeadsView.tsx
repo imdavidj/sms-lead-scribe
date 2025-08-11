@@ -74,54 +74,54 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-chart-2 to-chart-3 rounded-2xl p-6 text-primary-foreground">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Database className="w-7 h-7" />
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-3xl p-8 text-white">
+        <h1 className="text-3xl font-bold flex items-center gap-3 mb-3">
+          <Database className="w-8 h-8" />
           Intelligent Lead Database
         </h1>
-        <p className="text-primary-foreground/80 mt-1">AI-enriched profiles with predictive scoring</p>
+        <p className="text-white/80 text-lg">AI-enriched profiles with predictive scoring</p>
       </div>
 
-      <div className="bg-card rounded-xl border border-border">
-        <div className="p-4 border-b border-border">
+      <div className="bg-white rounded-2xl border border-gray-200">
+        <div className="p-6 border-b border-gray-100">
           <div className="flex gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input 
                 placeholder="Search leads..." 
-                className="pl-10"
+                className="pl-10 border-gray-200"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button variant="outline" size="icon">
-              <Filter className="w-4 h-4" />
+            <Button variant="outline" size="icon" className="border-gray-200 hover:bg-gray-50">
+              <Filter className="w-4 h-4 text-gray-600" />
             </Button>
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-muted/50">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Lead
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   AI Score
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Property Info
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-gray-200">
               {filteredLeads.map((lead) => {
                 const aiScore = getAIScore(lead);
                 const leadForCRM: Lead = {
@@ -136,17 +136,17 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                 };
 
                 return (
-                  <tr key={lead.id} className="hover:bg-accent/50">
+                  <tr key={lead.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div>
-                        <div className="text-sm font-medium text-card-foreground">
+                        <div className="text-sm font-medium text-gray-900">
                           {leadForCRM.name}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm text-gray-500">
                           {lead.phone}
                         </div>
                         {lead.email && (
-                          <div className="text-sm text-muted-foreground">
+                          <div className="text-sm text-gray-500">
                             {lead.email}
                           </div>
                         )}
@@ -154,16 +154,16 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-20 bg-muted rounded-full h-2">
+                        <div className="w-20 bg-gray-200 rounded-full h-2">
                           <div 
-                            className="h-2 bg-primary rounded-full transition-all" 
+                            className="h-2 bg-green-500 rounded-full transition-all" 
                             style={{width: `${aiScore}%`}}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium">{aiScore}</span>
+                        <span className="text-sm font-medium text-gray-900">{aiScore}</span>
                       </div>
                       {lead.ai_tag && (
-                        <div className="text-xs text-muted-foreground mt-1">
+                        <div className="text-xs text-gray-500 mt-1">
                           {lead.ai_tag}
                         </div>
                       )}
@@ -171,18 +171,18 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                     <td className="px-6 py-4">
                       {getStatusBadge(lead.status)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-card-foreground">
+                    <td className="px-6 py-4 text-sm text-gray-900">
                       {lead.address ? (
                         <div>
                           <div>{lead.address}</div>
                           {lead.city && lead.state && (
-                            <div className="text-muted-foreground">
+                            <div className="text-gray-500">
                               {lead.city}, {lead.state} {lead.zip}
                             </div>
                           )}
                         </div>
                       ) : (
-                        <span className="text-muted-foreground">No address</span>
+                        <span className="text-gray-400">No address</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
@@ -191,13 +191,14 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                           variant="outline"
                           size="sm"
                           onClick={() => onPushToCRM(leadForCRM)}
+                          className="text-blue-600 border-blue-200 hover:bg-blue-50"
                         >
                           Push to CRM
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
                           <Edit className="w-4 h-4" />
                         </Button>
                       </div>
@@ -210,7 +211,7 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
         </div>
 
         {filteredLeads.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="text-center py-12 text-gray-500">
             No leads found matching your search criteria.
           </div>
         )}
