@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Lead } from '@/types/dashboard';
+import { LeadDetailsDrawer } from './LeadDetailsDrawer';
 
 interface EnhancedLeadsViewProps {
   onPushToCRM: (lead: Lead) => void;
@@ -14,6 +15,8 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
   const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewLead, setViewLead] = useState<any | null>(null);
 
   useEffect(() => {
     loadLeads();
@@ -176,8 +179,15 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
             <Button variant="outline" size="icon" className="border-gray-200 hover:bg-gray-50">
               <Filter className="w-4 h-4 text-gray-600" />
             </Button>
-          </div>
-        </div>
+      </div>
+
+      <LeadDetailsDrawer
+        open={viewOpen}
+        onOpenChange={setViewOpen}
+        lead={viewLead}
+        onPushToCRM={onPushToCRM}
+      />
+    </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -282,7 +292,13 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                         >
                           Push to CRM
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-600 hover:text-gray-800"
+                          onClick={() => { setViewLead(lead); setViewOpen(true); }}
+                          aria-label="View lead details"
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
