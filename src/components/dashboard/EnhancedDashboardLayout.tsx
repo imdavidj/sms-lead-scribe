@@ -41,7 +41,12 @@ export const EnhancedDashboardLayout = () => {
   const renderMainContent = () => {
     switch (activeView) {
       case 'dashboard':
-        return <AICommandCenter isAIProcessing={isAIProcessing} />;
+        return <AICommandCenter 
+          isAIProcessing={isAIProcessing} 
+          onLaunchCampaign={() => setActiveView('campaigns')}
+          onImportLeads={() => setActiveView('leads')}
+          onTrainModel={() => setActiveView('settings')}
+        />;
       case 'conversations':
         return <ConversationManager preselectPhone={preselectPhone || undefined} />;
       case 'leads':
@@ -59,7 +64,12 @@ export const EnhancedDashboardLayout = () => {
       case 'settings':
         return <SettingsView />;
       default:
-        return <AICommandCenter isAIProcessing={isAIProcessing} />;
+        return <AICommandCenter 
+          isAIProcessing={isAIProcessing} 
+          onLaunchCampaign={() => setActiveView('campaigns')}
+          onImportLeads={() => setActiveView('leads')}
+          onTrainModel={() => setActiveView('settings')}
+        />;
     }
   };
 
