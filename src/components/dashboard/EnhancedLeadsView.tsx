@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Lead } from '@/types/dashboard';
 import { LeadDetailsDrawer } from './LeadDetailsDrawer';
+import { EditLeadModal } from './EditLeadModal';
+
 
 interface EnhancedLeadsViewProps {
   onPushToCRM: (lead: Lead) => void;
@@ -17,6 +19,8 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
   const [searchTerm, setSearchTerm] = useState('');
   const [viewOpen, setViewOpen] = useState(false);
   const [viewLead, setViewLead] = useState<any | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editLead, setEditLead] = useState<any | null>(null);
 
   useEffect(() => {
     loadLeads();
@@ -187,6 +191,14 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
         lead={viewLead}
         onPushToCRM={onPushToCRM}
       />
+      <EditLeadModal
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        lead={editLead}
+        onSaved={(updated) => {
+          setLeads((prev) => prev.map((l) => (l.id === updated.id ? { ...l, ...updated } : l)));
+        }}
+      />
     </div>
 
         <div className="overflow-x-auto">
@@ -301,7 +313,13 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-600 hover:text-gray-800"
+                          onClick={() => { setEditLead(lead); setEditOpen(true); }}
+                          aria-label="Edit lead"
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
                       </div>
