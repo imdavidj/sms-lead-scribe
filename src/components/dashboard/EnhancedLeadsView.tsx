@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Filter, Search, Eye, Edit } from 'lucide-react';
+import { Database, Search, Eye, Edit } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Lead } from '@/types/dashboard';
 import { LeadDetailsDrawer } from './LeadDetailsDrawer';
 import { EditLeadModal } from './EditLeadModal';
-
+import { LeadFilters, LeadFilterValue } from './LeadFilters';
 
 interface EnhancedLeadsViewProps {
   onPushToCRM: (lead: Lead) => void;
@@ -21,6 +21,7 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
   const [viewLead, setViewLead] = useState<any | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [editLead, setEditLead] = useState<any | null>(null);
+  const [filters, setFilters] = useState<LeadFilterValue>({ statuses: [], cities: [], aiTags: [] });
 
   useEffect(() => {
     loadLeads();
@@ -143,12 +144,25 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
     return <Badge variant={variants[status] || 'secondary'}>{status}</Badge>;
   };
 
-  const filteredLeads = leads.filter(lead =>
-    lead.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    lead.phone?.includes(searchTerm) ||
-    lead.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredLeads = leads.filter((lead) => {
+    const matchesSearch =
+      !searchTerm ||
+      lead.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lead.phone?.includes(searchTerm) ||
+      lead.email?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      !filters.statuses.length || (lead.status && filters.statuses.includes(lead.status));
+
+    const matchesCity =
+      !filters.cities.length || (lead.city && filters.cities.includes(lead.city));
+
+    const matchesAiTag =
+      !filters.aiTags.length || (lead.ai_tag && filters.aiTags.includes(lead.ai_tag));
+
+    return matchesSearch && matchesStatus && matchesCity && matchesAiTag;
+  });
 
   if (loading) {
     return (
@@ -180,9 +194,12 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Button variant="outline" size="icon" className="border-gray-200 hover:bg-gray-50">
-              <Filter className="w-4 h-4 text-gray-600" />
-            </Button>
+            <LeadFilters
+              leads={leads}
+              value={filters}
+              onChange={setFilters}
+              onClear={() => setFilters({ statuses: [], cities: [], aiTags: [] })}
+            />
       </div>
 
       <LeadDetailsDrawer
