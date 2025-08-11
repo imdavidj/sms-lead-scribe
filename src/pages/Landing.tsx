@@ -406,7 +406,7 @@ export const Landing = () => {
               Why Choose SMS AI Pro?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Our AI doesn't just send messages—it builds relationships, qualifies leads, and closes deals.
+              Our AI just doesn't talk to sellers, it builds relationships, qualifies leads, and closes deals.
             </p>
           </div>
 
