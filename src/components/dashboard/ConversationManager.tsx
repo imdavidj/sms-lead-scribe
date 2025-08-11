@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import { Conversation, Message } from '@/types/conversation';
 
 export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ preselectPhone }) => {
@@ -96,21 +97,34 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation) return;
     
+    const to = selectedConversation.contact.phone_e164;
+    const messageText = newMessage.trim();
+    const conversationId = selectedConversation.id;
+
+    console.log('Sending SMS:', { to, message: messageText, conversationId });
+    
     try {
-      const { error } = await supabase.functions.invoke('reply', {
-        body: {
-          conversation_id: selectedConversation.id,
-          phone: selectedConversation.contact.phone_e164,
-          message: newMessage
-        }
+      const response = await fetch('https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/reply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsbHNuc2lkZ3FsYWNkeWF0dmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTUzNjIsImV4cCI6MjA2ODk5MTM2Mn0.cS3_Iihv1_VhuoGhWb8CBl72cJx3WNRi1SjmPV6ntl0'
+        },
+        body: JSON.stringify({ to, message: messageText, conversationId })
       });
 
-      if (error) throw error;
-      
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to send message');
+      }
+
+      await response.json().catch(() => null);
       setNewMessage('');
+      toast({ title: 'Message sent', description: 'Your reply has been sent successfully' });
       loadConversations();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error);
+      toast({ title: 'Error', description: error.message || 'Failed to send message', variant: 'destructive' });
     }
   };
 
