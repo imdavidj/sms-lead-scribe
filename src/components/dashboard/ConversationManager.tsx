@@ -100,8 +100,9 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
     const to = selectedConversation.contact.phone_e164;
     const messageText = newMessage.trim();
     const conversationId = selectedConversation.id;
+    const normalizedPhone = to?.startsWith('+') ? to : `+1${to?.replace(/\D/g, '')}`;
 
-    console.log('Sending SMS:', { to, message: messageText, conversationId });
+    console.log('Sending SMS:', { to: normalizedPhone, message: messageText, conversationId });
     
     try {
       const response = await fetch('https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/reply', {
@@ -110,7 +111,7 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
           'Content-Type': 'application/json',
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsbHNuc2lkZ3FsYWNkeWF0dmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTUzNjIsImV4cCI6MjA2ODk5MTM2Mn0.cS3_Iihv1_VhuoGhWb8CBl72cJx3WNRi1SjmPV6ntl0'
         },
-        body: JSON.stringify({ to, message: messageText, conversationId })
+        body: JSON.stringify({ phone: normalizedPhone, message: messageText, conversation_id: conversationId })
       });
 
       if (!response.ok) {
