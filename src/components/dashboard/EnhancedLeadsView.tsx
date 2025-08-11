@@ -422,7 +422,6 @@ useEffect(() => {
             No leads found matching your search criteria.
           </div>
         )}
-      </div>
     </div>
   );
 };
