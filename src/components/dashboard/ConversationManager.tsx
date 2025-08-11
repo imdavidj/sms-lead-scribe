@@ -20,6 +20,32 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
   }, []);
 
   useEffect(() => {
+    // Support deep-link via ?phone=... if preselectPhone not provided
+    if (preselectPhone) return;
+    const phoneParam = new URLSearchParams(window.location.search).get('phone');
+    if (!phoneParam) return;
+    const match = conversations.find(
+      (c) => c.contact?.phone_e164 && c.contact.phone_e164.includes(phoneParam)
+    );
+    if (match) {
+      setSelectedConversation(match);
+    } else {
+      setSearchTerm(phoneParam);
+    }
+  }, [conversations, preselectPhone]);
+
+  useEffect(() => {
+    // Reflect selected conversation in URL
+    const params = new URLSearchParams(window.location.search);
+    if (selectedConversation?.contact?.phone_e164) {
+      params.set('phone', selectedConversation.contact.phone_e164);
+    } else {
+      params.delete('phone');
+    }
+    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+  }, [selectedConversation]);
+
+  useEffect(() => {
     if (!preselectPhone) return;
     const match = conversations.find(
       (c) => c.contact?.phone_e164 && c.contact.phone_e164.includes(preselectPhone)

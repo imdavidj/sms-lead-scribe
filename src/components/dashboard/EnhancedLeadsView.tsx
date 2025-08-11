@@ -33,6 +33,7 @@ useEffect(() => {
   const statuses = params.get('statuses')?.split(',').filter(Boolean) || [];
   const cities = params.get('cities')?.split(',').filter(Boolean) || [];
   const aiTags = params.get('tags')?.split(',').filter(Boolean) || [];
+  const pageParam = parseInt(params.get('page') || '1', 10);
   setSearchTerm(q);
   if (statuses.length || cities.length || aiTags.length) {
     setFilters({ statuses, cities, aiTags });
@@ -42,6 +43,7 @@ useEffect(() => {
       try { setFilters(JSON.parse(saved)); } catch {}
     }
   }
+  if (!Number.isNaN(pageParam) && pageParam > 0) setPage(pageParam);
 }, []);
 
   const loadLeads = async () => {
@@ -141,16 +143,25 @@ useEffect(() => {
     }
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (searchTerm) params.set('q', searchTerm); else params.delete('q');
-    if (filters.statuses.length) params.set('statuses', filters.statuses.join(',')); else params.delete('statuses');
-    if (filters.cities.length) params.set('cities', filters.cities.join(',')); else params.delete('cities');
-    if (filters.aiTags.length) params.set('tags', filters.aiTags.join(',')); else params.delete('tags');
-    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
-    localStorage.setItem('leadFilters', JSON.stringify(filters));
-    setPage(1);
-  }, [filters, searchTerm]);
+useEffect(() => {
+  // When filters/search change, reset to first page and sync URL
+  setPage(1);
+  const params = new URLSearchParams(window.location.search);
+  if (searchTerm) params.set('q', searchTerm); else params.delete('q');
+  if (filters.statuses.length) params.set('statuses', filters.statuses.join(',')); else params.delete('statuses');
+  if (filters.cities.length) params.set('cities', filters.cities.join(',')); else params.delete('cities');
+  if (filters.aiTags.length) params.set('tags', filters.aiTags.join(',')); else params.delete('tags');
+  params.set('page', '1');
+  window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+  localStorage.setItem('leadFilters', JSON.stringify(filters));
+}, [filters, searchTerm]);
+
+useEffect(() => {
+  // Sync page changes to URL
+  const params = new URLSearchParams(window.location.search);
+  params.set('page', String(page));
+  window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+}, [page]);
 
   const getAIScore = (lead: any) => {
     // Generate a mock AI score based on available data
@@ -416,6 +427,32 @@ useEffect(() => {
             </tbody>
           </table>
         </div>
+        {filteredLeads.length > 0 && (
+          <div className="flex items-center justify-between p-4 border-t">
+            <div className="text-sm text-muted-foreground">
+              Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, filteredLeads.length)} of {filteredLeads.length}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <div className="text-sm">Page {page} of {totalPages}</div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page + 1)}
+                disabled={page === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
 
         {filteredLeads.length === 0 && (
           <div className="text-center py-12 text-gray-500">

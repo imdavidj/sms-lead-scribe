@@ -24,6 +24,15 @@ export const EnhancedDashboardLayout = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const phone = params.get('phone');
+    if (phone) {
+      setPreselectPhone(phone);
+      setActiveView('conversations');
+    }
+  }, []);
+
   const handlePushToCRM = (lead: Lead) => {
     setSelectedLead(lead);
     setShowCRMModal(true);
