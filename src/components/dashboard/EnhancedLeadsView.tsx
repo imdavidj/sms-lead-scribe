@@ -29,7 +29,86 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
         .limit(50);
 
       if (error) throw error;
-      setLeads(data || []);
+      
+      // Add mock data to supplement real data
+      const mockLeads = [
+        {
+          id: 'mock-1',
+          first_name: 'Sarah',
+          last_name: 'Johnson',
+          phone: '+1 (555) 123-4567',
+          email: 'sarah.johnson@email.com',
+          address: '123 Main Street',
+          city: 'Austin',
+          state: 'TX',
+          zip: '78701',
+          status: 'Qualified',
+          ai_tag: 'High Intent',
+          ai_classification_reason: 'Actively looking to sell within 3 months',
+          created_at: new Date().toISOString()
+        },
+        {
+          id: 'mock-2',
+          first_name: 'Michael',
+          last_name: 'Davis',
+          phone: '+1 (555) 987-6543',
+          email: 'michael.davis@email.com',
+          address: '456 Oak Avenue',
+          city: 'Dallas',
+          state: 'TX',
+          zip: '75201',
+          status: 'No Response',
+          ai_tag: 'Medium Intent',
+          ai_classification_reason: 'Considering selling in next 6 months',
+          created_at: new Date(Date.now() - 86400000).toISOString()
+        },
+        {
+          id: 'mock-3',
+          first_name: 'Emily',
+          last_name: 'Rodriguez',
+          phone: '+1 (555) 456-7890',
+          email: 'emily.rodriguez@email.com',
+          address: '789 Pine Road',
+          city: 'Houston',
+          state: 'TX',
+          zip: '77001',
+          status: 'Qualified',
+          ai_tag: 'Hot Lead',
+          ai_classification_reason: 'Urgent sale needed due to relocation',
+          created_at: new Date(Date.now() - 172800000).toISOString()
+        },
+        {
+          id: 'mock-4',
+          first_name: 'David',
+          last_name: 'Wilson',
+          phone: '+1 (555) 321-0987',
+          address: '321 Elm Street',
+          city: 'San Antonio',
+          state: 'TX',
+          zip: '78201',
+          status: 'Unqualified',
+          ai_tag: 'Low Intent',
+          ai_classification_reason: 'Just curious about market value',
+          created_at: new Date(Date.now() - 259200000).toISOString()
+        },
+        {
+          id: 'mock-5',
+          first_name: 'Jessica',
+          last_name: 'Brown',
+          phone: '+1 (555) 654-3210',
+          email: 'jessica.brown@email.com',
+          address: '654 Maple Drive',
+          city: 'Fort Worth',
+          state: 'TX',
+          zip: '76101',
+          status: 'Blocked',
+          ai_tag: 'Do Not Contact',
+          ai_classification_reason: 'Requested no further contact',
+          created_at: new Date(Date.now() - 345600000).toISOString()
+        }
+      ];
+
+      setLeads([...(data || []), ...mockLeads]);
     } catch (error) {
       console.error('Error loading leads:', error);
     } finally {
