@@ -242,8 +242,16 @@ export const EnhancedLeadsView: React.FC<EnhancedLeadsViewProps> = ({ onPushToCR
                         <span className="text-sm font-medium text-gray-900">{aiScore}</span>
                       </div>
                       {lead.ai_tag && (
-                        <div className="text-xs text-gray-500 mt-1">
-                          {lead.ai_tag}
+                        <div className="mt-1">
+                          {lead.ai_tag === 'hot' ? (
+                            <Badge className="bg-red-100 text-red-800 hover:bg-red-100">🔥 HOT</Badge>
+                          ) : lead.ai_tag === 'warm' ? (
+                            <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">🟡 WARM</Badge>
+                          ) : lead.ai_tag === 'cold' ? (
+                            <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">❄️ COLD</Badge>
+                          ) : (
+                            <Badge variant="secondary" className="text-xs">{lead.ai_tag}</Badge>
+                          )}
                         </div>
                       )}
                     </td>
