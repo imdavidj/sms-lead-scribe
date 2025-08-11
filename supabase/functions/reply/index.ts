@@ -30,6 +30,7 @@ Deno.serve(async (req) => {
 
       // Validate required fields
       if (!payload.conversation_id || !payload.phone || !payload.message) {
+        console.error('Missing required fields. Received payload:', payload)
         return new Response(
           JSON.stringify({ error: 'Missing required fields: conversation_id, phone, message' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
