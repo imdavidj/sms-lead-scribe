@@ -4,6 +4,9 @@ import { NavigationSidebar } from './NavigationSidebar';
 import { AICommandCenter } from './AICommandCenter';
 import { ConversationManager } from './ConversationManager';
 import { EnhancedLeadsView } from './EnhancedLeadsView';
+import { CampaignsView } from './CampaignsView';
+import { AnalyticsView } from './AnalyticsView';
+import { SettingsView } from './SettingsView';
 import { CRMPushModal } from './CRMPushModal';
 import { Lead } from '@/types/dashboard';
 
@@ -35,14 +38,11 @@ export const EnhancedDashboardLayout = () => {
       case 'leads':
         return <EnhancedLeadsView onPushToCRM={handlePushToCRM} />;
       case 'campaigns':
+        return <CampaignsView />;
       case 'analytics':
+        return <AnalyticsView />;
       case 'settings':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-card-foreground capitalize">{activeView}</h2>
-            <p className="text-muted-foreground mt-2">Full features implemented - Connected to existing functionality</p>
-          </div>
-        );
+        return <SettingsView />;
       default:
         return <AICommandCenter isAIProcessing={isAIProcessing} />;
     }
