@@ -25,9 +25,9 @@ export const Landing = () => {
       color: "text-blue-600"
     },
     {
-      icon: MessageSquare,
-      title: "SMS Automation",
-      description: "Seamless SMS automation that feels personal and converts better",
+      icon: Zap,
+      title: "Smart Lead Scoring",
+      description: "AI analyzes behavior patterns to prioritize your hottest prospects",
       color: "text-green-600"
     },
     {
@@ -35,6 +35,104 @@ export const Landing = () => {
       title: "Real-Time Analytics",
       description: "Track performance with detailed analytics and conversion metrics",
       color: "text-orange-600"
+    }
+  ];
+
+  const detailedFeatures = [
+    {
+      category: "AI Intelligence",
+      items: [
+        { name: "Natural Language Processing", description: "Understands context and intent in conversations" },
+        { name: "Sentiment Analysis", description: "Detects buyer motivation and urgency levels" },
+        { name: "Smart Response Generation", description: "Creates personalized responses that convert" },
+        { name: "Learning Algorithm", description: "Gets smarter with every conversation" }
+      ]
+    },
+    {
+      category: "Lead Management",
+      items: [
+        { name: "Automated Lead Scoring", description: "AI scores leads based on 50+ data points" },
+        { name: "Pipeline Tracking", description: "Visual pipeline with automated stage progression" },
+        { name: "Follow-up Automation", description: "Never miss a follow-up opportunity" },
+        { name: "Lead Source Attribution", description: "Track which campaigns bring the best leads" }
+      ]
+    },
+    {
+      category: "Communication",
+      items: [
+        { name: "Multi-Channel Messaging", description: "SMS, email, and voice in one platform" },
+        { name: "Template Library", description: "Pre-built templates for every scenario" },
+        { name: "Smart Scheduling", description: "AI finds the best time to contact each lead" },
+        { name: "Bulk Messaging", description: "Send personalized messages to thousands at once" }
+      ]
+    },
+    {
+      category: "Analytics & Reporting",
+      items: [
+        { name: "Conversion Tracking", description: "See exactly which messages close deals" },
+        { name: "Performance Dashboard", description: "Real-time metrics and KPIs" },
+        { name: "ROI Calculator", description: "Track revenue generated from each campaign" },
+        { name: "Team Performance", description: "Compare agent performance and best practices" }
+      ]
+    }
+  ];
+
+  const pricingTiers = [
+    {
+      name: "Starter",
+      price: "$97",
+      period: "/month",
+      description: "Perfect for individual agents getting started",
+      features: [
+        "Up to 500 leads/month",
+        "AI conversation handling",
+        "Basic lead scoring",
+        "SMS & email automation",
+        "Standard support",
+        "Mobile app access"
+      ],
+      buttonText: "Start Free Trial",
+      popular: false,
+      color: "border-gray-200"
+    },
+    {
+      name: "Professional",
+      price: "$197",
+      period: "/month",
+      description: "Ideal for growing teams and brokerages",
+      features: [
+        "Up to 2,000 leads/month",
+        "Advanced AI responses",
+        "Smart lead scoring",
+        "Multi-channel automation",
+        "Priority support",
+        "Team collaboration tools",
+        "Custom integrations",
+        "Advanced analytics"
+      ],
+      buttonText: "Start Free Trial",
+      popular: true,
+      color: "border-purple-500"
+    },
+    {
+      name: "Enterprise",
+      price: "$497",
+      period: "/month",
+      description: "For large teams that need everything",
+      features: [
+        "Unlimited leads",
+        "White-label solution",
+        "Custom AI training",
+        "Dedicated account manager",
+        "24/7 premium support",
+        "Custom integrations",
+        "Advanced reporting",
+        "API access",
+        "HIPAA compliance"
+      ],
+      buttonText: "Contact Sales",
+      popular: false,
+      color: "border-gray-200"
     }
   ];
 
@@ -84,10 +182,17 @@ export const Landing = () => {
               <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
               <a href="#testimonials" className="text-gray-600 hover:text-gray-900 transition-colors">Reviews</a>
               <Button 
+                variant="outline"
+                onClick={() => navigate('/dashboard')}
+                className="mr-2"
+              >
+                Login
+              </Button>
+              <Button 
                 onClick={() => navigate('/dashboard')}
                 className="bg-purple-600 hover:bg-purple-700"
               >
-                Try Dashboard
+                Sign Up Free
               </Button>
             </div>
           </div>
@@ -193,19 +298,119 @@ export const Landing = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-24">
+      {/* Detailed Features Section */}
+      <section id="features" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Why Choose SMS AI Pro?
+              Everything You Need to Dominate
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Our platform includes every tool and feature you need to turn cold leads into closed deals.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            {detailedFeatures.map((category, categoryIndex) => (
+              <div key={categoryIndex}>
+                <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center">
+                  <div className="w-2 h-8 bg-gradient-to-b from-purple-600 to-blue-600 rounded-full mr-4"></div>
+                  {category.category}
+                </h3>
+                <div className="space-y-6">
+                  {category.items.map((item, itemIndex) => (
+                    <div key={itemIndex} className="flex items-start gap-4">
+                      <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-1">{item.name}</h4>
+                        <p className="text-gray-600">{item.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Choose the plan that fits your business. All plans include a 14-day free trial.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {pricingTiers.map((tier, index) => (
+              <Card key={index} className={`relative ${tier.color} ${tier.popular ? 'ring-2 ring-purple-500 shadow-xl scale-105' : 'shadow-lg'}`}>
+                {tier.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-purple-600 text-white px-4 py-1">Most Popular</Badge>
+                  </div>
+                )}
+                <CardContent className="p-8">
+                  <div className="text-center mb-8">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{tier.name}</h3>
+                    <p className="text-gray-600 mb-4">{tier.description}</p>
+                    <div className="mb-6">
+                      <span className="text-5xl font-bold text-gray-900">{tier.price}</span>
+                      <span className="text-gray-600">{tier.period}</span>
+                    </div>
+                  </div>
+                  
+                  <ul className="space-y-4 mb-8">
+                    {tier.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <Button 
+                    className={`w-full py-3 ${tier.popular 
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                      : 'bg-gray-900 hover:bg-gray-800 text-white'
+                    }`}
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    {tier.buttonText}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <p className="text-gray-600 mb-4">
+              Need a custom solution? We've got you covered.
+            </p>
+            <Button variant="outline" className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50">
+              Schedule a Demo
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Features Section */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Why Choose SMS AI Pro?
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Our AI doesn't just send messages—it builds relationships, qualifies leads, and closes deals.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
               <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-all group">
                 <CardContent className="p-8 text-center">
@@ -218,9 +423,13 @@ export const Landing = () => {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
 
-          {/* Benefits List */}
-          <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl p-12 text-white">
+      {/* Benefits Section */}
+      <section className="py-16 bg-gradient-to-r from-purple-600 to-blue-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-12 text-white">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                 <h3 className="text-3xl font-bold mb-8">Transform Your Business Today</h3>
@@ -308,10 +517,17 @@ export const Landing = () => {
             >
               Start Your Free Trial
             </Button>
-            <div className="flex items-center gap-2 text-white">
-              <Shield className="w-5 h-5" />
-              <span>No credit card required</span>
-            </div>
+            <Button 
+              size="lg" 
+              variant="outline"
+              className="border-2 border-white text-white hover:bg-white/10 px-8 py-4 text-lg rounded-xl"
+            >
+              Schedule Demo
+            </Button>
+          </div>
+          <div className="flex justify-center items-center gap-2 text-white/80 mt-4">
+            <Shield className="w-5 h-5" />
+            <span>No credit card required • 14-day free trial</span>
           </div>
         </div>
       </section>
