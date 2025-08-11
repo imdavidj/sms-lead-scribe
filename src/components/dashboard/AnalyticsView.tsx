@@ -58,11 +58,11 @@ const timeRanges = [
   { label: 'This year', value: '1y' }
 ];
 
-const leadSourceData = [
-  { source: 'Facebook Ads', leads: 156, percentage: 35.2, color: 'bg-blue-500' },
-  { source: 'Google Ads', leads: 134, percentage: 30.2, color: 'bg-green-500' },
-  { source: 'Referrals', leads: 89, percentage: 20.1, color: 'bg-purple-500' },
-  { source: 'Cold Outreach', leads: 64, percentage: 14.5, color: 'bg-orange-500' }
+const campaignPerformanceData = [
+  { campaign: 'Austin Investor List', leads: 156, responses: 89, conversion: 35.2, color: 'bg-blue-500' },
+  { campaign: 'Dallas Home Owners', leads: 134, responses: 72, conversion: 30.2, color: 'bg-green-500' },
+  { campaign: 'Houston High Equity', leads: 89, responses: 45, conversion: 20.1, color: 'bg-purple-500' },
+  { campaign: 'San Antonio Foreclosure', leads: 64, responses: 28, conversion: 14.5, color: 'bg-orange-500' }
 ];
 
 const hourlyActivity = [
@@ -163,26 +163,30 @@ export const AnalyticsView: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Lead Sources */}
+        {/* Campaign Performance */}
         <Card className="border-gray-200">
           <CardHeader className="border-b border-gray-100">
-            <CardTitle className="text-lg font-bold text-gray-900">Lead Sources</CardTitle>
+            <CardTitle className="text-lg font-bold text-gray-900">Campaign Performance</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {leadSourceData.map((source) => (
-                <div key={source.source} className="space-y-2">
+              {campaignPerformanceData.map((campaign) => (
+                <div key={campaign.campaign} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-900">{source.source}</span>
+                    <span className="text-sm font-medium text-gray-900">{campaign.campaign}</span>
                     <div className="text-right">
-                      <span className="text-sm font-bold text-gray-900">{source.leads}</span>
-                      <span className="text-xs text-gray-500 ml-1">({source.percentage}%)</span>
+                      <span className="text-sm font-bold text-gray-900">{campaign.leads}</span>
+                      <span className="text-xs text-gray-500 ml-1">leads</span>
                     </div>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-gray-500">
+                    <span>{campaign.responses} responses</span>
+                    <span>{campaign.conversion}% conversion</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
-                      className={`h-2 ${source.color} rounded-full`}
-                      style={{ width: `${source.percentage}%` }}
+                      className={`h-2 ${campaign.color} rounded-full`}
+                      style={{ width: `${campaign.conversion}%` }}
                     ></div>
                   </div>
                 </div>
