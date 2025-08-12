@@ -106,21 +106,14 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
     console.log('Sending SMS:', { to: normalizedPhone, message: messageText, conversationId });
     setSending(true);
     try {
-      const response = await fetch('https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/reply', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsbHNuc2lkZ3FsYWNkeWF0dmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTUzNjIsImV4cCI6MjA2ODk5MTM2Mn0.cS3_Iihv1_VhuoGhWb8CBl72cJx3WNRi1SjmPV6ntl0'
-        },
-        body: JSON.stringify({ phone: normalizedPhone, message: messageText, conversation_id: conversationId })
+      const { data, error } = await supabase.functions.invoke('reply', {
+        body: { phone: normalizedPhone, message: messageText, conversation_id: conversationId },
       });
 
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to send message');
+      if (error) {
+        throw new Error(error.message || 'Failed to send message');
       }
 
-      await response.json().catch(() => null);
       setNewMessage('');
       toast({ title: 'Message sent', description: 'Your reply has been sent successfully' });
       loadConversations();

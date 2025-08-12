@@ -51,7 +51,7 @@ export const SendToCRMModal = ({ conversation }: SendToCRMModalProps) => {
 
     try {
       const payload = new URLSearchParams();
-      payload.append('api_key', '2e465833-b9ae-4852-9efd-4031a77a2641');
+      // removed api_key - do not send secrets from frontend
       payload.append('leadsource', 'Lovable AI');
       
       Object.entries(formData).forEach(([key, value]) => {
