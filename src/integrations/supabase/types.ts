@@ -50,32 +50,78 @@ export type Database = {
         }
         Relationships: []
       }
+      clients: {
+        Row: {
+          api_key: string | null
+          company: string | null
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          subscription_plan: string | null
+          subscription_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          company?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          subscription_plan?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          company?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          subscription_plan?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
+          client_id: string | null
           created_at: string
           first_name: string | null
           id: string
           last_name: string | null
           phone_e164: string
+          updated_at: string | null
         }
         Insert: {
+          client_id?: string | null
           created_at?: string
           first_name?: string | null
           id?: string
           last_name?: string | null
           phone_e164: string
+          updated_at?: string | null
         }
         Update: {
+          client_id?: string | null
           created_at?: string
           first_name?: string | null
           id?: string
           last_name?: string | null
           phone_e164?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
       conversations: {
         Row: {
+          client_id: string | null
           contact_id: string
           created_at: string
           id: string
@@ -83,6 +129,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          client_id?: string | null
           contact_id: string
           created_at?: string
           id?: string
@@ -90,6 +137,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          client_id?: string | null
           contact_id?: string
           created_at?: string
           id?: string
@@ -106,12 +154,43 @@ export type Database = {
           },
         ]
       }
+      import_jobs: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          id: string
+          processed_rows: number | null
+          sheet_name: string | null
+          status: string | null
+          total_rows: number | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          id?: string
+          processed_rows?: number | null
+          sheet_name?: string | null
+          status?: string | null
+          total_rows?: number | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          id?: string
+          processed_rows?: number | null
+          sheet_name?: string | null
+          status?: string | null
+          total_rows?: number | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           address: string | null
           ai_classification_reason: string | null
           ai_tag: string | null
           city: string | null
+          client_id: string | null
           created_at: string
           date_added: string | null
           email: string | null
@@ -119,10 +198,13 @@ export type Database = {
           id: string
           last_classification_at: string | null
           last_name: string | null
+          list_name: string | null
+          metadata: Json | null
           phone: string | null
           state: string | null
           status: string
           updated_at: string
+          uploaded_at: string | null
           zip: string | null
         }
         Insert: {
@@ -130,6 +212,7 @@ export type Database = {
           ai_classification_reason?: string | null
           ai_tag?: string | null
           city?: string | null
+          client_id?: string | null
           created_at?: string
           date_added?: string | null
           email?: string | null
@@ -137,10 +220,13 @@ export type Database = {
           id?: string
           last_classification_at?: string | null
           last_name?: string | null
+          list_name?: string | null
+          metadata?: Json | null
           phone?: string | null
           state?: string | null
           status?: string
           updated_at?: string
+          uploaded_at?: string | null
           zip?: string | null
         }
         Update: {
@@ -148,6 +234,7 @@ export type Database = {
           ai_classification_reason?: string | null
           ai_tag?: string | null
           city?: string | null
+          client_id?: string | null
           created_at?: string
           date_added?: string | null
           email?: string | null
@@ -155,10 +242,13 @@ export type Database = {
           id?: string
           last_classification_at?: string | null
           last_name?: string | null
+          list_name?: string | null
+          metadata?: Json | null
           phone?: string | null
           state?: string | null
           status?: string
           updated_at?: string
+          uploaded_at?: string | null
           zip?: string | null
         }
         Relationships: []
@@ -167,6 +257,7 @@ export type Database = {
         Row: {
           ai_summary: Json | null
           body: string
+          client_id: string | null
           conversation_id: string
           created_at: string
           direction: string
@@ -176,6 +267,7 @@ export type Database = {
         Insert: {
           ai_summary?: Json | null
           body: string
+          client_id?: string | null
           conversation_id: string
           created_at?: string
           direction: string
@@ -185,6 +277,7 @@ export type Database = {
         Update: {
           ai_summary?: Json | null
           body?: string
+          client_id?: string | null
           conversation_id?: string
           created_at?: string
           direction?: string
@@ -269,7 +362,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
