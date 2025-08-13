@@ -30,6 +30,26 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       setError(null);
       setLoading(true);
+      
+      // Get current user session for beta email check
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.email) {
+        setSubscribed(false);
+        setSubscriptionTier(null);
+        setSubscriptionEnd(null);
+        return;
+      }
+      
+      // Beta email override - temporary fix for beta users
+      const betaEmails = ['david@americashomeoffer.com'];
+      if (betaEmails.includes(session.user.email.toLowerCase())) {
+        setSubscribed(true);
+        setSubscriptionTier('Beta');
+        setSubscriptionEnd(null);
+        setLoading(false);
+        return;
+      }
+      
       const { data, error } = await supabase.functions.invoke("check-subscription");
       if (error) throw error;
       const result = data as { subscribed?: boolean; subscription_tier?: string | null; subscription_end?: string | null };
