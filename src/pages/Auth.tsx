@@ -17,20 +17,22 @@ const Auth = () => {
   const [company, setCompany] = useState('');
   const [loading, setLoading] = useState(false);
   const [afterCheckout, setAfterCheckout] = useState(false);
+  const [signedInEmail, setSignedInEmail] = useState<string | null>(null);
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        // Bootstrap tenant idempotently
-        supabase.functions.invoke('bootstrap', { body: { companyName: company || undefined } })
+      if (session?.user?.email) setSignedInEmail(session.user.email);
+      if (event === 'SIGNED_IN' && session) {
+        // Only redirect after a fresh sign-in
+        supabase.functions
+          .invoke('bootstrap', { body: { companyName: company || undefined } })
           .then(() => navigate('/dashboard', { replace: true }))
           .catch(() => navigate('/dashboard', { replace: true }));
       }
     });
 
+    // Prefill/email awareness but DO NOT redirect away from Auth if already signed in
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/dashboard', { replace: true });
-      }
+      if (session?.user?.email) setSignedInEmail(session.user.email);
     });
 
     return () => subscription.unsubscribe();
@@ -133,6 +135,19 @@ const Auth = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      setLoading(true);
+      await supabase.auth.signOut();
+      setSignedInEmail(null);
+      toast.success('Signed out');
+    } catch (e: any) {
+      toast.error(e?.message || 'Sign out failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
@@ -144,6 +159,16 @@ const Auth = () => {
               <Button variant={mode === 'magic' ? 'default' : 'outline'} onClick={() => setMode('magic')}>Magic Link</Button>
             </div>
         </div>
+
+        {signedInEmail && (
+          <div className="mb-4 rounded-md border border-muted/40 bg-muted/20 p-3 text-sm flex items-center justify-between">
+            <span>Currently signed in as {signedInEmail}.</span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')}>Go to dashboard</Button>
+              <Button variant="secondary" size="sm" onClick={handleSignOut}>Sign out</Button>
+            </div>
+          </div>
+        )}
 
         {afterCheckout && (
           <div className="mb-4 rounded-md border border-blue-200 bg-blue-50 text-blue-800 p-3 text-sm">
