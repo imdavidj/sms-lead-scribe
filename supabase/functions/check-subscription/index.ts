@@ -45,6 +45,31 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Check if user is in beta emails override
+    const betaEmails = Deno.env.get("BETA_EMAILS")?.toLowerCase().split(',').map(email => email.trim()) || [];
+    const userEmailLower = user.email.toLowerCase();
+    
+    if (betaEmails.includes(userEmailLower)) {
+      logStep("User is in beta emails list, granting access", { email: user.email });
+      await supabaseClient.from("subscribers").upsert({
+        email: user.email,
+        user_id: user.id,
+        stripe_customer_id: null,
+        subscribed: true, // Grant access for beta users
+        subscription_tier: "Beta",
+        subscription_end: null,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'email' });
+      return new Response(JSON.stringify({
+        subscribed: true,
+        subscription_tier: "Beta",
+        subscription_end: null
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
