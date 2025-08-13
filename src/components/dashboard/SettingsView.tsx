@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Settings, User, Bell, Shield, Smartphone, MessageSquare, 
   Brain, Database, Webhook, Key, Save, RefreshCw, CreditCard
@@ -75,6 +75,20 @@ export const SettingsView: React.FC = () => {
   });
 
   const [portalLoading, setPortalLoading] = useState(false);
+  const [subLoading, setSubLoading] = useState(false);
+  const [subscription, setSubscription] = useState<{ subscribed: boolean } | null>(null);
+  const [subStatusLoading, setSubStatusLoading] = useState(false);
+
+  useEffect(() => {
+    setSubStatusLoading(true);
+    supabase.functions.invoke('check-subscription')
+      .then(({ data, error }) => {
+        if (error) throw error;
+        setSubscription({ subscribed: !!data?.subscribed });
+      })
+      .catch(() => setSubscription({ subscribed: false }))
+      .finally(() => setSubStatusLoading(false));
+  }, []);
 
   const handleManageSubscription = async () => (
     setPortalLoading(true),
@@ -87,9 +101,28 @@ export const SettingsView: React.FC = () => {
           toast.error('No portal URL returned');
         }
       })
-      .catch((e: any) => toast.error(e.message || 'Failed to open portal'))
+      .catch((e: any) => {
+        toast.error(e?.message || 'No subscription found. Please start a subscription first.');
+      })
       .finally(() => setPortalLoading(false))
   );
+
+  const handleStartSubscription = async () => {
+    setSubLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout');
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        toast.error('No checkout URL returned');
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to start checkout');
+    } finally {
+      setSubLoading(false);
+    }
+  };
 
   const renderProfileSettings = () => (
     <div className="space-y-6">
@@ -430,11 +463,23 @@ export const SettingsView: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-gray-600">Manage your subscription and payment methods via the Stripe Customer Portal.</p>
-            <div className="flex flex-wrap gap-3">
-              <Button variant="outline" onClick={handleManageSubscription} disabled={portalLoading} className="border-gray-200">
-                {portalLoading ? 'Opening...' : 'Manage Subscription'}
-              </Button>
-            </div>
+            {subStatusLoading ? (
+              <div className="text-sm text-gray-500">Checking subscription...</div>
+            ) : subscription?.subscribed ? (
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge className="bg-green-100 text-green-800 border-green-200">Active</Badge>
+                <Button variant="outline" onClick={handleManageSubscription} disabled={portalLoading} className="border-gray-200">
+                  {portalLoading ? 'Opening...' : 'Manage Subscription'}
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Inactive</Badge>
+                <Button onClick={handleStartSubscription} disabled={subLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  {subLoading ? 'Redirecting...' : 'Start Subscription'}
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       );
