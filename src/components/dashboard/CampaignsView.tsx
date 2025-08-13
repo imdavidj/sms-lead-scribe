@@ -72,7 +72,11 @@ const mockCampaigns: Campaign[] = [
   }
 ];
 
-export const CampaignsView: React.FC = () => {
+interface CampaignsViewProps {
+  onNewCampaign?: () => void;
+}
+
+export const CampaignsView: React.FC<CampaignsViewProps> = ({ onNewCampaign }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const getStatusColor = (status: string) => {
@@ -186,7 +190,10 @@ export const CampaignsView: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-64 border-gray-200"
               />
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={onNewCampaign}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 New Campaign
               </Button>

@@ -22,6 +22,11 @@ const ImportLeadsView = () => {
       return;
     }
 
+    if (!listName.trim()) {
+      setStatus({ type: 'error', message: 'Please enter a campaign name' });
+      return;
+    }
+
     // Extract sheet ID from URL
     const sheetIdMatch = sheetUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
     if (!sheetIdMatch) {
@@ -114,14 +119,18 @@ const ImportLeadsView = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="listName">List Name (Optional)</Label>
+            <Label htmlFor="listName">Campaign Name *</Label>
             <Input
               id="listName"
               value={listName}
               onChange={(e) => setListName(e.target.value)}
-              placeholder="e.g., Phoenix Absentee Owners"
+              placeholder="e.g., Phoenix Absentee Owners Campaign"
               disabled={importing}
+              required
             />
+            <p className="text-xs text-muted-foreground">
+              Give your campaign a descriptive name to easily identify it later.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -151,7 +160,7 @@ const ImportLeadsView = () => {
           <div className="flex gap-4">
             <Button
               onClick={handleImport}
-              disabled={importing || !sheetUrl}
+              disabled={importing || !sheetUrl || !listName.trim()}
               className="flex-1"
             >
               {importing ? (
@@ -162,7 +171,7 @@ const ImportLeadsView = () => {
               ) : (
                 <>
                   <Upload className="w-4 h-4 mr-2" />
-                  Import Leads
+                  Launch Campaign
                 </>
               )}
             </Button>

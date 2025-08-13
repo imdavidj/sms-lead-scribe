@@ -44,8 +44,8 @@ export const EnhancedDashboardLayout = () => {
       case 'dashboard':
         return <AICommandCenter 
           isAIProcessing={isAIProcessing} 
-          onLaunchCampaign={() => setActiveView('campaigns')}
-          onImportLeads={() => setActiveView('leads')}
+          onLaunchCampaign={() => setActiveView('import-leads')}
+          onImportLeads={() => setActiveView('import-leads')}
           onTrainModel={() => setActiveView('settings')}
         />;
       case 'conversations':
@@ -61,7 +61,7 @@ export const EnhancedDashboardLayout = () => {
       case 'import-leads':
         return <ImportLeadsView />;
       case 'campaigns':
-        return <CampaignsView />;
+        return <CampaignsView onNewCampaign={() => setActiveView('import-leads')} />;
       case 'analytics':
         return <AnalyticsView />;
       case 'settings':
@@ -69,8 +69,8 @@ export const EnhancedDashboardLayout = () => {
       default:
         return <AICommandCenter 
           isAIProcessing={isAIProcessing} 
-          onLaunchCampaign={() => setActiveView('campaigns')}
-          onImportLeads={() => setActiveView('leads')}
+          onLaunchCampaign={() => setActiveView('import-leads')}
+          onImportLeads={() => setActiveView('import-leads')}
           onTrainModel={() => setActiveView('settings')}
         />;
     }
