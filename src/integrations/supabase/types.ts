@@ -296,6 +296,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          client_id: string
           created_at: string
           first_name: string | null
           id: string
@@ -304,6 +305,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          client_id?: string
           created_at?: string
           first_name?: string | null
           id?: string
@@ -312,6 +314,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          client_id?: string
           created_at?: string
           first_name?: string | null
           id?: string
@@ -362,6 +365,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_current_client_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
