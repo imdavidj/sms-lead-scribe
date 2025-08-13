@@ -153,7 +153,7 @@ export const Landing = () => {
                 onClick={() => navigate('/auth')}
                 className="bg-purple-600 hover:bg-purple-700"
               >
-                Sign Up Free
+                Sign Up
               </Button>
             </div>
           </div>
@@ -194,7 +194,7 @@ export const Landing = () => {
               variant="outline" 
               className="border-2 border-gray-300 hover:border-gray-400 px-8 py-4 text-lg rounded-xl"
             >
-              Watch Demo
+              Book Demo
             </Button>
           </div>
 

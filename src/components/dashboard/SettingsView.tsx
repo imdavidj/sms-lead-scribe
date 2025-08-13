@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Settings, User, Bell, Shield, Smartphone, MessageSquare, 
-  Brain, Database, Webhook, Key, Save, RefreshCw
+  Brain, Database, Webhook, Key, Save, RefreshCw, CreditCard
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,12 @@ const settingSections: SettingSection[] = [
     icon: Webhook
   },
   {
+    id: 'billing',
+    title: 'Billing & Subscription',
+    description: 'Manage your plan, payment method, and invoices',
+    icon: CreditCard
+  },
+  {
     id: 'security',
     title: 'Security & Privacy',
     description: 'Manage authentication and data protection',
@@ -68,42 +74,22 @@ export const SettingsView: React.FC = () => {
     languageDetection: true
   });
 
-  const [subLoading, setSubLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
 
-  const handleSubscribe = async () => {
-    setSubLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('create-checkout');
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      } else {
-        toast.error('No checkout URL returned');
-      }
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to start checkout');
-    } finally {
-      setSubLoading(false);
-    }
-  };
-
-  const handleManageSubscription = async () => {
-    setPortalLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      } else {
-        toast.error('No portal URL returned');
-      }
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to open portal');
-    } finally {
-      setPortalLoading(false);
-    }
-  };
+  const handleManageSubscription = async () => (
+    setPortalLoading(true),
+    supabase.functions.invoke('customer-portal')
+      .then(({ data, error }) => {
+        if (error) throw error;
+        if (data?.url) {
+          window.open(data.url, '_blank');
+        } else {
+          toast.error('No portal URL returned');
+        }
+      })
+      .catch((e: any) => toast.error(e.message || 'Failed to open portal'))
+      .finally(() => setPortalLoading(false))
+  );
 
   const renderProfileSettings = () => (
     <div className="space-y-6">
@@ -367,22 +353,7 @@ export const SettingsView: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card className="border-gray-200">
-        <CardHeader>
-          <CardTitle className="text-lg font-bold text-gray-900">Subscription</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-gray-600">Start your AI Qualify subscription or manage your billing.</p>
-          <div className="flex flex-wrap gap-3">
-            <Button onClick={handleSubscribe} disabled={subLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
-              {subLoading ? 'Redirecting...' : 'Subscribe'}
-            </Button>
-            <Button variant="outline" onClick={handleManageSubscription} disabled={portalLoading} className="border-gray-200">
-              {portalLoading ? 'Opening...' : 'Manage Subscription'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Subscription moved to Billing section */}
     </div>
   );
 
@@ -452,6 +423,21 @@ export const SettingsView: React.FC = () => {
       case 'ai': return renderAISettings();
       case 'notifications': return renderNotificationSettings();
       case 'integrations': return renderIntegrationSettings();
+      case 'billing': return (
+        <Card className="border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-lg font-bold text-gray-900">Billing & Subscription</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-gray-600">Manage your subscription and payment methods via the Stripe Customer Portal.</p>
+            <div className="flex flex-wrap gap-3">
+              <Button variant="outline" onClick={handleManageSubscription} disabled={portalLoading} className="border-gray-200">
+                {portalLoading ? 'Opening...' : 'Manage Subscription'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      );
       case 'security': return renderSecuritySettings();
       default: return renderProfileSettings();
     }
