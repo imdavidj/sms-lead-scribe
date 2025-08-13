@@ -7,9 +7,25 @@ import {
   CheckCircle, Star, ArrowRight, Phone, Shield, Clock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 export const Landing = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleCheckout = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout-public');
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (e: any) {
+      toast({ title: 'Unable to open checkout', description: e?.message ?? 'Please try again.', variant: 'destructive' });
+    }
+  };
 
   const features = [
     {
@@ -150,7 +166,7 @@ export const Landing = () => {
                 Login
               </Button>
               <Button 
-                onClick={() => navigate('/auth')}
+                onClick={handleCheckout}
                 className="bg-purple-600 hover:bg-purple-700"
               >
                 Sign Up
@@ -184,7 +200,7 @@ export const Landing = () => {
             <Button 
               size="lg" 
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
-              onClick={() => navigate('/auth')}
+              onClick={handleCheckout}
             >
               Start Your Journey
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -341,7 +357,7 @@ export const Landing = () => {
                 
                 <Button 
                   className="w-full py-4 text-xl bg-purple-600 hover:bg-purple-700 text-white"
-                  onClick={() => navigate('/auth')}
+                  onClick={handleCheckout}
                 >
                   {pricingTier.buttonText}
                 </Button>
