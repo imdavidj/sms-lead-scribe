@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface SettingSection {
   id: string;
@@ -65,6 +67,43 @@ export const SettingsView: React.FC = () => {
     learningMode: true,
     languageDetection: true
   });
+
+  const [subLoading, setSubLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+
+  const handleSubscribe = async () => {
+    setSubLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout');
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        toast.error('No checkout URL returned');
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to start checkout');
+    } finally {
+      setSubLoading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      } else {
+        toast.error('No portal URL returned');
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to open portal');
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   const renderProfileSettings = () => (
     <div className="space-y-6">
@@ -324,6 +363,23 @@ export const SettingsView: React.FC = () => {
               className="border-gray-200"
               placeholder="Requests per minute" 
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-gray-200">
+        <CardHeader>
+          <CardTitle className="text-lg font-bold text-gray-900">Subscription</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-600">Start your AI Qualify subscription or manage your billing.</p>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={handleSubscribe} disabled={subLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
+              {subLoading ? 'Redirecting...' : 'Subscribe'}
+            </Button>
+            <Button variant="outline" onClick={handleManageSubscription} disabled={portalLoading} className="border-gray-200">
+              {portalLoading ? 'Opening...' : 'Manage Subscription'}
+            </Button>
           </div>
         </CardContent>
       </Card>
