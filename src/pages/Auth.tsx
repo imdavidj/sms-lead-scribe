@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,13 +9,14 @@ import { toast } from 'sonner';
 
 const Auth = () => {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<'login' | 'signup' | 'magic'>('signup');
+  const location = useLocation();
+  const [mode, setMode] = useState<'login' | 'signup' | 'magic'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [company, setCompany] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const [afterCheckout, setAfterCheckout] = useState(false);
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
@@ -34,6 +35,14 @@ const Auth = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate, company]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('afterCheckout')) {
+      setMode('signup');
+      setAfterCheckout(true);
+    }
+  }, [location.search]);
 
   const handleSignup = async () => {
     try {
@@ -65,7 +74,26 @@ const Auth = () => {
       if (error) throw error;
       toast.success('Logged in');
     } catch (e: any) {
-      toast.error(e.message || 'Login failed');
+      // If login fails, check if this email has an active subscription
+      try {
+        const { data, error: fnError } = await supabase.functions.invoke('is-paid-email', { body: { email } });
+        if (fnError) throw fnError;
+        if (data?.paid) {
+          toast.info('We found your payment. Create your account with the same email.');
+          setMode('signup');
+        } else {
+          toast.info('No subscription found for this email. Redirecting to checkout...');
+          const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke('create-checkout-public');
+          if (checkoutError) throw checkoutError;
+          if (checkoutData?.url) {
+            window.location.href = checkoutData.url;
+          } else {
+            throw new Error('Unable to open checkout');
+          }
+        }
+      } catch (inner: any) {
+        toast.error(inner?.message || e?.message || 'Login failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -88,6 +116,23 @@ const Auth = () => {
     }
   };
 
+  const handleCheckout = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.functions.invoke('create-checkout-public');
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (e: any) {
+      toast.error(e?.message || 'Unable to open checkout');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
@@ -98,9 +143,15 @@ const Auth = () => {
               <Button variant={mode === 'login' ? 'default' : 'outline'} onClick={() => setMode('login')}>Log In</Button>
               <Button variant={mode === 'magic' ? 'default' : 'outline'} onClick={() => setMode('magic')}>Magic Link</Button>
             </div>
-          </div>
+        </div>
 
-          {mode === 'signup' && (
+        {afterCheckout && (
+          <div className="mb-4 rounded-md border border-blue-200 bg-blue-50 text-blue-800 p-3 text-sm">
+            Payment complete. Create your account with the same email used at checkout.
+          </div>
+        )}
+
+        {mode === 'signup' && (
             <div className="space-y-4">
               <div>
                 <Label htmlFor="fullName">Full name</Label>
@@ -134,6 +185,7 @@ const Auth = () => {
                 <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
               </div>
               <Button className="w-full" onClick={handleLogin} disabled={loading}>Log in</Button>
+              <Button variant="outline" className="w-full" onClick={handleCheckout} disabled={loading}>Start subscription</Button>
             </div>
           )}
 

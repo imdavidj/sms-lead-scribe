@@ -8,3 +8,6 @@ verify_jwt = true
 
 [functions.create-checkout-public]
 verify_jwt = false
+
+[functions.is-paid-email]
+verify_jwt = false
