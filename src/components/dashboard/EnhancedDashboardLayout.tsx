@@ -4,6 +4,7 @@ import { NavigationSidebar } from './NavigationSidebar';
 import { AICommandCenter } from './AICommandCenter';
 import { ConversationManager } from './ConversationManager';
 import { EnhancedLeadsView } from './EnhancedLeadsView';
+import ImportLeadsView from './ImportLeadsView';
 import { CampaignsView } from './CampaignsView';
 import { AnalyticsView } from './AnalyticsView';
 import { SettingsView } from './SettingsView';
@@ -57,6 +58,8 @@ export const EnhancedDashboardLayout = () => {
             setActiveView('conversations');
           }}
         />;
+      case 'import-leads':
+        return <ImportLeadsView />;
       case 'campaigns':
         return <CampaignsView />;
       case 'analytics':
