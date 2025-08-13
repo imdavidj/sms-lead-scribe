@@ -144,13 +144,13 @@ export const Landing = () => {
               <a href="#testimonials" className="text-gray-600 hover:text-gray-900 transition-colors">Reviews</a>
               <Button 
                 variant="outline"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/auth')}
                 className="mr-2"
               >
                 Login
               </Button>
               <Button 
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/auth')}
                 className="bg-purple-600 hover:bg-purple-700"
               >
                 Sign Up Free
@@ -184,7 +184,7 @@ export const Landing = () => {
             <Button 
               size="lg" 
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/auth')}
             >
               Start Your Journey
               <ArrowRight className="ml-2 w-5 h-5" />
@@ -341,7 +341,7 @@ export const Landing = () => {
                 
                 <Button 
                   className="w-full py-4 text-xl bg-purple-600 hover:bg-purple-700 text-white"
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => navigate('/auth')}
                 >
                   {pricingTier.buttonText}
                 </Button>
@@ -475,7 +475,7 @@ export const Landing = () => {
             <Button 
               size="lg" 
               className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-4 text-lg rounded-xl shadow-lg font-semibold"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/auth')}
             >
               Get Started Today
             </Button>
