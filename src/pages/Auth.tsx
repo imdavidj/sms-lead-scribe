@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 const Auth = () => {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<'login' | 'signup'>('signup');
+  const [mode, setMode] = useState<'login' | 'signup' | 'magic'>('signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -71,6 +71,23 @@ const Auth = () => {
     }
   };
 
+  const handleMagicLink = async () => {
+    try {
+      setLoading(true);
+      const redirectUrl = `${window.location.origin}/`;
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: redirectUrl }
+      });
+      if (error) throw error;
+      toast.success('Magic link sent! Check your email.');
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to send magic link');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
@@ -79,6 +96,7 @@ const Auth = () => {
             <div className="inline-flex rounded-md shadow-sm" role="group">
               <Button variant={mode === 'signup' ? 'default' : 'outline'} onClick={() => setMode('signup')}>Sign Up</Button>
               <Button variant={mode === 'login' ? 'default' : 'outline'} onClick={() => setMode('login')}>Log In</Button>
+              <Button variant={mode === 'magic' ? 'default' : 'outline'} onClick={() => setMode('magic')}>Magic Link</Button>
             </div>
           </div>
 
@@ -116,6 +134,17 @@ const Auth = () => {
                 <Input id="password2" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
               </div>
               <Button className="w-full" onClick={handleLogin} disabled={loading}>Log in</Button>
+            </div>
+          )}
+
+          {mode === 'magic' && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="email3">Email</Label>
+                <Input id="email3" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+              </div>
+              <Button className="w-full" onClick={handleMagicLink} disabled={loading}>Send magic link</Button>
+              <p className="text-xs text-muted-foreground text-center">We’ll email you a one-time login link. No password needed.</p>
             </div>
           )}
         </CardContent>
