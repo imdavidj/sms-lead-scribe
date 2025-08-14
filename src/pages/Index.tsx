@@ -2,17 +2,21 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { EnhancedDashboardLayout } from "@/components/dashboard/EnhancedDashboardLayout";
+import { OnboardingManager } from "@/components/onboarding/OnboardingManager";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useClientSetup } from "@/hooks/useClientSetup";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { loading: subLoading, subscribed, refresh } = useSubscription();
+  const { needsOnboarding, loading: setupLoading } = useClientSetup();
   const [checking, setChecking] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -28,7 +32,6 @@ const Index = () => {
       }
       
       setUser(session.user);
-      
       setChecking(false);
     });
 
@@ -68,12 +71,29 @@ const Index = () => {
     }
   };
 
-  if (checking || subLoading) {
+  // Show onboarding if user needs setup
+  useEffect(() => {
+    if (!checking && !setupLoading && needsOnboarding()) {
+      setShowOnboarding(true);
+    }
+  }, [checking, setupLoading, needsOnboarding]);
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    refresh(); // Refresh subscription status
+  };
+
+  if (checking || subLoading || setupLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
       </div>
     );
+  }
+
+  // Show onboarding if setup is incomplete
+  if (showOnboarding) {
+    return <OnboardingManager onComplete={handleOnboardingComplete} />;
   }
 
   if (!subscribed) {

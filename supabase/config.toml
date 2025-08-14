@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.is-paid-email]
 verify_jwt = false
+
+[functions.validate-twilio]
+verify_jwt = true

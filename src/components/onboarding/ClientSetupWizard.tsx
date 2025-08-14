@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { useClientSetup } from '@/hooks/useClientSetup';
 import { CheckCircle, Settings, MessageSquare, CreditCard } from 'lucide-react';
 
 interface ClientSetupWizardProps {
@@ -21,6 +21,8 @@ interface TwilioConfig {
 const ClientSetupWizard: React.FC<ClientSetupWizardProps> = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const { markCompanySetupComplete, markTwilioSetupComplete } = useClientSetup();
+  
   const [companyInfo, setCompanyInfo] = useState({
     name: '',
     industry: '',
@@ -46,17 +48,13 @@ const ClientSetupWizard: React.FC<ClientSetupWizardProps> = ({ onComplete }) => 
 
     setLoading(true);
     try {
-      // Update client record with company info
-      const { error } = await supabase
-        .from('clients')
-        .update({
-          company: companyInfo.name,
-          domain: companyInfo.domain,
-          industry: companyInfo.industry
-        })
-        .eq('created_by_user_id', (await supabase.auth.getUser()).data.user?.id);
-
-      if (error) throw error;
+      await markCompanySetupComplete({
+        company: companyInfo.name,
+        domain: companyInfo.domain,
+        industry: companyInfo.industry
+      });
+      
+      toast.success('Company information saved!');
       setStep(2);
     } catch (error: any) {
       toast.error('Failed to save company info: ' + error.message);
@@ -73,35 +71,13 @@ const ClientSetupWizard: React.FC<ClientSetupWizardProps> = ({ onComplete }) => 
 
     setLoading(true);
     try {
-      // Get current user's client_id
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('client_id')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
-
-      if (!profile?.client_id) throw new Error('No client found');
-
-      // Update client_config to mark Twilio as configured
-      // Note: Actual credentials should be stored in Supabase secrets
-      const { error } = await supabase
-        .from('client_config')
-        .update({
-          twilio_configured: true,
-          is_verified: true
-        })
-        .eq('client_id', profile.client_id);
-
-      if (error) throw error;
-
-      // Mark client setup as complete
-      await supabase
-        .from('clients')
-        .update({ is_setup_complete: true })
-        .eq('created_by_user_id', (await supabase.auth.getUser()).data.user?.id);
-
-      setStep(3);
-      setTimeout(onComplete, 2000);
+      const isComplete = await markTwilioSetupComplete(twilioConfig);
+      
+      if (isComplete) {
+        toast.success('Setup complete! Redirecting to dashboard...');
+        setStep(3);
+        setTimeout(onComplete, 2000);
+      }
     } catch (error: any) {
       toast.error('Failed to save Twilio config: ' + error.message);
     } finally {

@@ -62,6 +62,8 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_verified: boolean | null
+          setup_completed: boolean | null
+          setup_steps: Json | null
           sms_limit: number | null
           sms_used: number | null
           subscription_plan: string | null
@@ -77,6 +79,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_verified?: boolean | null
+          setup_completed?: boolean | null
+          setup_steps?: Json | null
           sms_limit?: number | null
           sms_used?: number | null
           subscription_plan?: string | null
@@ -92,6 +96,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_verified?: boolean | null
+          setup_completed?: boolean | null
+          setup_steps?: Json | null
           sms_limit?: number | null
           sms_used?: number | null
           subscription_plan?: string | null
@@ -196,9 +202,13 @@ export type Database = {
           industry: string | null
           is_setup_complete: boolean | null
           name: string
+          onboarding_completed_at: string | null
           phone: string | null
+          setup_steps: Json | null
+          stripe_customer_id: string | null
           subscription_plan: string | null
           subscription_status: string | null
+          twilio_verified: boolean | null
           updated_at: string | null
         }
         Insert: {
@@ -212,9 +222,13 @@ export type Database = {
           industry?: string | null
           is_setup_complete?: boolean | null
           name: string
+          onboarding_completed_at?: string | null
           phone?: string | null
+          setup_steps?: Json | null
+          stripe_customer_id?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
+          twilio_verified?: boolean | null
           updated_at?: string | null
         }
         Update: {
@@ -228,9 +242,13 @@ export type Database = {
           industry?: string | null
           is_setup_complete?: boolean | null
           name?: string
+          onboarding_completed_at?: string | null
           phone?: string | null
+          setup_steps?: Json | null
+          stripe_customer_id?: string | null
           subscription_plan?: string | null
           subscription_status?: string | null
+          twilio_verified?: boolean | null
           updated_at?: string | null
         }
         Relationships: []
@@ -556,12 +574,25 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_setup_status: {
+        Args: { p_client_id: string }
+        Returns: {
+          company_complete: boolean
+          setup_completed: boolean
+          twilio_complete: boolean
+          twilio_verified: boolean
+        }[]
+      }
       has_twilio_credentials: {
         Args: { client_id_param: string }
         Returns: boolean
       }
       is_current_user_admin_safe: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      update_setup_progress: {
+        Args: { p_client_id: string; p_completed?: boolean; p_step: string }
         Returns: boolean
       }
       validate_admin_only_access: {
