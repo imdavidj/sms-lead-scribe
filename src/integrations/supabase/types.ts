@@ -570,6 +570,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      validate_admin_only_access: {
+        Args: { target_client_id: string }
+        Returns: boolean
+      }
       validate_user_access: {
         Args: { required_role?: string; target_client_id: string }
         Returns: boolean
