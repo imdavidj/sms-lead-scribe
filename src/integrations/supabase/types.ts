@@ -50,6 +50,60 @@ export type Database = {
         }
         Relationships: []
       }
+      client_config: {
+        Row: {
+          client_id: string
+          client_name: string
+          created_at: string | null
+          google_sheet_id: string | null
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          sms_limit: number | null
+          sms_used: number | null
+          subscription_plan: string | null
+          twilio_account_sid: string | null
+          twilio_auth_token: string | null
+          twilio_messaging_service_sid: string | null
+          twilio_phone_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id: string
+          client_name: string
+          created_at?: string | null
+          google_sheet_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          sms_limit?: number | null
+          sms_used?: number | null
+          subscription_plan?: string | null
+          twilio_account_sid?: string | null
+          twilio_auth_token?: string | null
+          twilio_messaging_service_sid?: string | null
+          twilio_phone_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string
+          client_name?: string
+          created_at?: string | null
+          google_sheet_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          sms_limit?: number | null
+          sms_used?: number | null
+          subscription_plan?: string | null
+          twilio_account_sid?: string | null
+          twilio_auth_token?: string | null
+          twilio_messaging_service_sid?: string | null
+          twilio_phone_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           api_key: string | null
@@ -181,6 +235,33 @@ export type Database = {
           sheet_name?: string | null
           status?: string | null
           total_rows?: number | null
+        }
+        Relationships: []
+      }
+      lead_phone_mapping: {
+        Row: {
+          campaign_name: string | null
+          client_id: string
+          created_at: string | null
+          id: string
+          last_contacted: string | null
+          phone_number: string
+        }
+        Insert: {
+          campaign_name?: string | null
+          client_id: string
+          created_at?: string | null
+          id?: string
+          last_contacted?: string | null
+          phone_number: string
+        }
+        Update: {
+          campaign_name?: string | null
+          client_id?: string
+          created_at?: string | null
+          id?: string
+          last_contacted?: string | null
+          phone_number?: string
         }
         Relationships: []
       }
