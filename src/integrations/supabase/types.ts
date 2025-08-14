@@ -369,7 +369,7 @@ export type Database = {
           ai_classification_reason: string | null
           ai_tag: string | null
           city: string | null
-          client_id: string | null
+          client_id: string
           created_at: string
           date_added: string | null
           email: string | null
@@ -391,7 +391,7 @@ export type Database = {
           ai_classification_reason?: string | null
           ai_tag?: string | null
           city?: string | null
-          client_id?: string | null
+          client_id: string
           created_at?: string
           date_added?: string | null
           email?: string | null
@@ -413,7 +413,7 @@ export type Database = {
           ai_classification_reason?: string | null
           ai_tag?: string | null
           city?: string | null
-          client_id?: string | null
+          client_id?: string
           created_at?: string
           date_added?: string | null
           email?: string | null
@@ -568,6 +568,10 @@ export type Database = {
       }
       is_current_user_admin_safe: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      validate_user_access: {
+        Args: { required_role?: string; target_client_id: string }
         Returns: boolean
       }
     }
