@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import ClientSetupWizard from '@/components/onboarding/ClientSetupWizard';
 
 interface SettingSection {
   id: string;
@@ -59,6 +60,8 @@ const settingSections: SettingSection[] = [
 
 export const SettingsView: React.FC = () => {
   const [activeSection, setActiveSection] = useState('profile');
+  const [showSetupWizard, setShowSetupWizard] = useState(false);
+  const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [notifications, setNotifications] = useState({
     emailAlerts: true,
     smsNotifications: false,
@@ -88,7 +91,26 @@ export const SettingsView: React.FC = () => {
       })
       .catch(() => setSubscription({ subscribed: false }))
       .finally(() => setSubStatusLoading(false));
+      
+    checkSetupStatus();
   }, []);
+
+  const checkSetupStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: client } = await supabase
+        .from('clients')
+        .select('is_setup_complete')
+        .eq('created_by_user_id', user.id)
+        .single();
+
+      setIsSetupComplete(client?.is_setup_complete || false);
+    } catch (error) {
+      console.error('Error checking setup status:', error);
+    }
+  };
 
   const handleManageSubscription = async () => (
     setPortalLoading(true),
@@ -123,6 +145,16 @@ export const SettingsView: React.FC = () => {
       setSubLoading(false);
     }
   };
+
+  const handleSetupComplete = () => {
+    setShowSetupWizard(false);
+    setIsSetupComplete(true);
+    checkSetupStatus(); // Refresh setup status
+  };
+
+  if (showSetupWizard) {
+    return <ClientSetupWizard onComplete={handleSetupComplete} />;
+  }
 
   const renderProfileSettings = () => (
     <div className="space-y-6">
@@ -324,6 +356,28 @@ export const SettingsView: React.FC = () => {
 
   const renderIntegrationSettings = () => (
     <div className="space-y-6">
+      <Card className="border-gray-200">
+        <CardHeader>
+          <CardTitle className="text-lg font-bold text-gray-900">Client Setup</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div>
+              <h4 className="font-medium text-gray-900">Initial Configuration</h4>
+              <p className="text-sm text-gray-600">
+                {isSetupComplete ? 'Your client account is fully configured with Twilio SMS' : 'Complete setup to configure company info and Twilio SMS'}
+              </p>
+            </div>
+            <Button 
+              onClick={() => setShowSetupWizard(true)}
+              variant={isSetupComplete ? "outline" : "default"}
+            >
+              {isSetupComplete ? 'Reconfigure' : 'Setup Now'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="border-gray-200">
         <CardHeader>
           <CardTitle className="text-lg font-bold text-gray-900">Connected Services</CardTitle>
