@@ -120,7 +120,84 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Insert outbound message
+    // Get Twilio configuration for current client
+    const { data: clientConfig, error: configError } = await supabase
+      .from('client_config')
+      .select('twilio_account_sid, twilio_auth_token, twilio_phone_number')
+      .eq('client_id', 'default')
+      .maybeSingle()
+
+    if (configError || !clientConfig) {
+      console.error('Error fetching client config:', configError)
+      return new Response(
+        JSON.stringify({ error: 'Twilio configuration not found' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const { twilio_account_sid, twilio_auth_token, twilio_phone_number } = clientConfig
+
+    if (!twilio_account_sid || !twilio_auth_token || !twilio_phone_number) {
+      console.error('Missing Twilio credentials')
+      return new Response(
+        JSON.stringify({ error: 'Twilio credentials not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Send SMS via Twilio
+    let twilioSid = null
+    try {
+      const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages.json`
+      const authToken = btoa(`${twilio_account_sid}:${twilio_auth_token}`)
+      
+      const twilioBody = new URLSearchParams({
+        From: twilio_phone_number,
+        To: payload.phone,
+        Body: payload.message
+      })
+
+      console.log('Sending SMS via Twilio:', {
+        from: twilio_phone_number,
+        to: maskPhone(payload.phone),
+        body_length: payload.message.length
+      })
+
+      const twilioResponse = await fetch(twilioUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${authToken}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: twilioBody.toString()
+      })
+
+      if (!twilioResponse.ok) {
+        const errorText = await twilioResponse.text()
+        console.error('Twilio API error:', {
+          status: twilioResponse.status,
+          statusText: twilioResponse.statusText,
+          error: errorText
+        })
+        return new Response(
+          JSON.stringify({ error: 'Failed to send SMS' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      const twilioResult = await twilioResponse.json()
+      twilioSid = twilioResult.sid
+      console.log('SMS sent successfully:', { sid: twilioSid })
+
+    } catch (error) {
+      console.error('Error sending SMS:', error)
+      return new Response(
+        JSON.stringify({ error: 'Failed to send SMS' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Insert outbound message with Twilio SID
     const { data: message, error: messageError } = await supabase
       .from('messages')
       .insert({
@@ -128,7 +205,7 @@ Deno.serve(async (req) => {
         direction: 'outbound',
         body: payload.message,
         ai_summary: null,
-        twilio_sid: null
+        twilio_sid: twilioSid
       })
       .select('id')
       .maybeSingle()
