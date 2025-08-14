@@ -82,12 +82,12 @@ const ClientSetupWizard: React.FC<ClientSetupWizardProps> = ({ onComplete }) => 
 
       if (!profile?.client_id) throw new Error('No client found');
 
-      // Update client_config with Twilio credentials
+      // Update client_config to mark Twilio as configured
+      // Note: Actual credentials should be stored in Supabase secrets
       const { error } = await supabase
         .from('client_config')
         .update({
-          twilio_account_sid: twilioConfig.accountSid,
-          twilio_auth_token: twilioConfig.authToken,
+          twilio_configured: true,
           twilio_phone_number: twilioConfig.phoneNumber,
           is_verified: true
         })

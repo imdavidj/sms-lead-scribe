@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
     // Get Twilio configuration for current client
     const { data: clientConfig, error: configError } = await supabase
       .from('client_config')
-      .select('twilio_account_sid, twilio_auth_token, twilio_phone_number, sms_used, sms_limit')
+      .select('twilio_configured, twilio_phone_number, sms_used, sms_limit')
       .eq('client_id', 'default')
       .maybeSingle()
 
@@ -135,12 +135,24 @@ Deno.serve(async (req) => {
       )
     }
 
-    const { twilio_account_sid, twilio_auth_token, twilio_phone_number, sms_used, sms_limit } = clientConfig
+    const { twilio_configured, twilio_phone_number, sms_used, sms_limit } = clientConfig
 
-    if (!twilio_account_sid || !twilio_auth_token || !twilio_phone_number) {
-      console.error('Missing Twilio credentials')
+    if (!twilio_configured || !twilio_phone_number) {
+      console.error('Twilio not configured or missing phone number')
       return new Response(
         JSON.stringify({ error: 'Twilio credentials not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Get Twilio credentials from Supabase secrets
+    const twilioAccountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
+    const twilioAuthToken = Deno.env.get('TWILIO_AUTH_TOKEN')
+
+    if (!twilioAccountSid || !twilioAuthToken) {
+      console.error('Missing Twilio credentials in secrets')
+      return new Response(
+        JSON.stringify({ error: 'Twilio credentials not configured in secrets' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -157,8 +169,8 @@ Deno.serve(async (req) => {
     // Send SMS via Twilio
     let twilioSid = null
     try {
-      const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilio_account_sid}/Messages.json`
-      const authToken = btoa(`${twilio_account_sid}:${twilio_auth_token}`)
+      const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`
+      const authToken = btoa(`${twilioAccountSid}:${twilioAuthToken}`)
       
       const twilioBody = new URLSearchParams({
         From: twilio_phone_number,
