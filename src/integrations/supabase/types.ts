@@ -65,9 +65,7 @@ export type Database = {
           sms_limit: number | null
           sms_used: number | null
           subscription_plan: string | null
-          twilio_account_sid: string | null
-          twilio_auth_token: string | null
-          twilio_messaging_service_sid: string | null
+          twilio_configured: boolean | null
           twilio_phone_number: string | null
           updated_at: string | null
         }
@@ -82,9 +80,7 @@ export type Database = {
           sms_limit?: number | null
           sms_used?: number | null
           subscription_plan?: string | null
-          twilio_account_sid?: string | null
-          twilio_auth_token?: string | null
-          twilio_messaging_service_sid?: string | null
+          twilio_configured?: boolean | null
           twilio_phone_number?: string | null
           updated_at?: string | null
         }
@@ -99,9 +95,7 @@ export type Database = {
           sms_limit?: number | null
           sms_used?: number | null
           subscription_plan?: string | null
-          twilio_account_sid?: string | null
-          twilio_auth_token?: string | null
-          twilio_messaging_service_sid?: string | null
+          twilio_configured?: boolean | null
           twilio_phone_number?: string | null
           updated_at?: string | null
         }
