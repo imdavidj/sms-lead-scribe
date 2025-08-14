@@ -566,6 +566,10 @@ export type Database = {
         Args: { client_id_param: string }
         Returns: boolean
       }
+      is_current_user_admin_safe: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
