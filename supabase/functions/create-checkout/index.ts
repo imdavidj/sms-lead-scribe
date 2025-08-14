@@ -27,8 +27,19 @@ serve(async (req) => {
     logStep("Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    logStep("Stripe key verified");
+    logStep("Checking Stripe key", { hasKey: !!stripeKey, keyPrefix: stripeKey?.substring(0, 7) });
+    
+    if (!stripeKey) {
+      logStep("ERROR: STRIPE_SECRET_KEY is not set");
+      throw new Error("STRIPE_SECRET_KEY is not set - Please configure your Stripe secret key in the Supabase dashboard");
+    }
+    
+    if (!stripeKey.startsWith('sk_')) {
+      logStep("ERROR: Invalid Stripe key format", { keyPrefix: stripeKey?.substring(0, 7) });
+      throw new Error("Invalid Stripe secret key format. Key should start with 'sk_'");
+    }
+    
+    logStep("Stripe key validated successfully");
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
