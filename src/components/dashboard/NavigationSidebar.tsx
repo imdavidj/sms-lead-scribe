@@ -1,10 +1,11 @@
 import React from 'react';
 import { 
   Brain, MessageSquare, Database, Workflow, BarChart, Settings,
-  Lightbulb, Upload, Shield
+  Lightbulb, Upload, Shield, Crown
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { NavigationItem } from '@/types/dashboard';
+import { useSuperAdmin } from '@/contexts/SuperAdminContext';
 
 interface NavigationSidebarProps {
   activeView: string;
@@ -13,7 +14,7 @@ interface NavigationSidebarProps {
   setIsMobileMenuOpen: (open: boolean) => void;
 }
 
-const navigationItems: NavigationItem[] = [
+const baseNavigationItems: NavigationItem[] = [
   { id: 'dashboard', label: 'AI Dashboard', icon: Brain },
   { id: 'conversations', label: 'Conversations', icon: MessageSquare, badge: '12 active' },
   { id: 'leads', label: 'Lead Database', icon: Database, badge: '1,247' },
@@ -29,6 +30,13 @@ export const NavigationSidebar: React.FC<NavigationSidebarProps> = ({
   isMobileMenuOpen,
   setIsMobileMenuOpen
 }) => {
+  const { isSuperAdmin, currentImpersonation } = useSuperAdmin();
+
+  const navigationItems = [
+    ...baseNavigationItems,
+    ...(isSuperAdmin ? [{ id: 'super-admin', label: 'Super Admin', icon: Crown, badge: currentImpersonation ? 'Active' : undefined }] : [])
+  ];
+
   return (
     <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} lg:block w-64 bg-white border-r border-gray-200 h-[calc(100vh-57px)]`}>
       <div className="p-4">

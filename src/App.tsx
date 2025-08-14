@@ -9,13 +9,15 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
+import { SuperAdminProvider } from "./contexts/SuperAdminContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <SubscriptionProvider>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light">
+      <SuperAdminProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light">
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -30,6 +32,7 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
+      </SuperAdminProvider>
     </SubscriptionProvider>
   </QueryClientProvider>
 );

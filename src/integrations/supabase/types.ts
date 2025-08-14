@@ -318,6 +318,36 @@ export type Database = {
           },
         ]
       }
+      impersonation_logs: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          impersonated_client_id: string
+          reason: string | null
+          started_at: string
+          super_admin_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          impersonated_client_id: string
+          reason?: string | null
+          started_at?: string
+          super_admin_user_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          impersonated_client_id?: string
+          reason?: string | null
+          started_at?: string
+          super_admin_user_id?: string
+        }
+        Relationships: []
+      }
       import_jobs: {
         Row: {
           client_id: string | null
@@ -562,13 +592,41 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      end_impersonation: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       generate_client_id: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_all_clients_for_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          client_id: string
+          client_name: string
+          company: string
+          created_at: string
+          email: string
+          sms_limit: number
+          sms_used: number
+          subscription_plan: string
+          subscription_status: string
+          total_users: number
+        }[]
+      }
       get_current_client_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_current_impersonation: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          impersonated_client_id: string
+          log_id: string
+          reason: string
+          started_at: string
+        }[]
       }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
@@ -591,6 +649,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      start_impersonation: {
+        Args: { reason?: string; target_client_id: string }
+        Returns: string
+      }
       update_setup_progress: {
         Args: { p_client_id: string; p_completed?: boolean; p_step: string }
         Returns: boolean
@@ -605,7 +671,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      user_role_enum: "agent" | "admin" | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -732,6 +798,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role_enum: ["agent", "admin", "super_admin"],
+    },
   },
 } as const

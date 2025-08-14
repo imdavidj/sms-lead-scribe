@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useSuperAdmin } from '@/contexts/SuperAdminContext';
 
 export interface SetupStatus {
   setup_completed: boolean;
@@ -22,29 +23,46 @@ export const useClientSetup = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { getCurrentClientContext } = useSuperAdmin();
 
   const fetchSetupStatus = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Get user profile first
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('client_id, role, first_name, last_name')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-        .maybeSingle();
+      // Check if super admin is impersonating a client
+      const impersonatedClientId = getCurrentClientContext();
+      let targetClientId: string;
 
-      if (profileError) throw profileError;
-      if (!profileData?.client_id) {
-        throw new Error('No client associated with user');
+      if (impersonatedClientId) {
+        // Use impersonated client ID
+        targetClientId = impersonatedClientId;
+        setProfile({
+          client_id: impersonatedClientId,
+          role: 'super_admin_impersonating',
+          first_name: 'Super',
+          last_name: 'Admin'
+        });
+      } else {
+        // Get user profile normally
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('client_id, role, first_name, last_name')
+          .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+          .maybeSingle();
+
+        if (profileError) throw profileError;
+        if (!profileData?.client_id) {
+          throw new Error('No client associated with user');
+        }
+
+        setProfile(profileData as ClientProfile);
+        targetClientId = profileData.client_id;
       }
-
-      setProfile(profileData as ClientProfile);
 
       // Get setup status using the database function
       const { data: statusData, error: statusError } = await supabase
-        .rpc('get_setup_status', { p_client_id: profileData.client_id });
+        .rpc('get_setup_status', { p_client_id: targetClientId });
 
       if (statusError) throw statusError;
       

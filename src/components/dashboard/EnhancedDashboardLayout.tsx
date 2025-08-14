@@ -11,6 +11,7 @@ import { SettingsView } from './SettingsView';
 import { CRMPushModal } from './CRMPushModal';
 import { Lead } from '@/types/dashboard';
 import AdminDashboard from '../admin/AdminDashboard';
+import { SuperAdminDashboard } from '../super-admin/SuperAdminDashboard';
 
 export const EnhancedDashboardLayout = () => {
   const [activeView, setActiveView] = useState('dashboard');
@@ -69,6 +70,8 @@ export const EnhancedDashboardLayout = () => {
         return <SettingsView />;
       case 'admin':
         return <AdminDashboard />;
+      case 'super-admin':
+        return <SuperAdminDashboard />;
       default:
         return <AICommandCenter 
           isAIProcessing={isAIProcessing} 
