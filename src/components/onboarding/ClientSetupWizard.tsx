@@ -88,7 +88,6 @@ const ClientSetupWizard: React.FC<ClientSetupWizardProps> = ({ onComplete }) => 
         .from('client_config')
         .update({
           twilio_configured: true,
-          twilio_phone_number: twilioConfig.phoneNumber,
           is_verified: true
         })
         .eq('client_id', profile.client_id);
