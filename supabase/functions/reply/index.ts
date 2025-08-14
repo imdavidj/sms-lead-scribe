@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
     // Get Twilio configuration for current client
     const { data: clientConfig, error: configError } = await supabase
       .from('client_config')
-      .select('twilio_account_sid, twilio_auth_token, twilio_phone_number')
+      .select('twilio_account_sid, twilio_auth_token, twilio_phone_number, sms_used, sms_limit')
       .eq('client_id', 'default')
       .maybeSingle()
 
@@ -135,13 +135,22 @@ Deno.serve(async (req) => {
       )
     }
 
-    const { twilio_account_sid, twilio_auth_token, twilio_phone_number } = clientConfig
+    const { twilio_account_sid, twilio_auth_token, twilio_phone_number, sms_used, sms_limit } = clientConfig
 
     if (!twilio_account_sid || !twilio_auth_token || !twilio_phone_number) {
       console.error('Missing Twilio credentials')
       return new Response(
         JSON.stringify({ error: 'Twilio credentials not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Check SMS usage limits
+    if (sms_used >= sms_limit) {
+      console.error('SMS limit exceeded', { sms_used, sms_limit })
+      return new Response(
+        JSON.stringify({ error: 'SMS limit exceeded. Please upgrade your plan.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -188,6 +197,12 @@ Deno.serve(async (req) => {
       const twilioResult = await twilioResponse.json()
       twilioSid = twilioResult.sid
       console.log('SMS sent successfully:', { sid: twilioSid })
+
+      // Increment SMS usage count
+      await supabase
+        .from('client_config')
+        .update({ sms_used: (sms_used || 0) + 1 })
+        .eq('client_id', 'default')
 
     } catch (error) {
       console.error('Error sending SMS:', error)

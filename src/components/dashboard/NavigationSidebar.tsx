@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Brain, MessageSquare, Database, Workflow, BarChart, Settings,
-  Lightbulb, Upload
+  Lightbulb, Upload, Shield
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { NavigationItem } from '@/types/dashboard';
@@ -19,6 +19,7 @@ const navigationItems: NavigationItem[] = [
   { id: 'leads', label: 'Lead Database', icon: Database, badge: '1,247' },
   { id: 'campaigns', label: 'AI Campaigns', icon: Workflow, badge: '5 active' },
   { id: 'analytics', label: 'Analytics', icon: BarChart },
+  { id: 'admin', label: 'Admin', icon: Shield },
   { id: 'settings', label: 'Settings', icon: Settings }
 ];
 

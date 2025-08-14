@@ -22,11 +22,8 @@ const Auth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user?.email) setSignedInEmail(session.user.email);
       if (event === 'SIGNED_IN' && session) {
-        // Only redirect after a fresh sign-in
-        supabase.functions
-          .invoke('bootstrap', { body: { companyName: company || undefined } })
-          .then(() => navigate('/dashboard', { replace: true }))
-          .catch(() => navigate('/dashboard', { replace: true }));
+        // Check if client setup is needed
+        navigate('/dashboard', { replace: true });
       }
     });
 

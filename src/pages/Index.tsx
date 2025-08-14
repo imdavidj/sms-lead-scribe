@@ -5,12 +5,15 @@ import { EnhancedDashboardLayout } from "@/components/dashboard/EnhancedDashboar
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import ClientSetupWizard from "@/components/onboarding/ClientSetupWizard";
 
 const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { loading: subLoading, subscribed, refresh } = useSubscription();
   const [checking, setChecking] = useState(true);
+  const [needsSetup, setNeedsSetup] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -19,10 +22,39 @@ const Index = () => {
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) {
         navigate("/auth", { replace: true });
+        return;
       }
+      
+      setUser(session.user);
+      
+      // Check if client setup is complete
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('client_id')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (profile?.client_id && profile.client_id !== 'default') {
+          // Check if client setup is complete
+          const { data: client } = await supabase
+            .from('clients')
+            .select('is_setup_complete')
+            .eq('created_by_user_id', session.user.id)
+            .single();
+
+          setNeedsSetup(!client?.is_setup_complete);
+        } else {
+          setNeedsSetup(true);
+        }
+      } catch (error) {
+        console.error('Error checking setup status:', error);
+        setNeedsSetup(true);
+      }
+      
       setChecking(false);
     });
 
@@ -62,12 +94,21 @@ const Index = () => {
     }
   };
 
+  const handleSetupComplete = () => {
+    setNeedsSetup(false);
+    refresh(); // Refresh subscription status
+  };
+
   if (checking || subLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
       </div>
     );
+  }
+
+  if (needsSetup) {
+    return <ClientSetupWizard onComplete={handleSetupComplete} />;
   }
 
   if (!subscribed) {
