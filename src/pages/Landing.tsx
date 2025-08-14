@@ -15,15 +15,33 @@ export const Landing = () => {
 
   const handleCheckout = async () => {
     try {
+      console.log('Starting checkout process...');
       const { data, error } = await supabase.functions.invoke('create-checkout-public');
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Checkout function error:', error);
+        throw error;
+      }
+      
       if (data?.url) {
+        console.log('Redirecting to checkout:', data.url);
         window.open(data.url, '_blank');
       } else {
-        throw new Error('No checkout URL returned');
+        console.error('No checkout URL returned:', data);
+        throw new Error('No checkout URL returned from payment processor');
       }
     } catch (e: any) {
-      toast({ title: 'Unable to open checkout', description: e?.message ?? 'Please try again.', variant: 'destructive' });
+      console.error('Checkout error:', e);
+      // More user-friendly error message
+      const message = e?.message?.includes('Stripe') ? 
+        'Payment system temporarily unavailable. Please try again in a moment.' :
+        'Unable to start checkout process. Please try again.';
+      
+      toast({ 
+        title: 'Checkout Unavailable', 
+        description: message, 
+        variant: 'destructive' 
+      });
     }
   };
 
