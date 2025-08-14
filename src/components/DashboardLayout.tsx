@@ -423,7 +423,7 @@ export const DashboardLayout = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Analytics</h2>
             <p className="text-gray-600">Key Performance Indicators</p>
           </div>
-          <DateRangeSelector onDateRangeChange={(range) => console.log('Date range changed to:', range)} />
+          <DateRangeSelector onDateRangeChange={(range) => {}} />
           <AnalyticsKPICards />
           <AnalyticsChart />
         </div>

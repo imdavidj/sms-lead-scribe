@@ -135,7 +135,7 @@ export function ConversationThread({ conversation, onConversationUpdate, leadPho
     const conversationId = conversation.id
     const normalizedPhone = to?.startsWith('+') ? to : `+1${to?.replace(/\D/g, '')}`
 
-    console.log('Sending SMS:', { to: normalizedPhone, message: messageText, conversationId })
+    
     try {
       const response = await fetch('https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/reply', {
         method: 'POST',

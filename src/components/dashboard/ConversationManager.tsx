@@ -103,7 +103,7 @@ export const ConversationManager: React.FC<{ preselectPhone?: string }> = ({ pre
     const conversationId = selectedConversation.id;
     const normalizedPhone = to?.startsWith('+') ? to : `+1${to?.replace(/\D/g, '')}`;
 
-    console.log('Sending SMS:', { to: normalizedPhone, message: messageText, conversationId });
+    
     setSending(true);
     try {
       const { data, error } = await supabase.functions.invoke('reply', {
