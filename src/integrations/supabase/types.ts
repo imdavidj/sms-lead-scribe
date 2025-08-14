@@ -148,6 +148,48 @@ export type Database = {
           },
         ]
       }
+      client_settings: {
+        Row: {
+          client_id: string
+          client_name: string
+          created_at: string | null
+          google_sheet_id: string | null
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          sms_limit: number | null
+          sms_used: number | null
+          subscription_plan: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id: string
+          client_name: string
+          created_at?: string | null
+          google_sheet_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          sms_limit?: number | null
+          sms_used?: number | null
+          subscription_plan?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string
+          client_name?: string
+          created_at?: string | null
+          google_sheet_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          sms_limit?: number | null
+          sms_used?: number | null
+          subscription_plan?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           api_key: string | null
@@ -519,6 +561,10 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      has_twilio_credentials: {
+        Args: { client_id_param: string }
+        Returns: boolean
       }
     }
     Enums: {
