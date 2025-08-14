@@ -95,6 +95,18 @@ export function LeadsView() {
 
   const pushToLeads = async () => {
     try {
+      // Get current user's client_id
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('client_id')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+
+      if (!profile?.client_id) {
+        alert('Error: No client found for user');
+        return;
+      }
+
       const lead = {
         first_name: newLead.first_name,
         last_name: newLead.last_name,
@@ -105,6 +117,7 @@ export function LeadsView() {
         state: newLead.state,
         zip: newLead.zip,
         status: newLead.status,
+        client_id: profile.client_id,
         date_added: new Date().toISOString()
       };
 
