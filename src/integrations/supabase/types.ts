@@ -104,13 +104,58 @@ export type Database = {
         }
         Relationships: []
       }
+      client_invites: {
+        Row: {
+          accepted_at: string | null
+          client_id: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by_user_id: string | null
+          role: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          client_id?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by_user_id?: string | null
+          role?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          client_id?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by_user_id?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_invites_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           api_key: string | null
           company: string | null
           created_at: string | null
+          created_by_user_id: string | null
+          domain: string | null
           email: string
           id: string
+          industry: string | null
+          is_setup_complete: boolean | null
           name: string
           phone: string | null
           subscription_plan: string | null
@@ -121,8 +166,12 @@ export type Database = {
           api_key?: string | null
           company?: string | null
           created_at?: string | null
+          created_by_user_id?: string | null
+          domain?: string | null
           email: string
           id?: string
+          industry?: string | null
+          is_setup_complete?: boolean | null
           name: string
           phone?: string | null
           subscription_plan?: string | null
@@ -133,8 +182,12 @@ export type Database = {
           api_key?: string | null
           company?: string | null
           created_at?: string | null
+          created_by_user_id?: string | null
+          domain?: string | null
           email?: string
           id?: string
+          industry?: string | null
+          is_setup_complete?: boolean | null
           name?: string
           phone?: string | null
           subscription_plan?: string | null
@@ -381,7 +434,9 @@ export type Database = {
           created_at: string
           first_name: string | null
           id: string
+          invited_at: string | null
           last_name: string | null
+          onboarded_at: string | null
           role: string
           user_id: string
         }
@@ -390,7 +445,9 @@ export type Database = {
           created_at?: string
           first_name?: string | null
           id?: string
+          invited_at?: string | null
           last_name?: string | null
+          onboarded_at?: string | null
           role?: string
           user_id: string
         }
@@ -399,7 +456,9 @@ export type Database = {
           created_at?: string
           first_name?: string | null
           id?: string
+          invited_at?: string | null
           last_name?: string | null
+          onboarded_at?: string | null
           role?: string
           user_id?: string
         }
@@ -446,6 +505,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_client_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_current_client_id: {
         Args: Record<PropertyKey, never>
         Returns: string
