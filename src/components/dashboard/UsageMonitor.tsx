@@ -70,11 +70,21 @@ const UsageMonitor: React.FC = () => {
 
   const handleUpgrade = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout');
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
+      
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: { user_id: user.id, email: user.email }
+      });
+      
       if (error) throw error;
       
       if (data?.url) {
-        window.open(data.url, '_blank');
+        window.location.href = data.url;
       }
     } catch (error: any) {
       toast.error('Failed to open upgrade page: ' + error.message);
