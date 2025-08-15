@@ -1,6 +1,5 @@
-// Force redeploy: v2.2 - Streamlined signup flow  
+// supabase/functions/check-subscription/index.ts
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.1";
-import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,33 +9,34 @@ const corsHeaders = {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  
-  try {
-    const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!STRIPE_SECRET_KEY) {
-      return new Response(JSON.stringify({ error: "Missing STRIPE_SECRET_KEY" }), { status: 500, headers: corsHeaders });
-    }
-    
-    const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-    const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+  const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const STRIPE_KEY = Deno.env.get("STRIPE_SECRET_KEY");
+
+  try {
+    // Require JWT
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return new Response(JSON.stringify({ error: "Missing Authorization" }), { status: 401, headers: corsHeaders });
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Missing Authorization" }), { status: 401, headers: corsHeaders });
+    }
 
     const userClient = createClient(SUPABASE_URL, ANON, { global: { headers: { Authorization: authHeader } } });
     const { data: { user } } = await userClient.auth.getUser();
-    if (!user) return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401, headers: corsHeaders });
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401, headers: corsHeaders });
+    }
 
+    // DB (service role)
     const admin = createClient(SUPABASE_URL, SERVICE);
     const { data: me } = await admin
       .from("users")
       .select("stripe_customer_id, subscription_status, current_period_end")
       .eq("id", user.id)
-      .maybeSingle();
+      .single();
 
-    // Prefer DB first
+    // 1) DB-first
     if (me?.subscription_status && ["active", "trialing"].includes(me.subscription_status)) {
       return new Response(JSON.stringify({
         subscribed: true,
@@ -45,23 +45,38 @@ Deno.serve(async (req) => {
       }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Fallback to Stripe if we have a customer id
-    if (me?.stripe_customer_id) {
-      const subs = await stripe.subscriptions.list({ customer: me.stripe_customer_id });
-      const live = subs.data.find(s => ["active", "trialing"].includes(s.status));
-      if (live) {
-        const end = new Date(live.current_period_end * 1000).toISOString();
-        await admin.from("users").update({
-          subscription_status: live.status,
-          current_period_end: end,
-        }).eq("id", user.id);
+    // 2) Stripe fallback (only if we have a stored customer id)
+    if (!me?.stripe_customer_id || !STRIPE_KEY) {
+      // No customer or no key → not subscribed
+      return new Response(JSON.stringify({ subscribed: false }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
-        return new Response(JSON.stringify({
-          subscribed: true,
-          subscription_status: live.status,
-          subscription_end: end,
-        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
+    const url = `https://api.stripe.com/v1/subscriptions?customer=${encodeURIComponent(me.stripe_customer_id)}&limit=10`;
+    const sRes = await fetch(url, {
+      headers: { Authorization: `Bearer ${STRIPE_KEY}` },
+    });
+    const sJson = await sRes.json();
+
+    if (!sRes.ok) {
+      return new Response(JSON.stringify({ subscribed: false, error: sJson?.error?.message || "Stripe list failed" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200, // still return 200 so client handles gracefully
+      });
+    }
+
+    const live = (sJson?.data || []).find((s: any) => ["active", "trialing"].includes(s.status));
+    if (live) {
+      const endIso = live.current_period_end ? new Date(live.current_period_end * 1000).toISOString() : null;
+      await admin.from("users").update({
+        subscription_status: live.status,
+        current_period_end: endIso,
+      }).eq("id", user.id);
+
+      return new Response(JSON.stringify({
+        subscribed: true,
+        subscription_status: live.status,
+        subscription_end: endIso,
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     return new Response(JSON.stringify({ subscribed: false }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
