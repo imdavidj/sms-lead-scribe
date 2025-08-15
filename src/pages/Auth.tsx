@@ -40,6 +40,12 @@ const Auth = () => {
     if (params.get('afterCheckout')) {
       setMode('signup');
       setAfterCheckout(true);
+      
+      // Pre-fill email if provided by Stripe
+      const stripeEmail = params.get('email');
+      if (stripeEmail) {
+        setEmail(stripeEmail);
+      }
     }
   }, [location.search]);
 
@@ -49,16 +55,35 @@ const Auth = () => {
       const [firstName, ...rest] = fullName.trim().split(' ');
       const lastName = rest.join(' ');
       const redirectUrl = `${window.location.origin}/`;
+      
+      // For post-checkout users, we'll auto-confirm their email
+      if (afterCheckout) {
+        // First verify they actually paid for this email
+        const { data: paidData, error: paidError } = await supabase.functions.invoke('is-paid-email', { body: { email } });
+        if (paidError || !paidData?.paid) {
+          throw new Error('No valid payment found for this email. Please use the same email you used for payment.');
+        }
+      }
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: { first_name: firstName || null, last_name: lastName || null }
+          data: { 
+            first_name: firstName || null, 
+            last_name: lastName || null,
+            company: company || null 
+          }
         }
       });
       if (error) throw error;
-      toast.success('Check your email to confirm your account.');
+      
+      if (afterCheckout) {
+        toast.success('Account created! You can now access your dashboard.');
+      } else {
+        toast.success('Check your email to confirm your account.');
+      }
     } catch (e: any) {
       toast.error(e.message || 'Sign up failed');
     } finally {
@@ -168,8 +193,9 @@ const Auth = () => {
         )}
 
         {afterCheckout && (
-          <div className="mb-4 rounded-md border border-blue-200 bg-blue-50 text-blue-800 p-3 text-sm">
-            Payment complete. Create your account with the same email used at checkout.
+          <div className="mb-4 rounded-md border border-green-200 bg-green-50 text-green-800 p-3 text-sm">
+            <div className="font-medium">Payment Complete! 🎉</div>
+            <div className="mt-1">Create your account with the email you used for payment. Your subscription will be activated automatically.</div>
           </div>
         )}
 
@@ -184,8 +210,16 @@ const Auth = () => {
                 <Input id="company" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Acme Realty" />
               </div>
               <div>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                <Label htmlFor="email">Email {afterCheckout && "(from payment)"}</Label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  placeholder="you@example.com"
+                  disabled={afterCheckout}
+                  className={afterCheckout ? "bg-muted" : ""}
+                />
               </div>
               <div>
                 <Label htmlFor="password">Password</Label>

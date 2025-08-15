@@ -44,10 +44,30 @@ serve(async (req) => {
     }
 
     const customerId = customers.data[0].id;
+    
+    // Check for active subscriptions
     const subscriptions = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
-    const paid = subscriptions.data.length > 0;
+    const hasActiveSubscription = subscriptions.data.length > 0;
+    
+    // Also check for successful payments in the last 24 hours (for immediate post-checkout)
+    const oneDayAgo = Math.floor((Date.now() - 24 * 60 * 60 * 1000) / 1000);
+    const recentPayments = await stripe.paymentIntents.list({
+      customer: customerId,
+      created: { gte: oneDayAgo },
+      limit: 10,
+    });
+    
+    const hasRecentSuccessfulPayment = recentPayments.data.some(
+      payment => payment.status === "succeeded"
+    );
+    
+    const paid = hasActiveSubscription || hasRecentSuccessfulPayment;
 
-    return new Response(JSON.stringify({ paid }), {
+    return new Response(JSON.stringify({ 
+      paid,
+      hasActiveSubscription,
+      hasRecentPayment: hasRecentSuccessfulPayment
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
