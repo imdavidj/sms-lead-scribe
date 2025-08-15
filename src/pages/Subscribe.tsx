@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,64 +10,45 @@ export default function Subscribe() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);
-  const [user, setUser] = useState(null);
-  const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [me, setMe] = useState<{ stripe_customer_id: string | null } | null>(null);
 
   useEffect(() => {
-    // Check if user is authenticated
-    const checkAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error checking session:', error);
-          navigate('/auth');
-          return;
-        }
+    (async () => {
+      // ensure session first
+      let { data: { session } } = await supabase.auth.getSession();
 
-        if (!session) {
-          console.log('No session found, redirecting to auth');
-          navigate('/auth');
-          return;
-        }
-
-        setUser(session.user);
-        console.log('User authenticated, ready for subscription');
-        
-        // Check if user has stripe customer ID
-        const { data: userData } = await supabase.from('users')
-          .select('stripe_customer_id')
-          .eq('id', session.user.id)
-          .maybeSingle();
-        
-        setHasStripeCustomer(!!userData?.stripe_customer_id);
-      } catch (error) {
-        console.error('Error in auth check:', error);
-        navigate('/auth');
-      } finally {
-        setCheckingAuth(false);
+      if (!session) {
+        try {
+          await supabase.auth.exchangeCodeForSession(window.location.href);
+          ({ data: { session } } = await supabase.auth.getSession());
+        } catch {}
       }
-    };
 
-    checkAuth();
-  }, [navigate]);
+      if (!session?.user?.id) {
+        window.location.replace("/auth?error=no_session");
+        return;
+      }
+
+      // safe read after session exists
+      const { data, error } = await supabase
+        .from("users")
+        .select("stripe_customer_id, subscription_status")
+        .eq("id", session.user.id)
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        console.error("users select error:", error);
+      }
+
+      setMe(data ?? { stripe_customer_id: null });
+      setReady(true);
+    })();
+  }, []);
 
   const handleStartSubscription = async () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to start your subscription.",
-        variant: "destructive"
-      });
-      navigate('/auth');
-      return;
-    }
-
     setLoading(true);
     try {
-      console.log('Starting subscription for user:', user.email);
-      
       const { data: { session } } = await supabase.auth.getSession();
       
       const res = await fetch(`https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/create-checkout`, {
@@ -104,8 +85,6 @@ export default function Subscribe() {
   };
 
   const handleManageSubscription = async () => {
-    if (!user) return;
-
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -148,19 +127,7 @@ export default function Subscribe() {
     }
   };
 
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6 text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <h2 className="text-lg font-semibold mb-2">Checking authentication</h2>
-            <p className="text-muted-foreground">Please wait...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  if (!ready) return null; // or spinner
 
   return (
     <div className="min-h-screen bg-background py-12">
@@ -169,7 +136,7 @@ export default function Subscribe() {
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
             <p className="text-xl text-muted-foreground">
-              Welcome {user?.email}! Select a subscription plan to get started.
+              Select a subscription plan to get started.
             </p>
           </div>
 
@@ -261,8 +228,8 @@ export default function Subscribe() {
             <Button 
               variant="outline" 
               onClick={handleManageSubscription}
-              disabled={loading || !hasStripeCustomer}
-              title={!hasStripeCustomer ? "Complete a subscription first" : ""}
+              disabled={loading || !me?.stripe_customer_id}
+              title={!me?.stripe_customer_id ? "Complete a subscription first" : ""}
             >
               {loading ? (
                 <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Loading...</>

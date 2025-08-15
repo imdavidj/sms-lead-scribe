@@ -30,6 +30,12 @@ export const useClientSetup = () => {
       setLoading(true);
       setError(null);
 
+      // Ensure we have a valid session before proceeding
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user?.id) {
+        return; // do not query; avoid RLS + invalid UUID errors
+      }
+
       // Check if super admin is impersonating a client
       const impersonatedClientId = getCurrentClientContext();
       let targetClientId: string;
@@ -48,7 +54,7 @@ export const useClientSetup = () => {
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('client_id, role, first_name, last_name')
-          .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+          .eq('user_id', session.user.id)
           .maybeSingle();
 
         if (profileError) throw profileError;
