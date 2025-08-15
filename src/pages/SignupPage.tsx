@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { MessageSquare, ArrowLeft, CheckCircle } from 'lucide-react';
 
 const SignupPage = () => {
+  console.log('SignupPage component loading...');
+  
   const navigate = useNavigate();
   const location = useLocation();
   const [fullName, setFullName] = useState('');
@@ -19,22 +21,31 @@ const SignupPage = () => {
   const [isPostCheckout, setIsPostCheckout] = useState(false);
 
   useEffect(() => {
+    console.log('SignupPage mounted, location:', location.pathname, location.search);
+    
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
       if (event === 'SIGNED_IN' && session) {
+        console.log('User signed in, redirecting to dashboard');
         navigate('/dashboard', { replace: true });
       }
     });
 
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Existing session check:', session?.user?.email);
       if (session) {
+        console.log('User already logged in, redirecting to dashboard');
         navigate('/dashboard', { replace: true });
       }
     });
 
     // Check if this is a post-checkout signup
     const params = new URLSearchParams(location.search);
-    if (params.get('afterCheckout') === 'true') {
+    const afterCheckout = params.get('afterCheckout');
+    console.log('afterCheckout parameter:', afterCheckout);
+    if (afterCheckout === 'true') {
+      console.log('Setting post-checkout flag to true');
       setIsPostCheckout(true);
     }
 
@@ -42,6 +53,8 @@ const SignupPage = () => {
   }, [navigate, location]);
 
   const handleSignup = async () => {
+    console.log('Starting signup process...');
+    
     if (!fullName || !email || !password) {
       toast.error('Please fill in all required fields');
       return;
@@ -56,9 +69,11 @@ const SignupPage = () => {
       setLoading(true);
       const [firstName, ...rest] = fullName.trim().split(' ');
       const lastName = rest.join(' ');
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/dashboard`;
       
-      const { error } = await supabase.auth.signUp({
+      console.log('Attempting signup with:', { email, firstName, lastName, company, redirectUrl });
+      
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
@@ -72,10 +87,19 @@ const SignupPage = () => {
       });
       
       if (error) {
+        console.error('Signup error:', error);
         throw error;
       }
       
+      console.log('Signup successful:', data);
       toast.success('Account created! Check your email to confirm your account.');
+      
+      // If signup is successful and we have a session, redirect to dashboard
+      if (data.session) {
+        console.log('Session created, redirecting to dashboard');
+        navigate('/dashboard', { replace: true });
+      }
+      
     } catch (e: any) {
       console.error('Signup error:', e);
       toast.error(e.message || 'Sign up failed');
@@ -89,6 +113,8 @@ const SignupPage = () => {
       handleSignup();
     }
   };
+
+  console.log('Rendering SignupPage, isPostCheckout:', isPostCheckout);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/30 flex items-center justify-center p-4">
