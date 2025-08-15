@@ -1,4 +1,4 @@
-// Force redeploy: v2.1 - Updated for secret verification
+// Force redeploy: v2.2 - Streamlined signup flow  
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.1";
 import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 

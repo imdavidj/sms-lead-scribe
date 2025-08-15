@@ -78,7 +78,7 @@ const Auth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: `${SITE_URL}/confirm`,
           data: { 
             first_name: firstName || null, 
             last_name: lastName || null,
