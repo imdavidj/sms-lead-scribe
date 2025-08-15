@@ -69,7 +69,10 @@ const Index = () => {
       
       const data = await res.json();
       
-      if (!res.ok) throw new Error(data.error || "create-checkout failed");
+      if (!res.ok) {
+        console.error('Error response:', data);
+        throw new Error(data.error || "create-checkout failed");
+      }
       window.location.href = data.url;
     } catch (e: any) {
       toast({ title: "Unable to start subscription", description: e?.message ?? "Please try again.", variant: "destructive" });
@@ -94,7 +97,10 @@ const Index = () => {
       
       const portalData = await portal.json();
       
-      if (!portal.ok) throw new Error(portalData.error || "customer-portal failed");
+      if (!portal.ok) {
+        console.error('Error response:', portalData);
+        throw new Error(portalData.error || "customer-portal failed");
+      }
       window.location.href = portalData.url;
     } catch (e: any) {
       toast({ title: "Unable to open portal", description: e?.message ?? "Please try again.", variant: "destructive" });
