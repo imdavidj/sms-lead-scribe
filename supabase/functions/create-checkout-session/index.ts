@@ -96,7 +96,7 @@ serve(async (req) => {
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${appUrl}/app?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${appUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing`,
       client_reference_id: user.id,
       metadata: { user_id: user.id, email: user.email }

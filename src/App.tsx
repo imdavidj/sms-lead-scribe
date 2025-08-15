@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import DebugRoute from "./pages/DebugRoute";
+import { PaymentSuccessPage } from "./pages/PaymentSuccess";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import { SuperAdminProvider } from "./contexts/SuperAdminContext";
 
@@ -32,6 +33,8 @@ const App = () => (
                 <Route path="/debug" element={<DebugRoute />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Index />} />
+                <Route path="/app" element={<Index />} />
+                <Route path="/payment-success" element={<PaymentSuccessPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
