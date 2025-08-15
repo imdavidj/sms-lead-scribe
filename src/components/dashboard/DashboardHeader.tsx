@@ -22,7 +22,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      navigate("/auth", { replace: true });
+      navigate("/", { replace: true });
       toast({ title: "Logged out successfully" });
     } catch (error: any) {
       toast({ 
