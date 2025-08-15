@@ -1,6 +1,4 @@
-// Force redeploy: v2.2 - Streamlined signup flow
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.1";
-import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,12 +10,11 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!STRIPE_SECRET_KEY) {
+    const STRIPE_KEY = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!STRIPE_KEY) {
       return new Response(JSON.stringify({ error: "Missing STRIPE_SECRET_KEY" }), { status: 500, headers: corsHeaders });
     }
-    
-    const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" });
+
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
     const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -37,12 +34,25 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "No Stripe customer found. Please complete a subscription first." }), { status: 400, headers: corsHeaders });
     }
 
-    const portal = await stripe.billingPortal.sessions.create({
-      customer: me.stripe_customer_id,
-      return_url: `${origin}/app/account`,
+    const form = new URLSearchParams();
+    form.set("customer", me.stripe_customer_id);
+    form.set("return_url", `${origin}/app/account`);
+
+    const portalRes = await fetch("https://api.stripe.com/v1/billing_portal/sessions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${STRIPE_KEY}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: form.toString(),
     });
 
-    return new Response(JSON.stringify({ url: portal.url }), {
+    const portalJson = await portalRes.json();
+    if (!portalRes.ok || !portalJson.url) {
+      return new Response(JSON.stringify({ error: portalJson.error?.message || "Stripe portal session failed" }), { status: 500, headers: corsHeaders });
+    }
+
+    return new Response(JSON.stringify({ url: portalJson.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
