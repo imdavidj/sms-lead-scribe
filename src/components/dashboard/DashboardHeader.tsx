@@ -1,6 +1,9 @@
 import React from 'react';
-import { Bell, Menu } from 'lucide-react';
+import { Bell, Menu, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface DashboardHeaderProps {
   isAIProcessing: boolean;
@@ -13,6 +16,23 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   isMobileMenuOpen,
   setIsMobileMenuOpen
 }) => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/auth", { replace: true });
+      toast({ title: "Logged out successfully" });
+    } catch (error: any) {
+      toast({ 
+        title: "Error logging out", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    }
+  };
+
   return (
     <div className="bg-white border-b border-gray-200 px-4 py-3">
       <div className="flex items-center justify-between">
@@ -38,6 +58,15 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <span className="text-sm font-medium">AI Processing: 47 Active</span>
           </div>
           <Bell className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800 transition-colors" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleLogout}
+            className="hover:bg-gray-100"
+            title="Logout"
+          >
+            <LogOut className="w-5 h-5 text-gray-600" />
+          </Button>
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"></div>
         </div>
       </div>
