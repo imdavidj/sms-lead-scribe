@@ -174,32 +174,48 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardContent className="p-6">
-          <div className="flex justify-center mb-6">
-            <div className="inline-flex rounded-md shadow-sm" role="group">
-              <Button variant={mode === 'signup' ? 'default' : 'outline'} onClick={() => setMode('signup')}>Sign Up</Button>
-              <Button variant={mode === 'login' ? 'default' : 'outline'} onClick={() => setMode('login')}>Log In</Button>
-              <Button variant={mode === 'magic' ? 'default' : 'outline'} onClick={() => setMode('magic')}>Magic Link</Button>
+          {afterCheckout ? (
+            // Post-checkout flow - only show success message and signup form
+            <div className="space-y-6">
+              <div className="text-center space-y-3">
+                <div className="text-4xl">🎉</div>
+                <h2 className="text-2xl font-bold text-green-600">Payment Complete!</h2>
+                <p className="text-muted-foreground">
+                  Great! Now create your account to access your AI Qualify dashboard.
+                </p>
+              </div>
+              
+              <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                <div className="text-sm text-green-800">
+                  <strong>✅ Payment confirmed</strong><br/>
+                  Your subscription is ready - just create your account below.
+                </div>
+              </div>
             </div>
-        </div>
+          ) : (
+            // Normal auth flow - show mode switcher
+            <>
+              <div className="flex justify-center mb-6">
+                <div className="inline-flex rounded-md shadow-sm" role="group">
+                  <Button variant={mode === 'signup' ? 'default' : 'outline'} onClick={() => setMode('signup')}>Sign Up</Button>
+                  <Button variant={mode === 'login' ? 'default' : 'outline'} onClick={() => setMode('login')}>Log In</Button>
+                  <Button variant={mode === 'magic' ? 'default' : 'outline'} onClick={() => setMode('magic')}>Magic Link</Button>
+                </div>
+              </div>
 
-        {signedInEmail && (
-          <div className="mb-4 rounded-md border border-muted/40 bg-muted/20 p-3 text-sm flex items-center justify-between">
-            <span>Currently signed in as {signedInEmail}.</span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')}>Go to dashboard</Button>
-              <Button variant="secondary" size="sm" onClick={handleSignOut}>Sign out</Button>
-            </div>
-          </div>
-        )}
+              {signedInEmail && (
+                <div className="mb-4 rounded-md border border-muted/40 bg-muted/20 p-3 text-sm flex items-center justify-between">
+                  <span>Currently signed in as {signedInEmail}.</span>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')}>Go to dashboard</Button>
+                    <Button variant="secondary" size="sm" onClick={handleSignOut}>Sign out</Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
 
-        {afterCheckout && (
-          <div className="mb-4 rounded-md border border-green-200 bg-green-50 text-green-800 p-3 text-sm">
-            <div className="font-medium">Payment Complete! 🎉</div>
-            <div className="mt-1">Create your account with the email you used for payment. Your subscription will be activated automatically.</div>
-          </div>
-        )}
-
-        {mode === 'signup' && (
+        {(mode === 'signup' || afterCheckout) && (
             <div className="space-y-4">
               <div>
                 <Label htmlFor="fullName">Full name</Label>
@@ -225,8 +241,12 @@ const Auth = () => {
                 <Label htmlFor="password">Password</Label>
                 <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
               </div>
-              <Button className="w-full" onClick={handleSignup} disabled={loading}>Create account</Button>
-              <p className="text-sm text-muted-foreground text-center">By signing up you agree to our Terms.</p>
+              <Button className="w-full" onClick={handleSignup} disabled={loading}>
+                {afterCheckout ? "Complete Setup & Access Dashboard" : "Create account"}
+              </Button>
+              {!afterCheckout && (
+                <p className="text-sm text-muted-foreground text-center">By signing up you agree to our Terms.</p>
+              )}
             </div>
           )}
 
