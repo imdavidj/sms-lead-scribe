@@ -22,8 +22,11 @@ const Auth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user?.email) setSignedInEmail(session.user.email);
       if (event === 'SIGNED_IN' && session) {
-        // Check if client setup is needed
-        navigate('/dashboard', { replace: true });
+        // Check for afterCheckout parameter before redirecting
+        const params = new URLSearchParams(location.search);
+        if (!params.get('afterCheckout')) {
+          navigate('/dashboard', { replace: true });
+        }
       }
     });
 
@@ -33,7 +36,7 @@ const Auth = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, company]);
+  }, [navigate, location.search]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
