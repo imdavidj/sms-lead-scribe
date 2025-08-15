@@ -122,7 +122,7 @@ serve(async (req) => {
         phone_number_collection: {
           enabled: true,
         },
-        success_url: `${origin}/signup?afterCheckout=true`,
+        success_url: `${origin}/auth?afterCheckout=true`,
         cancel_url: `${origin}/`,
         metadata: {
           source: "public_checkout",
