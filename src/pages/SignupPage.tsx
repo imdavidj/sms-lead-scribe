@@ -9,7 +9,8 @@ import { toast } from 'sonner';
 import { MessageSquare, ArrowLeft, CheckCircle } from 'lucide-react';
 
 const SignupPage = () => {
-  console.log('SignupPage component loading...');
+  console.log('SignupPage component loading...', window.location.href);
+  console.log('Route match - SignupPage is rendering!');
   
   const navigate = useNavigate();
   const location = useLocation();
