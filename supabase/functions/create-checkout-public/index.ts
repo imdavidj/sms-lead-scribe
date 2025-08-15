@@ -93,8 +93,8 @@ serve(async (req) => {
       });
     }
 
-    // Determine origin for redirect URLs - force to current domain
-    const origin = "https://tryaiqualify.com";
+    // Determine origin for redirect URLs - use the actual origin from request
+    const origin = req.headers.get("origin") || "https://614853e0-640e-41c0-9095-2e6267f9ca66.lovableproject.com";
     logStep("Origin determined for redirects", { origin });
 
     // Create checkout session with proper redirect to signup page
