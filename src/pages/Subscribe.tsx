@@ -59,27 +59,26 @@ export default function Subscribe() {
     try {
       console.log('Starting subscription for user:', user.email);
       
-      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { 
-          priceId: 'price_1234', // This should be set to your actual Stripe price ID
-          successUrl: `${window.location.origin}/payment-success`,
-          cancelUrl: `${window.location.origin}/subscribe`
-        }
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const res = await fetch(`https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/create-checkout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+          "Content-Type": "application/json",
+          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsbHNuc2lkZ3FsYWNkeWF0dmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTUzNjIsImV4cCI6MjA2ODk5MTM2Mn0.cS3_Iihv1_VhuoGhWb8CBl72cJx3WNRi1SjmPV6ntl0",
+        },
+        body: JSON.stringify({ returnTo: `${location.origin}/return` }),
       });
-
-      if (error) {
-        console.error('Error creating checkout session:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to start subscription process",
-          variant: "destructive"
-        });
-        return;
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || "create-checkout failed");
       }
 
       if (data?.url) {
-        // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
+        window.location.href = data.url;
       } else {
         throw new Error('No checkout URL returned');
       }
@@ -87,7 +86,7 @@ export default function Subscribe() {
       console.error('Error in handleStartSubscription:', error);
       toast({
         title: "Error", 
-        description: "Failed to start subscription process",
+        description: error.message || "Failed to start subscription process",
         variant: "destructive"
       });
     } finally {
@@ -100,27 +99,31 @@ export default function Subscribe() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
-
-      if (error) {
-        console.error('Error accessing customer portal:', error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to access subscription management",
-          variant: "destructive"
-        });
-        return;
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const portal = await fetch(`https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/customer-portal`, {
+        method: "POST",
+        headers: { 
+          Authorization: `Bearer ${session?.access_token}`,
+          "Content-Type": "application/json",
+          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsbHNuc2lkZ3FsYWNkeWF0dmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTUzNjIsImV4cCI6MjA2ODk5MTM2Mn0.cS3_Iihv1_VhuoGhWb8CBl72cJx3WNRi1SjmPV6ntl0",
+        },
+      });
+      
+      const portalData = await portal.json();
+      
+      if (!portal.ok) {
+        throw new Error(portalData.error || "customer-portal failed");
       }
 
-      if (data?.url) {
-        // Open Stripe customer portal in a new tab
-        window.open(data.url, '_blank');
+      if (portalData?.url) {
+        window.location.href = portalData.url;
       }
     } catch (error) {
       console.error('Error in handleManageSubscription:', error);
       toast({
         title: "Error",
-        description: "Failed to access subscription management",
+        description: error.message || "Failed to access subscription management",
         variant: "destructive"
       });
     } finally {

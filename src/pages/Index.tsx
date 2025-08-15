@@ -43,22 +43,25 @@ const Index = () => {
   const handleStartSubscription = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const user = session?.user;
       
-      if (!user) {
+      if (!session?.access_token) {
         throw new Error("User not authenticated");
       }
 
-      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
-        body: { user_id: user.id, email: user.email }
+      const res = await fetch(`https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/create-checkout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+          "Content-Type": "application/json",
+          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsbHNuc2lkZ3FsYWNkeWF0dmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTUzNjIsImV4cCI6MjA2ODk5MTM2Mn0.cS3_Iihv1_VhuoGhWb8CBl72cJx3WNRi1SjmPV6ntl0",
+        },
+        body: JSON.stringify({ returnTo: `${location.origin}/return` }),
       });
       
-      if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || "create-checkout failed");
+      window.location.href = data.url;
     } catch (e: any) {
       toast({ title: "Unable to start subscription", description: e?.message ?? "Please try again.", variant: "destructive" });
     } finally {
@@ -69,13 +72,21 @@ const Index = () => {
 
   const handleManageSubscription = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke("customer-portal");
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-      } else {
-        throw new Error("No portal URL returned");
-      }
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const portal = await fetch(`https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/customer-portal`, {
+        method: "POST",
+        headers: { 
+          Authorization: `Bearer ${session?.access_token}`,
+          "Content-Type": "application/json",
+          apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsbHNuc2lkZ3FsYWNkeWF0dmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTUzNjIsImV4cCI6MjA2ODk5MTM2Mn0.cS3_Iihv1_VhuoGhWb8CBl72cJx3WNRi1SjmPV6ntl0",
+        },
+      });
+      
+      const portalData = await portal.json();
+      
+      if (!portal.ok) throw new Error(portalData.error || "customer-portal failed");
+      window.location.href = portalData.url;
     } catch (e: any) {
       toast({ title: "Unable to open portal", description: e?.message ?? "Please try again.", variant: "destructive" });
     }

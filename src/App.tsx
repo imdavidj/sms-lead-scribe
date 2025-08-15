@@ -14,6 +14,7 @@ import DebugRoute from "./pages/DebugRoute";
 import { PaymentSuccessPage } from "./pages/PaymentSuccess";
 import Confirm from "./pages/Confirm";
 import Subscribe from "./pages/Subscribe";
+import Return from "./pages/Return";
 import { SubscriptionProvider } from "./contexts/SubscriptionContext";
 import { SuperAdminProvider } from "./contexts/SuperAdminContext";
 
@@ -36,6 +37,7 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/confirm" element={<Confirm />} />
                 <Route path="/subscribe" element={<Subscribe />} />
+                <Route path="/return" element={<Return />} />
                 <Route path="/dashboard" element={<Index />} />
                 <Route path="/app" element={<Index />} />
                 <Route path="/payment-success" element={<PaymentSuccessPage />} />
