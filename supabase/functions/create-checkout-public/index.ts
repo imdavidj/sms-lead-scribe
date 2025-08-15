@@ -97,7 +97,7 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || req.headers.get("referer")?.split('/').slice(0, 3).join('/') || "https://614853e0-640e-41c0-9095-2e6267f9ca66.lovableproject.com";
     logStep("Origin determined for redirects", { origin });
 
-    // Create checkout session
+    // Create checkout session with proper redirect to signup page
     logStep("Creating Stripe checkout session");
     let session;
     try {
@@ -107,7 +107,7 @@ serve(async (req) => {
             price_data: {
               currency: "usd",
               product_data: { 
-                name: "AI Qualify Subscription",
+                name: "AI Qualify Monthly Subscription",
                 description: "AI-powered SMS lead conversion platform"
               },
               unit_amount: 100000, // $1,000.00 in cents
@@ -118,11 +118,14 @@ serve(async (req) => {
         ],
         mode: "subscription",
         allow_promotion_codes: false,
-        billing_address_collection: "auto",
-        success_url: `${origin}/auth?afterCheckout=1`,
+        billing_address_collection: "required",
+        phone_number_collection: {
+          enabled: true,
+        },
+        success_url: `${origin}/signup?afterCheckout=true`,
         cancel_url: `${origin}/`,
         metadata: {
-          source: "landing_page",
+          source: "public_checkout",
           created_at: new Date().toISOString()
         }
       });
