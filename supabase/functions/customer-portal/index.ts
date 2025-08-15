@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     const { data: me } = await admin.from("users").select("stripe_customer_id").eq("id", user.id).maybeSingle();
 
     if (!me?.stripe_customer_id) {
-      return new Response(JSON.stringify({ error: "No Stripe customer yet" }), { status: 400, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: "No Stripe customer found. Please complete a subscription first." }), { status: 400, headers: corsHeaders });
     }
 
     const portal = await stripe.billingPortal.sessions.create({

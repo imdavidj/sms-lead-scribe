@@ -12,6 +12,7 @@ export default function Subscribe() {
   const [loading, setLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [user, setUser] = useState(null);
+  const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
 
   useEffect(() => {
     // Check if user is authenticated
@@ -33,6 +34,14 @@ export default function Subscribe() {
 
         setUser(session.user);
         console.log('User authenticated, ready for subscription');
+        
+        // Check if user has stripe customer ID
+        const { data: userData } = await supabase.from('users')
+          .select('stripe_customer_id')
+          .eq('id', session.user.id)
+          .maybeSingle();
+        
+        setHasStripeCustomer(!!userData?.stripe_customer_id);
       } catch (error) {
         console.error('Error in auth check:', error);
         navigate('/auth');
@@ -118,12 +127,20 @@ export default function Subscribe() {
 
       if (portalData?.url) {
         window.location.href = portalData.url;
+      } else {
+        throw new Error('No portal URL returned');
       }
     } catch (error) {
       console.error('Error in handleManageSubscription:', error);
+      let errorMessage = "Failed to access subscription management";
+      
+      if (error.message?.includes('No Stripe customer')) {
+        errorMessage = "Please complete a subscription first to manage your account.";
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to access subscription management",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -244,7 +261,8 @@ export default function Subscribe() {
             <Button 
               variant="outline" 
               onClick={handleManageSubscription}
-              disabled={loading}
+              disabled={loading || !hasStripeCustomer}
+              title={!hasStripeCustomer ? "Complete a subscription first" : ""}
             >
               {loading ? (
                 <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Loading...</>
