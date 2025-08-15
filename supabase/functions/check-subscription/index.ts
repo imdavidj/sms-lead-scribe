@@ -9,7 +9,7 @@ const corsHeaders = {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-
+  
   try {
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2023-10-16" });
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
       .eq("id", user.id)
       .maybeSingle();
 
-    // Prefer DB
+    // Prefer DB first
     if (me?.subscription_status && ["active", "trialing"].includes(me.subscription_status)) {
       return new Response(JSON.stringify({
         subscribed: true,
@@ -44,15 +44,16 @@ Deno.serve(async (req) => {
       const subs = await stripe.subscriptions.list({ customer: me.stripe_customer_id });
       const live = subs.data.find(s => ["active", "trialing"].includes(s.status));
       if (live) {
+        const end = new Date(live.current_period_end * 1000).toISOString();
         await admin.from("users").update({
           subscription_status: live.status,
-          current_period_end: new Date(live.current_period_end * 1000).toISOString(),
+          current_period_end: end,
         }).eq("id", user.id);
 
         return new Response(JSON.stringify({
           subscribed: true,
           subscription_status: live.status,
-          subscription_end: new Date(live.current_period_end * 1000).toISOString(),
+          subscription_end: end,
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
     }

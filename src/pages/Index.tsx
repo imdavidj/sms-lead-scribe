@@ -16,6 +16,7 @@ const Index = () => {
   const { needsOnboarding, loading: setupLoading } = useClientSetup();
   const [checking, setChecking] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [hasStripeCustomer, setHasStripeCustomer] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
@@ -32,6 +33,14 @@ const Index = () => {
       }
       
       setUser(session.user);
+      
+      // Check if user has stripe customer ID
+      const { data: userData } = await supabase.from('users')
+        .select('stripe_customer_id')
+        .eq('id', session.user.id)
+        .maybeSingle();
+      
+      setHasStripeCustomer(!!userData?.stripe_customer_id);
       setChecking(false);
     });
 
@@ -127,7 +136,14 @@ const Index = () => {
           </p>
           <div className="flex gap-3">
             <Button onClick={handleStartSubscription}>Start Subscription</Button>
-            <Button variant="outline" onClick={handleManageSubscription}>Manage Subscription</Button>
+            <Button 
+              variant="outline" 
+              onClick={handleManageSubscription}
+              disabled={!hasStripeCustomer}
+              title={!hasStripeCustomer ? "Complete a subscription first" : ""}
+            >
+              Manage Subscription
+            </Button>
           </div>
         </div>
       </div>

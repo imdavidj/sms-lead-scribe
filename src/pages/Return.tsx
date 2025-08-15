@@ -8,67 +8,50 @@ import { Button } from '@/components/ui/button';
 export default function Return() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'checking' | 'success' | 'timeout' | 'error'>('checking');
-  const [pollingCount, setPollingCount] = useState(0);
-  const maxPollingAttempts = 30; // 30 seconds of polling
+  const [attemptCount, setAttemptCount] = useState(0);
 
   useEffect(() => {
-    let pollInterval: NodeJS.Timeout;
-    let timeoutTimer: NodeJS.Timeout;
-
     const checkSubscription = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session?.access_token) {
-          setStatus('error');
-          return;
-        }
-
-        const res = await fetch(`https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/check-subscription`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${session?.access_token}`,
-            "Content-Type": "application/json",
-            apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsbHNuc2lkZ3FsYWNkeWF0dmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTUzNjIsImV4cCI6MjA2ODk5MTM2Mn0.cS3_Iihv1_VhuoGhWb8CBl72cJx3WNRi1SjmPV6ntl0",
-          },
-        });
-
-        const data = await res.json();
-
-        if (res.ok && data.subscribed === true) {
-          setStatus('success');
-          clearInterval(pollInterval);
-          clearTimeout(timeoutTimer);
+      const delays = [1000, 1500, 2000, 3000, 5000, 8000, 10000];
+      
+      for (const delay of delays) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
           
-          // Wait a moment to show success, then redirect
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 2000);
-        } else {
-          setPollingCount(prev => prev + 1);
+          if (!session?.access_token) {
+            setStatus('error');
+            return;
+          }
+
+          const res = await fetch(`https://fllsnsidgqlacdyatvbm.supabase.co/functions/v1/check-subscription`, {
+            headers: {
+              Authorization: `Bearer ${session?.access_token}`,
+              apikey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsbHNuc2lkZ3FsYWNkeWF0dmJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTUzNjIsImV4cCI6MjA2ODk5MTM2Mn0.cS3_Iihv1_VhuoGhWb8CBl72cJx3WNRi1SjmPV6ntl0",
+            },
+          });
+          
+          const data = await res.json();
+          
+          if (data.subscribed) {
+            setStatus('success');
+            setTimeout(() => navigate("/dashboard"), 2000);
+            return;
+          }
+          
+          setAttemptCount(prev => prev + 1);
+          await new Promise(r => setTimeout(r, delay));
+        } catch (error) {
+          console.error('Error checking subscription:', error);
+          setAttemptCount(prev => prev + 1);
+          await new Promise(r => setTimeout(r, delay));
         }
-      } catch (error) {
-        console.error('Error checking subscription:', error);
-        setPollingCount(prev => prev + 1);
       }
-    };
-
-    // Start polling immediately
-    checkSubscription();
-
-    // Set up polling interval (every 1 second)
-    pollInterval = setInterval(checkSubscription, 1000);
-
-    // Set up timeout (30 seconds)
-    timeoutTimer = setTimeout(() => {
-      clearInterval(pollInterval);
+      
+      // If we get here, all attempts failed
       setStatus('timeout');
-    }, 30000);
-
-    return () => {
-      clearInterval(pollInterval);
-      clearTimeout(timeoutTimer);
     };
+
+    checkSubscription();
   }, [navigate]);
 
   const renderContent = () => {
@@ -82,7 +65,7 @@ export default function Return() {
               Please wait while we confirm your payment...
             </p>
             <div className="text-sm text-muted-foreground">
-              Checking... ({Math.min(pollingCount, maxPollingAttempts)}/{maxPollingAttempts})
+              Attempt {attemptCount + 1}/7
             </div>
           </>
         );

@@ -9,16 +9,15 @@ const corsHeaders = {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-
+  
   try {
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2023-10-16" });
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
     const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const PRICE_ID = Deno.env.get("STRIPE_PRICE_ID") || "price_default"; // Fallback for now
+    const PRICE_ID = Deno.env.get("STRIPE_PRICE_ID")!;
     const origin = new URL(req.url).origin;
 
-    // Auth (user)
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) return new Response(JSON.stringify({ error: "Missing Authorization" }), { status: 401, headers: corsHeaders });
 
@@ -26,30 +25,26 @@ Deno.serve(async (req) => {
     const { data: { user } } = await userClient.auth.getUser();
     if (!user) return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401, headers: corsHeaders });
 
-    // Admin client for DB
     const admin = createClient(SUPABASE_URL, SERVICE);
 
-    // Ensure user row
-    let { data: me } = await admin.from("users").select("stripe_customer_id, email").eq("id", user.id).single();
+    let { data: me } = await admin.from("users").select("stripe_customer_id, email").eq("id", user.id).maybeSingle();
     if (!me) {
       await admin.from("users").insert({ id: user.id, email: user.email });
       me = { stripe_customer_id: null, email: user.email };
     }
 
-    // Ensure Stripe customer
     let customerId = me.stripe_customer_id as string | null;
     if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email || undefined,
-        metadata: { supabase_user_id: user.id },
+      const customer = await stripe.customers.create({ 
+        email: user.email || undefined, 
+        metadata: { supabase_user_id: user.id } 
       });
       customerId = customer.id;
       await admin.from("users").update({ stripe_customer_id: customerId }).eq("id", user.id);
     }
 
-    const { returnTo } = await req.json().catch(() => ({ returnTo: `${origin}/dashboard` }));
+    const { returnTo } = await req.json().catch(() => ({ returnTo: `${origin}/return` }));
 
-    // Create checkout session
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId!,
