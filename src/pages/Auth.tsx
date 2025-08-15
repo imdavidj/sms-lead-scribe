@@ -37,12 +37,17 @@ const Auth = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get('afterCheckout')) {
+    console.log('URL params:', params.toString());
+    console.log('afterCheckout param:', params.get('afterCheckout'));
+    
+    if (params.get('afterCheckout') === 'true') {
+      console.log('Setting afterCheckout mode');
       setMode('signup');
       setAfterCheckout(true);
       
       // Pre-fill email if provided by Stripe
       const stripeEmail = params.get('email');
+      console.log('Email from params:', stripeEmail);
       if (stripeEmail) {
         setEmail(stripeEmail);
       }
