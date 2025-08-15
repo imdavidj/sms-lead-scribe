@@ -178,13 +178,13 @@ export const Landing = () => {
               <a href="#testimonials" className="text-gray-600 hover:text-gray-900 transition-colors">Reviews</a>
               <Button 
                 variant="outline"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/login')}
                 className="mr-2"
               >
                 Login
               </Button>
               <Button 
-                onClick={handleCheckout}
+                onClick={() => navigate('/signup')}
                 className="bg-purple-600 hover:bg-purple-700"
               >
                 Sign Up
