@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { MessageSquare, ArrowLeft, CheckCircle } from 'lucide-react';
+import { SITE_URL } from '@/lib/env';
 
 const SignupPage = () => {
   console.log('SignupPage component loading...', window.location.href);
@@ -70,7 +71,7 @@ const SignupPage = () => {
       setLoading(true);
       const [firstName, ...rest] = fullName.trim().split(' ');
       const lastName = rest.join(' ');
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      const redirectUrl = `${SITE_URL}/confirm`;
       
       console.log('Attempting signup with:', { email, firstName, lastName, company, redirectUrl });
       

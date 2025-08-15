@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { SITE_URL } from '@/lib/env';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ const Auth = () => {
       setLoading(true);
       const [firstName, ...rest] = fullName.trim().split(' ');
       const lastName = rest.join(' ');
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${SITE_URL}/confirm`;
       
       // For post-checkout users, we'll auto-confirm their email
       if (afterCheckout) {
@@ -134,7 +135,7 @@ const Auth = () => {
   const handleMagicLink = async () => {
     try {
       setLoading(true);
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${SITE_URL}/confirm`;
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: redirectUrl }
