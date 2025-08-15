@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.1";
 import Stripe from "https://esm.sh/stripe@14.25.0?target=deno";
 
@@ -8,107 +7,58 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-Deno.serve(async (req: Request) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY")!;
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY")!, { apiVersion: "2023-10-16" });
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Missing Authorization header" }), { headers: corsHeaders, status: 401 });
-    }
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) return new Response(JSON.stringify({ error: "Missing Authorization" }), { status: 401, headers: corsHeaders });
 
-    const supabase = createClient(supabaseUrl, supabaseAnon, {
-      global: { headers: { Authorization: authHeader } }
-    });
+    const userClient = createClient(SUPABASE_URL, ANON, { global: { headers: { Authorization: authHeader } } });
+    const { data: { user } } = await userClient.auth.getUser();
+    if (!user) return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401, headers: corsHeaders });
 
-    const { data: { user }, error: userErr } = await supabase.auth.getUser();
-    if (userErr || !user) {
-      return new Response(JSON.stringify({ error: "Invalid user" }), { headers: corsHeaders, status: 401 });
-    }
+    const admin = createClient(SUPABASE_URL, SERVICE);
+    const { data: me } = await admin
+      .from("users")
+      .select("stripe_customer_id, subscription_status, current_period_end")
+      .eq("id", user.id)
+      .maybeSingle();
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
-
-    // DB fast-path: if we already have a recent positive state, return it
-    const { data: subRow } = await supabase
-      .from("subscribers")
-      .select("stripe_customer_id, subscribed, subscription_tier, subscription_end, updated_at, email")
-      .eq("user_id", user.id)
-      .single();
-
-    const recentMs = subRow?.updated_at ? Date.now() - Date.parse(subRow.updated_at) : Infinity;
-    if (subRow?.subscribed && subRow.subscription_end && recentMs < 3 * 60 * 1000) {
+    // Prefer DB
+    if (me?.subscription_status && ["active", "trialing"].includes(me.subscription_status)) {
       return new Response(JSON.stringify({
         subscribed: true,
-        subscription_tier: subRow.subscription_tier,
-        subscription_end: subRow.subscription_end,
-      }), { headers: corsHeaders });
+        subscription_status: me.subscription_status,
+        subscription_end: me.current_period_end,
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Stripe lookup
-    type Acceptable = "active" | "trialing";
-    const ok = new Set<Acceptable>(["active", "trialing"]);
+    // Fallback to Stripe if we have a customer id
+    if (me?.stripe_customer_id) {
+      const subs = await stripe.subscriptions.list({ customer: me.stripe_customer_id });
+      const live = subs.data.find(s => ["active", "trialing"].includes(s.status));
+      if (live) {
+        await admin.from("users").update({
+          subscription_status: live.status,
+          current_period_end: new Date(live.current_period_end * 1000).toISOString(),
+        }).eq("id", user.id);
 
-    const candidates: string[] = [];
-    if (subRow?.stripe_customer_id) candidates.push(subRow.stripe_customer_id);
-
-    const email = subRow?.email || user.email || "";
-    if (email) {
-      const listed = await stripe.customers.list({ email });
-      for (const c of listed.data) if (!candidates.includes(c.id)) candidates.push(c.id);
-    }
-
-    let best: { customerId: string; sub: Stripe.Subscription } | null = null;
-
-    for (const customerId of candidates) {
-      const subs = await stripe.subscriptions.list({ customer: customerId });
-      for (const s of subs.data) {
-        if (!ok.has(s.status as Acceptable)) continue;
-        if (!best || s.current_period_end > best.sub.current_period_end) {
-          best = { customerId, sub: s };
-        }
+        return new Response(JSON.stringify({
+          subscribed: true,
+          subscription_status: live.status,
+          subscription_end: new Date(live.current_period_end * 1000).toISOString(),
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
     }
 
-    if (!best) {
-      await supabase.from("subscribers").upsert({
-        user_id: user.id,
-        email,
-        subscribed: false,
-        subscription_tier: null,
-        subscription_end: null,
-      });
-      return new Response(JSON.stringify({ subscribed: false }), { headers: corsHeaders });
-    }
-
-    const { customerId, sub } = best;
-    const price = sub.items.data[0]?.price;
-    const amount = price?.unit_amount ?? 0;
-
-    // simple tiering example
-    const subscriptionTier = amount < 99900 ? "Standard" : "Premium";
-    const subscriptionEnd = new Date(sub.current_period_end * 1000).toISOString();
-
-    await supabase.from("subscribers").upsert({
-      user_id: user.id,
-      email,
-      subscribed: true,
-      subscription_tier: subscriptionTier,
-      subscription_end: subscriptionEnd,
-      stripe_customer_id: customerId,
-    });
-
-    return new Response(JSON.stringify({
-      subscribed: true,
-      subscription_tier: subscriptionTier,
-      subscription_end: subscriptionEnd,
-    }), { headers: corsHeaders });
-
+    return new Response(JSON.stringify({ subscribed: false }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
-    console.error(e);
-    return new Response(JSON.stringify({ error: "Server error" }), { headers: corsHeaders, status: 500 });
+    return new Response(JSON.stringify({ error: String(e?.message ?? e) }), { status: 500, headers: corsHeaders });
   }
 });
